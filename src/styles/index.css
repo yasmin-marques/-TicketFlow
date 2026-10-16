@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap');
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--space-2);
+  }
+  h1 { font-size: 42px; }
+  h2 { font-size: 32px; }
+  h3 { font-size: 25px; }
+  h4 { font-size: 20px; }
+  h5 { font-size: 16px; }
+  h6 {
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  p { margin: 0 0 var(--space-3); }
+
+  img { display: block; max-width: 100%; }
+
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+
+  :focus { outline: none; }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+}
+
+/* ── Utilities do design system ───────────────────────────────────────── */
+
+/* Placeholder de fotografia P&B: listras diagonais do protótipo. */
+@utility bg-stripes {
+  --stripe: 9px;
+  background: repeating-linear-gradient(
+    135deg,
+    #cfcbcb 0 var(--stripe),
+    #c3bfbf var(--stripe) calc(var(--stripe) * 2)
+  );
+}
+
+/* Mapa estilizado do protótipo (grade 24px). */
+@utility bg-map-grid {
+  background:
+    repeating-linear-gradient(0deg, var(--color-neutral-300) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, var(--color-neutral-300) 0 1px, transparent 1px 24px),
+    var(--color-surface);
+}
+
+/* Kicker: 10.5–11px caixa-alta com tracking, usado em cards e rótulos. */
+@utility kicker {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@utility text-muted {
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility grayscale-photo {
+  filter: grayscale(1) contrast(1.08);
+}
+
+/* Skeleton: pulso sutil, desligado com prefers-reduced-motion. */
+@keyframes tf-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@utility skeleton {
+  background: var(--color-neutral-300);
+  animation: tf-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Dialog nativo (drawer/modal): remove estilos padrão do navegador. */
+dialog {
+  color: inherit;
+  max-width: none;
+  max-height: none;
+}
+dialog::backdrop {
+  background: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+
+/* Range duplo (filtro de preço): thumbs quadrados em accent. */
+.range-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.range-thumb::-webkit-slider-runnable-track { background: transparent; height: var(--thumb, 16px); }
+.range-thumb::-moz-range-track { background: transparent; height: var(--thumb, 16px); }
+.range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: var(--thumb, 16px);
+  height: var(--thumb, 16px);
+  background: var(--color-accent);
+  border: 0;
+  border-radius: 0;
+  cursor: grab;
+}
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: var(--thumb, 16px);
+  height: var(--thumb, 16px);
+  background: var(--color-accent);
+  border: 0;
+  border-radius: 0;
+  cursor: grab;
+}
+.range-thumb:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+.range-thumb:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
