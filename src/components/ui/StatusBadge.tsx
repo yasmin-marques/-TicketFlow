@@ -1,0 +1,35 @@
+import { cn } from '@/lib/cn'
+
+/** Um único mapa status → cor (bloco "Reutilizados entre páginas" do protótipo). */
+const TONES = {
+  success: 'bg-[#d3e8dc] text-[#14532d]',
+  warning: 'bg-[#f3e2b8] text-[#5f4108]',
+  danger: 'bg-[#ffe0d9] text-[#7c1405]',
+  neutral: 'bg-[#d7d3d3] text-neutral-900',
+  muted: 'bg-neutral-200 text-neutral-700',
+} as const
+
+export type StatusTone = keyof typeof TONES
+
+interface StatusBadgeProps {
+  label: string
+  tone: StatusTone
+  className?: string
+}
+
+export function StatusBadge({ label, tone, className }: StatusBadgeProps) {
+  return <span className={cn('inline-block px-2 py-0.5 text-xs font-semibold', TONES[tone], className)}>{label}</span>
+}
+
+export const ORDER_STATUS: Record<string, { label: string; tone: StatusTone }> = {
+  paid: { label: 'Pago', tone: 'success' },
+  pending: { label: 'Pendente', tone: 'warning' },
+  refunded: { label: 'Reembolsado', tone: 'neutral' },
+  expired: { label: 'Expirado', tone: 'muted' },
+}
+
+export const TICKET_STATUS: Record<string, { label: string; tone: StatusTone }> = {
+  valid: { label: 'Próximo', tone: 'success' },
+  used: { label: 'Utilizado', tone: 'muted' },
+  cancelled: { label: 'Cancelado', tone: 'danger' },
+}

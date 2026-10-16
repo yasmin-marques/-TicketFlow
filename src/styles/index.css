@@ -79,6 +79,11 @@
     var(--color-surface);
 }
 
+/* Assento "reservado por outra pessoa": listras amarelas (estado Reservado do protótipo). */
+@utility bg-reserved {
+  background: repeating-linear-gradient(45deg, var(--color-reserved) 0 3px, var(--color-bg) 3px 6px);
+}
+
 /* Kicker: 10.5–11px caixa-alta com tracking, usado em cards e rótulos. */
 @utility kicker {
   font-weight: 600;

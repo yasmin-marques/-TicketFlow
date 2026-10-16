@@ -1,9 +1,11 @@
 import { X } from 'lucide-react'
-import type { ButtonHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 
 interface ChipProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   label: string
+  /** Ícone antes do rótulo. */
+  icon?: ReactNode
   selected?: boolean
   /** Mostra o "✕" de remoção (chips de filtro ativo). */
   removable?: boolean
@@ -17,7 +19,7 @@ const sizes = {
 }
 
 /** Chip selecionável / removível (filtros, categorias, períodos). */
-export function Chip({ label, selected = false, removable, size = 'md', className, ...rest }: ChipProps) {
+export function Chip({ label, icon, selected = false, removable, size = 'md', className, ...rest }: ChipProps) {
   return (
     <button
       type="button"
@@ -33,6 +35,7 @@ export function Chip({ label, selected = false, removable, size = 'md', classNam
       )}
       {...rest}
     >
+      {icon}
       {label}
       {removable && <X size={12} strokeWidth={3} aria-hidden />}
     </button>

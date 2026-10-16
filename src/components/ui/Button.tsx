@@ -14,9 +14,9 @@ interface BaseProps {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-accent text-bg hover:bg-accent-600 active:bg-accent-700',
+  primary: 'border-transparent bg-accent text-bg hover:bg-accent-600 active:bg-accent-700',
   secondary: 'border-divider hover:bg-text/7 active:bg-text/14',
-  ghost: 'text-accent px-1 hover:bg-accent/10 active:bg-accent/18',
+  ghost: 'border-transparent text-accent px-1 hover:bg-accent/10 active:bg-accent/18',
 }
 
 const sizes: Record<Size, string> = {
@@ -34,7 +34,7 @@ export function buttonClasses({
   className,
 }: BaseProps & { className?: string }): string {
   return cn(
-    'inline-flex items-center justify-center gap-1.5 border border-transparent font-extrabold leading-tight no-underline transition-colors disabled:cursor-not-allowed disabled:opacity-45',
+    'inline-flex items-center justify-center gap-1.5 border font-extrabold leading-tight no-underline transition-colors disabled:cursor-not-allowed disabled:opacity-45',
     variants[variant],
     sizes[size],
     block && 'w-full',
