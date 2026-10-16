@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Tabs } from '@/components/ui/Tabs'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { LoadError } from '@/components/domain/LoadError'
 import { Button } from '@/components/ui/Button'
@@ -9,7 +10,6 @@ import { NotificationsTab } from '@/features/account/NotificationsTab'
 import { PaymentsTab } from '@/features/account/PaymentsTab'
 import { ProfileTab } from '@/features/account/ProfileTab'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { cn } from '@/lib/cn'
 import { accountService } from '@/services/api/account.service'
 
 const TABS = [
@@ -37,28 +37,14 @@ export function AccountPage() {
         </div>
       </div>
 
-      <div role="tablist" aria-label="Seções da conta" className="mt-3 flex gap-7 overflow-x-auto border-b-2 border-divider">
-        {TABS.map((t) => {
-          const selected = t.key === active.key
-          return (
-            <button
-              key={t.key}
-              role="tab"
-              id={`acc-${t.key}`}
-              aria-selected={selected}
-              aria-controls="acc-panel"
-              tabIndex={selected ? 0 : -1}
-              onClick={() => setParams(t.key === 'perfil' ? {} : { aba: t.key }, { replace: true })}
-              className={cn(
-                '-mb-0.5 py-2.5 text-[15px] whitespace-nowrap',
-                selected ? 'border-b-4 border-accent font-extrabold' : 'text-muted font-semibold hover:text-text',
-              )}
-            >
-              {t.label}
-            </button>
-          )
-        })}
-      </div>
+      <Tabs
+        label="Seções da conta"
+        idPrefix="acc"
+        className="mt-3"
+        tabs={TABS}
+        active={active.key}
+        onChange={(k) => setParams(k === 'perfil' ? {} : { aba: k }, { replace: true })}
+      />
 
       <div id="acc-panel" role="tabpanel" aria-labelledby={`acc-${active.key}`} className="max-w-[700px] pt-6">
         {profile.error ? (

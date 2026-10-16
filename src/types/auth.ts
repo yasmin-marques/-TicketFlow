@@ -1,7 +1,14 @@
+/**
+ * Papel do usuário. No frontend serve só para esconder/mostrar telas (UX): a
+ * autorização de verdade é do backend, que deve validar o papel em cada rota.
+ */
+export type UserRole = 'USER' | 'ORGANIZER' | 'ADMIN'
+
 export interface AuthUser {
   id: string
   name: string
   email: string
+  role: UserRole
 }
 
 /**

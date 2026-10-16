@@ -1,7 +1,10 @@
-import type { ReactElement } from 'react'
-import { createBrowserRouter, type RouteObject } from 'react-router-dom'
+import type { ComponentType, ReactElement } from 'react'
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom'
 import { Spinner } from '@/components/ui/Spinner'
 import { RequireAuth } from '@/features/auth/RequireAuth'
+import { RequireRole } from '@/features/auth/RequireRole'
+import { AdminLayout, type OrgHandle } from '@/layouts/AdminLayout'
+import { OrganizersPage } from '@/pages/OrganizersPage'
 import { CheckoutLayout } from '@/layouts/CheckoutLayout'
 import { PublicLayout, type RouteHandle } from '@/layouts/PublicLayout'
 import { CategoriesPage } from '@/pages/CategoriesPage'
@@ -64,6 +67,27 @@ const lazyAuth = (name: 'LoginPage' | 'RegisterPage' | 'ForgotPasswordPage' | 'R
     return pages[name]()
   })
 
+/* Painel do organizador (tudo sob demanda). */
+const lazyOrg = <K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) =>
+  lazyPage(async () => {
+    const Page = (await load())[name] as ComponentType
+    return <Page />
+  })
+const orgRoutes = {
+  dashboard: lazyOrg(() => import('@/pages/org/DashboardPage'), 'DashboardPage'),
+  events: lazyOrg(() => import('@/pages/org/EventsPage'), 'OrgEventsPage'),
+  wizard: lazyOrg(() => import('@/pages/org/EventWizardPage'), 'EventWizardPage'),
+  event: lazyOrg(() => import('@/pages/org/OrgEventDetailPage'), 'OrgEventDetailPage'),
+  orders: lazyOrg(() => import('@/pages/org/OrdersPage'), 'OrgOrdersPage'),
+  attendees: lazyOrg(() => import('@/pages/org/ParticipantsPage'), 'ParticipantsPage'),
+  checkinPicker: lazyOrg(() => import('@/pages/org/CheckinPickerPage'), 'CheckinPickerPage'),
+  checkin: lazyOrg(() => import('@/pages/org/CheckinPage'), 'CheckinPage'),
+  reports: lazyOrg(() => import('@/pages/org/ReportsPage'), 'ReportsPage'),
+  settings: lazyOrg(() => import('@/pages/org/SettingsPage'), 'SettingsPage'),
+}
+
+const orgHandle = (title: string): OrgHandle => ({ title })
+
 /** Exibido enquanto o primeiro módulo da rota é baixado. */
 const HydrateFallback = () => (
   <div className="grid min-h-dvh place-items-center">
@@ -73,7 +97,6 @@ const HydrateFallback = () => (
 
 /** Rotas institucionais ainda sem tela: existem para a navegação não quebrar. */
 const placeholders: Array<{ path: string; title: string; description?: string }> = [
-  { path: 'organizadores', title: 'Para organizadores' },
   { path: 'ajuda', title: 'Ajuda' },
   { path: 'termos', title: 'Termos de uso' },
   { path: 'privacidade', title: 'Privacidade' },
@@ -108,6 +131,7 @@ export const routes: RouteObject[] = [
               { path: 'conta', ...lazyAccount },
             ],
           },
+          { path: 'organizadores', element: <OrganizersPage /> },
           ...placeholders.map(({ path, title, description }) => ({
             path,
             element: <ComingSoonPage title={title} description={description} />,
@@ -133,6 +157,35 @@ export const routes: RouteObject[] = [
           { path: '/checkout/:reservationId/pagamento', ...lazyCheckout('pagamento') },
         ],
       },
+    ],
+  },
+
+  /* Painel do organizador (papel ORGANIZER; o backend valida de verdade) */
+  {
+    element: <RequireRole roles={['ORGANIZER', 'ADMIN']} />,
+    errorElement: <RouteErrorPage />,
+    HydrateFallback,
+    children: [
+      {
+        path: '/org',
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <Navigate to="/org/dashboard" replace /> },
+          { path: 'dashboard', ...orgRoutes.dashboard, handle: orgHandle('Dashboard') },
+          { path: 'eventos', ...orgRoutes.events, handle: orgHandle('Eventos') },
+          { path: 'eventos/novo', ...orgRoutes.wizard, handle: orgHandle('Criar evento') },
+          { path: 'eventos/:id', ...orgRoutes.event, handle: orgHandle('Evento') },
+          { path: 'eventos/:id/editar', ...orgRoutes.wizard, handle: orgHandle('Editar evento') },
+          { path: 'pedidos', ...orgRoutes.orders, handle: orgHandle('Pedidos') },
+          { path: 'participantes', ...orgRoutes.attendees, handle: orgHandle('Participantes') },
+          { path: 'checkin', ...orgRoutes.checkinPicker, handle: orgHandle('Check-in') },
+          { path: 'relatorios', ...orgRoutes.reports, handle: orgHandle('Relatórios') },
+          { path: 'configuracoes', ...orgRoutes.settings, handle: orgHandle('Configurações') },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
+      // Scanner em tela cheia (sem sidebar), pensado para tablet e celular.
+      { path: '/org/checkin/:eventId', ...orgRoutes.checkin },
     ],
   },
 

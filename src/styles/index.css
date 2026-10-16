@@ -113,6 +113,26 @@
   animation: tf-pulse 1.4s ease-in-out infinite;
 }
 
+/* "Exportar PDF" usa a impressão do navegador: esconde a moldura do painel. */
+@media print {
+  aside,
+  header,
+  [role='tablist'],
+  button,
+  a[href='#org-conteudo'] {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
+
+/* Barra de contagem do resultado de check-in (3 s). */
+@keyframes tf-shrink {
+  from { width: 100%; }
+  to { width: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

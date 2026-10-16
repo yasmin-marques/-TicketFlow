@@ -28,6 +28,34 @@ export const ORDER_STATUS: Record<string, { label: string; tone: StatusTone }> =
   expired: { label: 'Expirado', tone: 'muted' },
 }
 
+/* Painel do organizador: um único mapa status → cor para eventos, pedidos, lotes e check-in. */
+export const EVENT_STATUS: Record<string, { label: string; tone: StatusTone }> = {
+  draft: { label: 'Rascunho', tone: 'neutral' },
+  published: { label: 'Publicado', tone: 'success' },
+  ended: { label: 'Encerrado', tone: 'muted' },
+  cancelled: { label: 'Cancelado', tone: 'danger' },
+}
+
+export const ORG_ORDER_STATUS: Record<string, { label: string; tone: StatusTone }> = {
+  paid: { label: 'Pago', tone: 'success' },
+  pending: { label: 'Pendente', tone: 'warning' },
+  declined: { label: 'Recusado', tone: 'danger' },
+  refunded: { label: 'Reembolsado', tone: 'neutral' },
+}
+
+export const LOT_STATUS: Record<string, { label: string; tone: StatusTone }> = {
+  draft: { label: 'Rascunho', tone: 'neutral' },
+  published: { label: 'Publicado', tone: 'success' },
+  'sold-out': { label: 'Esgotado', tone: 'warning' },
+  ended: { label: 'Encerrado', tone: 'muted' },
+}
+
+export const ATTENDEE_STATUS: Record<string, { label: string; tone: StatusTone }> = {
+  'checked-in': { label: 'Check-in feito', tone: 'success' },
+  waiting: { label: 'Aguardando', tone: 'warning' },
+  cancelled: { label: 'Cancelado', tone: 'danger' },
+}
+
 export const TICKET_STATUS: Record<string, { label: string; tone: StatusTone }> = {
   valid: { label: 'Próximo', tone: 'success' },
   used: { label: 'Utilizado', tone: 'muted' },

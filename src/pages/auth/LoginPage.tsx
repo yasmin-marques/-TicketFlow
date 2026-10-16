@@ -12,7 +12,7 @@ import { useAuth } from '@/features/auth/AuthProvider'
 import { safeNext } from '@/features/auth/RequireAuth'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { emailSchema } from '@/lib/validation'
-import { DEMO_EMAIL, DEMO_PASSWORD } from '@/mocks/db'
+import { DEMO_EMAIL, DEMO_PASSWORD, ORGANIZER_EMAIL } from '@/mocks/db'
 import { ApiError, USE_MOCKS } from '@/services/api/http'
 
 const schema = z.object({ email: emailSchema, password: z.string().min(1, 'Informe a senha') })
@@ -38,8 +38,9 @@ export function LoginPage() {
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null)
     try {
-      await login(values)
-      navigate(next, { replace: true })
+      const user = await login(values)
+      // Organizador sem destino explícito vai direto para o painel.
+      navigate(next === '/' && user.role === 'ORGANIZER' ? '/org/dashboard' : next, { replace: true })
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : 'Não foi possível entrar. Tente novamente.')
     }
@@ -77,16 +78,26 @@ export function LoginPage() {
             Conta de demonstração: <span className="font-mono">{DEMO_EMAIL}</span> · senha{' '}
             <span className="font-mono">{DEMO_PASSWORD}</span>
           </div>
-          <Button
-            variant="secondary"
-            className="mt-3"
-            onClick={() => {
-              setValue('email', DEMO_EMAIL, { shouldValidate: true })
-              setValue('password', DEMO_PASSWORD, { shouldValidate: true })
-            }}
-          >
-            Preencher conta de demonstração
-          </Button>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setValue('email', DEMO_EMAIL, { shouldValidate: true })
+                setValue('password', DEMO_PASSWORD, { shouldValidate: true })
+              }}
+            >
+              Preencher conta de demonstração
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setValue('email', ORGANIZER_EMAIL, { shouldValidate: true })
+                setValue('password', DEMO_PASSWORD, { shouldValidate: true })
+              }}
+            >
+              Preencher conta de organizador
+            </Button>
+          </div>
         </div>
       )}
     </AuthLayout>

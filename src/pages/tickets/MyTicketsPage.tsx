@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Tabs } from '@/components/ui/Tabs'
 import { Link, useSearchParams } from 'react-router-dom'
 import { LoadError } from '@/components/domain/LoadError'
 import { TicketCard } from '@/components/domain/TicketCard'
@@ -8,7 +9,6 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useTickets } from '@/features/purchase/hooks'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { cn } from '@/lib/cn'
 import type { Ticket } from '@/types/purchase'
 
 const TABS = [
@@ -36,31 +36,17 @@ export function MyTicketsPage() {
             Ver pedidos →
           </Link>
         </div>
-        <div role="tablist" aria-label="Status dos ingressos" className="mt-3 flex gap-7 border-b-2 border-divider">
-          {TABS.map((t) => {
-            const selected = t.key === active.key
-            return (
-              <button
-                key={t.key}
-                role="tab"
-                id={`tab-${t.key}`}
-                aria-selected={selected}
-                aria-controls="tickets-panel"
-                tabIndex={selected ? 0 : -1}
-                onClick={() => setParams(t.key === 'proximos' ? {} : { aba: t.key }, { replace: true })}
-                className={cn(
-                  '-mb-0.5 py-2.5 text-[15px] transition-colors',
-                  selected ? 'border-b-4 border-accent font-extrabold' : 'text-muted font-semibold hover:text-text',
-                )}
-              >
-                {t.label} <span className={cn('tabular', selected && 'text-muted')}>{isPending ? '' : counts[t.key]}</span>
-              </button>
-            )
-          })}
-        </div>
+        <Tabs
+          label="Status dos ingressos"
+          idPrefix="tab"
+          className="mt-3"
+          tabs={TABS.map((t) => ({ key: t.key, label: <>{t.label} <span className="tabular text-muted">{isPending ? '' : counts[t.key]}</span></> }))}
+          active={active.key}
+          onChange={(k) => setParams(k === 'proximos' ? {} : { aba: k }, { replace: true })}
+        />
       </Container>
 
-      <Container className="pt-6 pb-12" role="tabpanel" id="tickets-panel" aria-labelledby={`tab-${active.key}`}>
+      <Container className="pt-6 pb-12" role="tabpanel" id="tab-panel" aria-labelledby={`tab-${active.key}`}>
         {error ? (
           <LoadError title="Não foi possível carregar seus ingressos." error={error} onRetry={() => refetch()} />
         ) : isPending ? (

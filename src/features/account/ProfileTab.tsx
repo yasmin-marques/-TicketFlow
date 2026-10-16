@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { maskedRegister } from '@/lib/forms'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -40,16 +41,7 @@ export function ProfileTab({ profile }: { profile: UserProfile }) {
     defaultValues: { name: profile.name, phone: profile.phone, cpf: profile.cpf, birthDate: profile.birthDate },
   })
 
-  const masked = (name: 'phone' | 'cpf' | 'birthDate', mask: (v: string) => string) => {
-    const reg = register(name)
-    return {
-      ...reg,
-      onChange: (e: { target: { value: string; name: string } }) => {
-        e.target.value = mask(e.target.value)
-        return reg.onChange(e)
-      },
-    }
-  }
+  const masked = (name: 'phone' | 'cpf' | 'birthDate', mask: (v: string) => string) => maskedRegister(register, name, mask)
 
   const save = useMutation({
     mutationFn: (values: Values) => accountService.update(values),

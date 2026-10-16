@@ -16,7 +16,7 @@ const REFRESH_TTL_MS = 7 * 24 * 3_600_000
 function issue(user: DbUser): Session {
   const now = Date.now()
   return {
-    user: { id: user.id, name: user.name, email: user.email },
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
     accessToken: `mock.${user.id}.${now + ACCESS_TTL_MS}`,
     refreshToken: `mockr.${user.id}.${now + REFRESH_TTL_MS}`,
     accessExpiresAt: now + ACCESS_TTL_MS,
@@ -45,6 +45,7 @@ export function registerAuthRoutes(add: AddRoute): void {
     }
     const user: DbUser = {
       id: uid('usr'),
+      role: 'USER',
       name,
       email,
       password,

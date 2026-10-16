@@ -11,7 +11,10 @@ import { getMockMode, type MockMode } from './mode'
 import { registerAccountRoutes } from './routes/account'
 import { registerAuthRoutes } from './routes/auth'
 import { registerEventRoutes } from './routes/events'
+import { syncCatalogFromOrg } from './org/catalog'
+import { getOrg } from './org/store'
 import { registerOrderRoutes } from './routes/orders'
+import { registerOrgRoutes } from './routes/org'
 import { registerReservationRoutes } from './routes/reservations'
 import { registerTicketRoutes } from './routes/tickets'
 
@@ -53,6 +56,15 @@ registerReservationRoutes(add)
 registerOrderRoutes(add)
 registerTicketRoutes(add)
 registerAccountRoutes(add)
+registerOrgRoutes(add)
+
+/** Eventos criados no painel e publicados em sessões anteriores voltam ao catálogo público. */
+let orgSynced = false
+function ensureOrgSynced() {
+  if (orgSynced) return
+  orgSynced = true
+  syncCatalogFromOrg(getOrg())
+}
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -108,6 +120,7 @@ export const mockAdapter: AxiosAdapter = async (config) => {
     const path = (config.url ?? '').split('?')[0] ?? ''
     const method = (config.method ?? 'get').toUpperCase()
     const db = getDb()
+    ensureOrgSynced()
 
     const def = routes.find((r) => r.method === method && r.regex.test(path))
     if (!def) {

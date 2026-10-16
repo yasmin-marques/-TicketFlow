@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { maskedRegister } from '@/lib/forms'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/TextField'
@@ -32,16 +33,7 @@ export function DataStep({ slots, initial, initialHolders, onBack, onSubmit }: D
   })
 
   /** Aplica a máscara antes do RHF ler o valor. */
-  const masked = (name: 'phone' | 'cpf' | 'birthDate', mask: (v: string) => string) => {
-    const reg = register(name)
-    return {
-      ...reg,
-      onChange: (e: { target: { value: string; name: string } }) => {
-        e.target.value = mask(e.target.value)
-        return reg.onChange(e)
-      },
-    }
-  }
+  const masked = (name: 'phone' | 'cpf' | 'birthDate', mask: (v: string) => string) => maskedRegister(register, name, mask)
 
   const cpfValue = watch('cpf')
 

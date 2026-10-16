@@ -128,3 +128,8 @@ export function formatDateRange(from: string, to: string): string {
 export function pluralize(n: number, one: string, many: string): string {
   return `${n.toLocaleString('pt-BR')} ${n === 1 ? one : many}`
 }
+
+/** Sempre com centavos: "R$ 80,00". */
+export function formatPriceExact(value: number): string {
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}

@@ -1,4 +1,4 @@
-import type { NotificationPrefs, SavedCard } from '@/types/auth'
+import type { NotificationPrefs, SavedCard, UserRole } from '@/types/auth'
 import type { Slot } from '@/lib/purchase'
 import type { Order, Reservation, Ticket, TicketHolder } from '@/types/purchase'
 import { EVENTS } from './data/events'
@@ -12,6 +12,7 @@ import { addHours } from './data/dates'
  */
 export interface DbUser {
   id: string
+  role: UserRole
   name: string
   email: string
   /** Texto puro: é um mock. O backend real guarda apenas o hash. */
@@ -50,6 +51,23 @@ let cache: Db | null = null
 export const DEMO_USER_ID = 'usr_camila'
 export const DEMO_EMAIL = 'camila@exemplo.com'
 export const DEMO_PASSWORD = 'ticketflow123'
+export const ORGANIZER_USER_ID = 'usr_organizer'
+export const ORGANIZER_EMAIL = 'organizador@pulse.com'
+
+function organizerUser(): DbUser {
+  return {
+    id: ORGANIZER_USER_ID,
+    role: 'ORGANIZER',
+    name: 'Rafael Souza',
+    email: ORGANIZER_EMAIL,
+    password: DEMO_PASSWORD,
+    phone: '(11) 97766-5544',
+    cpf: '',
+    birthDate: '',
+    notifications: { orderUpdates: true, eventReminders: true, marketing: false },
+    cards: [],
+  }
+}
 
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
@@ -185,8 +203,10 @@ function seed(): Db {
   return {
     version: 1,
     users: [
+      organizerUser(),
       {
         id: DEMO_USER_ID,
+        role: 'USER',
         name: 'Camila Duarte',
         email: DEMO_EMAIL,
         password: DEMO_PASSWORD,
@@ -216,6 +236,9 @@ export function getDb(): Db {
     if (raw) {
       const parsed = JSON.parse(raw) as Db
       if (parsed.version === 1) {
+        // Migração de bancos salvos antes da Parte 3: papel dos usuários e conta de organizador.
+        for (const u of parsed.users) u.role ??= 'USER'
+        if (!parsed.users.some((u) => u.id === ORGANIZER_USER_ID)) parsed.users.unshift(organizerUser())
         cache = parsed
         return cache
       }

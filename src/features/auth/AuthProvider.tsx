@@ -30,7 +30,7 @@ authBridge.refresh = () => {
 }
 
 /** Caches que pertencem a um usuário e devem sumir ao trocar/encerrar a sessão. */
-const USER_SCOPED_KEYS = ['me', 'orders', 'tickets', 'reservation', 'cards', 'seats']
+const USER_SCOPED_KEYS = ['me', 'orders', 'tickets', 'reservation', 'cards', 'seats', 'org']
 
 interface AuthContextValue {
   status: 'authenticated' | 'anonymous'

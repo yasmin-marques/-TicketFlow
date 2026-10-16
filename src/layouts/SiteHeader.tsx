@@ -34,6 +34,11 @@ export function SiteHeader({ className }: { className?: string }) {
       <SearchBox className="ml-auto max-w-[380px] flex-1 self-center" />
       {user ? (
         <>
+          {(user.role === 'ORGANIZER' || user.role === 'ADMIN') && (
+            <Link to="/org/dashboard" className="flex items-center text-sm font-semibold text-accent-700 no-underline hover:text-accent">
+              Painel
+            </Link>
+          )}
           <Link to="/meus-ingressos" className="flex items-center text-sm font-semibold text-text no-underline hover:text-accent">
             Meus ingressos
           </Link>

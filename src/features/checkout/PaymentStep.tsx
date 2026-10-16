@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { maskedRegister } from '@/lib/forms'
 import { useMemo, useRef, useState } from 'react'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { Link } from 'react-router-dom'
@@ -63,16 +64,7 @@ export function PaymentStep({ reservation, slots, draft, onBack, onPaid, onExpir
     defaultValues: { terms: false, card: { number: '', holderName: '', expiry: '', cvv: '', installments: 1 } },
   })
 
-  const masked = (name: 'card.number' | 'card.expiry', mask: (v: string) => string) => {
-    const reg = register(name)
-    return {
-      ...reg,
-      onChange: (e: { target: { value: string; name: string } }) => {
-        e.target.value = mask(e.target.value)
-        return reg.onChange(e)
-      },
-    }
-  }
+  const masked = (name: 'card.number' | 'card.expiry', mask: (v: string) => string) => maskedRegister(register, name, mask)
 
   const cardNumber = watch('card.number') ?? ''
   const brand = cardBrand(cardNumber)

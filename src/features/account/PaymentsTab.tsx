@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { maskedRegister } from '@/lib/forms'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -28,16 +29,7 @@ export function PaymentsTab() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(addSchema), mode: 'onTouched', defaultValues: { number: '', holderName: '', expiry: '' } })
 
-  const masked = (name: 'number' | 'expiry', mask: (v: string) => string) => {
-    const reg = register(name)
-    return {
-      ...reg,
-      onChange: (e: { target: { value: string; name: string } }) => {
-        e.target.value = mask(e.target.value)
-        return reg.onChange(e)
-      },
-    }
-  }
+  const masked = (name: 'number' | 'expiry', mask: (v: string) => string) => maskedRegister(register, name, mask)
 
   const add = useMutation({
     mutationFn: accountService.addCard,

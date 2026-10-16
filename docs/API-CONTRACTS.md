@@ -159,3 +159,45 @@ conteúdo **assinado** (HMAC/JWT) e o check-in (Parte 3) validar a assinatura e 
   inicial é determinística por evento.
 * **Transferência, calendário e "salvar ingresso"** são locais: o ingresso salvo é um SVG gerado no navegador; não há carteira digital.
 * **Modos de simulação** (`?mock=` na URL, persistem na aba até `?mock=off`): `erro`, `lento`, `vazio`, `conflito` (a 1ª escolha de assento perde a disputa) e `expira` (reservas duram 45 s).
+
+## 9. Painel do organizador (Parte 3)
+
+Todas as rotas `/org/**` exigem `Authorization` de um usuário com papel `ORGANIZER` (ou `ADMIN`); sem o papel a API responde
+`403 FORBIDDEN`. `AuthUser.role` (`USER | ORGANIZER | ADMIN`) vem na `Session`. O frontend só **esconde** as telas
+(`RequireRole`); **a autorização é do backend**. Tipos: `src/types/organizer.ts` · cliente: `src/services/api/org.service.ts`.
+
+| Método e rota | Descrição |
+|---|---|
+| `GET /org/dashboard?range=7\|30\|90&eventId=` | KPIs (receita, vendidos, ocupação, check-ins) com variação vs. período anterior, vendas por dia, por tipo, acumulado vs. meta, receita por evento, eventos ativos |
+| `GET /org/reports?eventId&from&to` | KPIs do evento, receita diária, funil, vendas por lote, ocupação por setor (funil/conversão vêm de analytics) |
+| `GET /org/events?status&q` | Lista + `counts` por status (`draft · published · ended · cancelled`) |
+| `GET /org/events/slug-available?slug&exceptId` | `{ slug, available }` (checa também o catálogo público) |
+| `POST /org/events` | Cria **rascunho** (campos parciais) → `201 OrgEvent` |
+| `GET/PATCH /org/events/{id}` | Detalhe com derivados (`capacity, sold, revenue, checkedIn`) / edição (`409` se encerrado/cancelado ou slug com vendas) |
+| `POST /org/events/{id}/publish` | `422 PUBLISH_BLOCKED { errors: [] }` se faltar nome, descrição ≥ 80, local, datas, lote ou mapa |
+| `POST /org/events/{id}/unpublish` · `/cancel` · `DELETE /org/events/{id}` | Voltar a rascunho (só sem vendas) · cancelar (reembolsa os pedidos pagos) · excluir rascunho sem vendas |
+| `PUT /org/events/{id}/seat-map` | Salva o mapa inteiro (`OrgSeatMap \| null`); `409 SEAT_SOLD` ao bloquear assento já vendido |
+| `GET/POST /org/events/{id}/lots` · `PATCH/DELETE /org/lots/{id}` | Lotes. `422` se `quantity < vendidos`; `409` ao remover lote com vendas. Mudar preço só vale para novas compras |
+| `GET /org/orders?q&eventId&method&status&from&to&page&pageSize` | Pedidos paginados (`pageSize` ≤ 500 serve à exportação CSV) |
+| `POST /org/orders/{id}/refund` | `409` se não estiver pago ou houver ingresso já utilizado |
+| `GET /org/attendees?eventId&q&status&page` | Participantes + `checkedIn`/`sold` |
+| `POST/DELETE /org/attendees/{ticketId}/checkin` | Check-in manual / desfazer |
+| `GET /org/events/{id}/checkin` | `CheckinStats`: contadores, leituras/min, portões, últimas leituras |
+| `POST /org/events/{id}/checkin` `{ code, gate }` | **Sempre `200`** com `CheckinResult.result = valid \| used \| invalid` (`409 EVENT_NOT_ACTIVE` se o evento não está publicado) |
+| `GET/PATCH /org/settings` · `POST/DELETE /org/members` · `POST/PATCH/DELETE /org/webhooks` | Organização, equipe, conta de repasse e webhooks |
+| `GET /org/notifications` · `POST /org/notifications/read` · `GET /org/search?q=` | Avisos e busca global (⌘K) |
+
+### Check-in
+O frontend só lê o código (câmera via `BarcodeDetector` ou digitação) e **exibe o veredito do servidor**. Não há validação
+criptográfica no cliente: o backend deve verificar a assinatura do `qrPayload` (Parte 2), o evento, o estado (válido/usado/cancelado)
+e **registrar a entrada de forma atômica** (duas leituras simultâneas do mesmo ingresso → apenas uma `valid`).
+Aceita-se `TF-XXXX-XXXX` ou o conteúdo do QR (`TF1.<ticketId>.<código>`).
+
+### Limitações do mock do organizador
+* A base (12 eventos, ~1.700 pedidos e milhares de ingressos) é **gerada de forma determinística** a cada carga (`mocks/org/seed.ts`); só as
+  alterações do organizador persistem (overlay em `localStorage`, chave `tf:mock-org:v1`).
+* Receita = soma do **subtotal** dos pedidos pagos (sem a taxa de serviço). Funil/conversão/reservas expiradas são **estimativas** simuladas.
+* Eventos criados e publicados no painel aparecem no catálogo público, mas sempre **sem mapa de assentos** (a jornada do comprador usa uma planta única).
+* Ingressos comprados na jornada do comprador para um evento com o mesmo *slug* podem ser validados na portaria e passam a "Utilizado".
+* O envio da imagem de capa é simulado (só o nome do arquivo é guardado) e os webhooks não disparam chamadas.
+* Check-in não tem janela de horário; qualquer evento publicado aceita leituras.
