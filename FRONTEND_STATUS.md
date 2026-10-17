@@ -69,6 +69,12 @@ Resumo (detalhes de corpo/resposta em `docs/API-CONTRACTS.md`):
 
 Somente-mock (não implementar): `POST /dev/orders/{id}/simulate-payment`, `POST /dev/org/reset`.
 
+### Status do backend (Parte 1 de 3)
+
+Já existem em `backend/` (ver `backend/README.md`): **Catálogo** (todas as rotas da linha acima), **Auth** (as seis rotas) e `GET /me`.
+Para usá-los é preciso aplicar os ajustes de cookie descritos em `docs/API-CONTRACTS.md` §10.2 (`withCredentials`, `Session` sem
+`refreshToken`). Venda, reserva, pedidos, ingressos, cartões, `PATCH /me` e o painel do organizador **seguem só nos mocks**.
+
 ## 4. Contratos provisórios (resumo)
 
 * **Erros:** `{ status, code, message, …extras }`. Códigos usados: `SEAT_UNAVAILABLE`, `INSUFFICIENT_STOCK`, `LOT_CLOSED`, `RESERVATION_EXPIRED`, `LIMIT_EXCEEDED`, `PAYMENT_DECLINED`, `REFUND_NOT_ALLOWED`, `PUBLISH_BLOCKED`, `SEAT_SOLD`, `SLUG_TAKEN`, `EVENT_NOT_ACTIVE`, `FORBIDDEN`, `VALIDATION_ERROR`.

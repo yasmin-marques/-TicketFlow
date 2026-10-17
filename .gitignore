@@ -4,3 +4,8 @@ dist
 .env
 .DS_Store
 *.tsbuildinfo
+
+# Backend
+backend/target/
+backend/.env
+*.log

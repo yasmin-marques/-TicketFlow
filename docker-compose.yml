@@ -1,0 +1,40 @@
+# Ambiente local do TicketFlow: PostgreSQL + API Spring Boot.
+#   cp backend/.env.example .env   (e ajuste os valores)
+#   docker compose up --build
+# Redis e Kafka entram na Parte 2 (hoje não são usados).
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${TF_DB_NAME:-ticketflow}
+      POSTGRES_USER: ${TF_DB_USER:-ticketflow}
+      POSTGRES_PASSWORD: ${TF_DB_PASSWORD:?Defina TF_DB_PASSWORD no .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TF_DB_USER:-ticketflow} -d ${TF_DB_NAME:-ticketflow}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      TF_DB_URL: jdbc:postgresql://postgres:5432/${TF_DB_NAME:-ticketflow}
+      TF_DB_USER: ${TF_DB_USER:-ticketflow}
+      TF_DB_PASSWORD: ${TF_DB_PASSWORD}
+      TF_JWT_SECRET: ${TF_JWT_SECRET:?Defina TF_JWT_SECRET (>= 32 caracteres) no .env}
+      TF_CORS_ORIGINS: ${TF_CORS_ORIGINS:-http://localhost:5173}
+      TF_APP_URL: ${TF_APP_URL:-http://localhost:5173}
+      TF_COOKIE_SECURE: ${TF_COOKIE_SECURE:-false}
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

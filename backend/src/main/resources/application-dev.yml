@@ -1,0 +1,14 @@
+# Perfil de desenvolvimento local: cookie sem HTTPS, dados de demonstração e logs úteis.
+spring:
+  jpa:
+    show-sql: false
+logging:
+  level:
+    br.com.ticketflow: DEBUG
+tf:
+  security:
+    refresh:
+      cookie:
+        secure: false
+  seed:
+    enabled: true

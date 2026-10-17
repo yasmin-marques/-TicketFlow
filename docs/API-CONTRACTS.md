@@ -41,6 +41,7 @@ A simulação está isolada em `features/auth/sessionStore.ts` (armazenamento) e
 
 `Session = { user: {id,name,email}, accessToken, refreshToken, accessExpiresAt }`.
 Com JWT real: refresh token em cookie `HttpOnly; Secure; SameSite`, access token curto em memória.
+**Backend real implementado (Parte 1):** ver §10 — o refresh token vai **só no cookie** e `Session.refreshToken` deixa de existir.
 
 ## 3. Venda: lotes, assentos e reserva
 
@@ -201,3 +202,60 @@ Aceita-se `TF-XXXX-XXXX` ou o conteúdo do QR (`TF1.<ticketId>.<código>`).
 * Ingressos comprados na jornada do comprador para um evento com o mesmo *slug* podem ser validados na portaria e passam a "Utilizado".
 * O envio da imagem de capa é simulado (só o nome do arquivo é guardado) e os webhooks não disparam chamadas.
 * Check-in não tem janela de horário; qualquer evento publicado aceita leituras.
+
+## 10. Backend real — Parte 1 (fundação, autenticação, catálogo público)
+
+Implementado em `backend/` (ver `backend/README.md`). Este capítulo registra **onde o backend real difere dos mocks** e o que
+o frontend precisa ajustar. Rotas e formatos não mencionados aqui seguem as seções acima sem mudanças. O prefixo é `/api`
+(`VITE_API_URL=http://localhost:8080/api`).
+
+### 10.1 Autenticação
+
+| Rota | Comportamento real |
+|---|---|
+| `POST /auth/register` | `201 Session` + cookie `tf_refresh`. `409 EMAIL_TAKEN` (e-mail comparado sem diferenciar maiúsculas) · `422 VALIDATION_ERROR` com `errors: { campo: mensagem }`. Cria sempre o papel `USER` |
+| `POST /auth/login` | `200 Session` + cookie. `401 INVALID_CREDENTIALS` idêntico para e-mail inexistente e senha errada · `429 TOO_MANY_ATTEMPTS` após 5 falhas em 15 min |
+| `POST /auth/refresh` | **Corpo opcional** (`{}` basta): o refresh token é lido do cookie. Rotaciona o token (novo cookie). `401 INVALID_REFRESH_TOKEN` limpa o cookie |
+| `POST /auth/logout` | `200`; revoga a sessão no servidor e limpa o cookie |
+| `POST /auth/forgot-password` | `200 { accepted: true }` **sempre**; **nunca** devolve `resetToken` (o link vai por e-mail — hoje só no log DEBUG) |
+| `POST /auth/reset-password` | `200` · `400 INVALID_TOKEN` (inexistente, expirado ou já usado) · `422`. Encerra todas as sessões do usuário |
+| `GET /me` | Perfil. `PATCH /me` e `/me/cards` **ainda não existem** no backend |
+
+`Session = { user: { id, name, email, role }, accessToken, accessExpiresAt }` — **sem `refreshToken`**.
+O access token dura 15 min; a resposta de 401 distingue `TOKEN_EXPIRED` (renovar) de `UNAUTHENTICATED`. `403 FORBIDDEN` = papel insuficiente.
+Regra de senha (igual à do frontend): ≥ 8 caracteres com letra e número (máx. 72 bytes).
+
+### 10.2 Ajustes necessários no frontend (não aplicados — o frontend segue funcionando com mocks)
+
+Inconsistência: o tipo `Session` (`src/types/auth.ts`) exige `refreshToken` e `AuthProvider` o lê do `localStorage` para chamar
+`authService.refresh(...)`. Com cookie `HttpOnly` o JavaScript nunca vê o token. Proposta, mínima e localizada:
+
+1. `services/api/http.ts`: criar o axios com `withCredentials: true` (somente quando `!USE_MOCKS`), senão o navegador não
+   envia nem grava o cookie em requisições entre origens (`localhost:5173` → `localhost:8080` é *same-site*, então `SameSite=Lax` funciona).
+2. `types/auth.ts`: tornar `refreshToken` opcional (ou removê-lo) e **não** persistir token algum no `localStorage`; manter só
+   `user` e o access token em memória.
+3. `services/api/auth.service.ts` / `AuthProvider.tsx`: `refresh()` sem argumento → `http.post('/auth/refresh', {})`. Ao abrir o
+   app, tentar `refresh()` uma vez para restaurar a sessão a partir do cookie.
+4. Em produção, servir frontend e API sob o mesmo domínio (ou subdomínios do mesmo site) e `TF_COOKIE_SECURE=true`. Para outro
+   *site*, seria preciso `SameSite=None; Secure` (`tf.security.refresh.cookie.same-site`) e proteção CSRF extra.
+
+Alternativa sem alterar o frontend: `tf.security.refresh.expose-in-body=true` devolve o `refreshToken` no corpo (como nos mocks),
+ao custo de deixá-lo acessível ao JavaScript. Não recomendado em produção.
+
+### 10.3 Catálogo
+
+* **Visibilidade:** só eventos `PUBLISHED` e ainda não encerrados (`endsAt ?? startsAt >= agora`). Rascunhos e eventos passados dão `404` no detalhe e não aparecem em listas, sugestões, destaques, relacionados nem na contagem de categorias. Eventos esgotados permanecem, com `badges: ["soldOut"]`.
+* **Dinheiro:** `minPrice` em **reais** (`120.5`; `0` = gratuito; `null` = sem lotes). `minPrice`/`maxPrice` da consulta também são em reais. Internamente é tudo em centavos.
+* **Datas:** `startsAt`/`endsAt` em ISO 8601 com o offset de São Paulo (`-03:00`); `from`/`to` são `YYYY-MM-DD` no mesmo fuso.
+* **`city`** no formato do frontend `"São Paulo, SP"` (o estado é opcional).
+* **`distanceKm`:** calculado em relação a uma origem fixa (centro de SP) ou a `lat`/`lng` (novos parâmetros opcionais, sempre juntos); `null` se o local não tem coordenadas. `sort=distancia` usa a mesma origem.
+* **`badges`:** `soldOut` ou `lastTickets` (restam ≤ 10 % da capacidade, mínimo de 20).
+* **`GET /events/{slug}`:** `lot` = lote à venda de menor preço (`{ name, remaining }`); omitido se nenhum estiver aberto. Campos opcionais ausentes são omitidos do JSON.
+* **Erros de parâmetro:** `sort`, `when`, datas, preços inválidos ou faixas invertidas → `400 INVALID_PARAMETER`. `pageSize` é limitado a 100 (padrão 12). `page` é 1-based.
+* `coverUrl` é sempre `null` por enquanto (sem upload de imagens).
+
+### 10.4 Ainda não implementado no backend
+
+Venda (`/events/{slug}/sales`, assentos, SSE), reservas, pedidos/pagamento, ingressos, cartões e todo o painel `/org/**`
+(já protegido por papel, mas sem controllers: responde `404` a quem tem o papel e `403` a quem não tem).
+
