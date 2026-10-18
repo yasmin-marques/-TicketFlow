@@ -52,4 +52,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
             order by r.expiresAt
             """)
     List<Reservation> lockDueForEvent(@Param("eventId") UUID eventId, @Param("now") Instant now, Pageable page);
+
+    /** Reservas ativas de um evento, travadas em ordem de id (cancelamento do evento pelo organizador). */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select r from Reservation r
+            where r.event.id = :eventId and r.status = br.com.ticketflow.sales.domain.ReservationStatus.ACTIVE
+            order by r.id
+            """)
+    List<Reservation> lockActiveForEvent(@Param("eventId") UUID eventId);
 }

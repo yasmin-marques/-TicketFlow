@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /** Configuração tipada do TicketFlow (prefixo {@code tf}). */
 @ConfigurationProperties(prefix = "tf")
 public record AppProperties(Security security, Cors cors, Catalog catalog, Seed seed, Sales sales, Payments payments,
-                            Tickets tickets, Redis redis, Kafka kafka, Jobs jobs) {
+                            Tickets tickets, Redis redis, Kafka kafka, Jobs jobs, RateLimit rateLimit) {
 
     public record Security(int bcryptStrength, Jwt jwt, Refresh refresh, PasswordReset passwordReset, Login login) {}
 
@@ -31,7 +31,8 @@ public record AppProperties(Security security, Cors cors, Catalog catalog, Seed 
             int defaultPageSize,
             int maxPageSize) {}
 
-    public record Seed(boolean enabled) {}
+    /** {@code demoPassword}: senha dos usuários de demonstração (perfil dev); vazio = não cria usuários. */
+    public record Seed(boolean enabled, String demoPassword) {}
 
     /** Regras de venda. */
     public record Sales(
@@ -55,4 +56,7 @@ public record AppProperties(Security security, Cors cors, Catalog catalog, Seed 
 
     /** Liga/desliga tarefas agendadas (os testes desligam a expiração para controlar o tempo). */
     public record Jobs(boolean expiryEnabled, boolean outboxEnabled) {}
+
+    /** Limite de requisições por IP e por minuto, por categoria de rota. */
+    public record RateLimit(boolean enabled, int generalPerMinute, int authPerMinute, int checkinPerMinute, int webhookPerMinute) {}
 }

@@ -62,6 +62,17 @@ management:
       probes:
         enabled: true
       show-details: never
+      group:
+        # Pronto para tráfego só com o banco e o Redis acessíveis; "vivo" não depende de terceiros (evita reinícios em cascata).
+        readiness:
+          include: readinessState,db,redis
+        liveness:
+          include: livenessState
+
+logging:
+  pattern:
+    # Texto legível em desenvolvimento, com o id de correlação; o perfil prod usa JSON (ECS).
+    console: "%d{HH:mm:ss.SSS} %5p [%X{requestId:-}] %logger{36} - %m%n"
 
 springdoc:
   api-docs:
@@ -107,6 +118,8 @@ tf:
     max-page-size: 100
   seed:
     enabled: false
+    # Usuários de demonstração (só com o perfil dev): vazio = não cria.
+    demo-password: ${TF_DEMO_PASSWORD:}
   sales:
     max-per-order: 6
     reservation-ttl: PT10M       # contrato do frontend: 10 minutos
@@ -128,3 +141,9 @@ tf:
   jobs:
     expiry-enabled: true
     outbox-enabled: true
+  rate-limit:
+    enabled: ${TF_RATE_LIMIT_ENABLED:true}
+    general-per-minute: ${TF_RATE_LIMIT_GENERAL:300}   # por IP
+    auth-per-minute: ${TF_RATE_LIMIT_AUTH:30}          # login/cadastro/refresh (o login ainda bloqueia após 5 falhas por e-mail+IP)
+    checkin-per-minute: ${TF_RATE_LIMIT_CHECKIN:240}   # leituras da portaria
+    webhook-per-minute: ${TF_RATE_LIMIT_WEBHOOK:600}

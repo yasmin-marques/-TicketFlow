@@ -64,9 +64,13 @@ public class OrderMapper {
         return o.getStatus().name().toLowerCase();
     }
 
-    /** Pago, até 7 dias após a compra, mais de 48 h antes do evento e com todos os ingressos ainda válidos e do comprador. */
+    /**
+     * Pago, até 7 dias após a compra, mais de 48 h antes do evento e com todos os ingressos ainda válidos e do comprador.
+     * Eventos com política {@code none} não aceitam reembolso pelo comprador (o organizador ainda pode reembolsar).
+     */
     boolean refundable(Order o, Instant now, boolean allOwnedValid) {
         return o.getStatus() == Order.Status.PAID && allOwnedValid
+                && !"none".equals(o.getEvent().getCancellationPolicy())
                 && !o.getCreatedAt().plus(props.sales().refundWindow()).isBefore(now)
                 && o.getEvent().getStartsAt().minus(props.sales().refundMinLead()).isAfter(now);
     }

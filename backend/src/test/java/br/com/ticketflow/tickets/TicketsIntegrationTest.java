@@ -128,10 +128,10 @@ class TicketsIntegrationTest extends SalesTestSupport {
         assertThat(transfer(stranger, ticketId, newBuyer().email()).status()).isEqualTo(404); // não é o dono
         assertThat(send(from, get("/api/tickets/" + ticketId)).status()).isEqualTo(200);      // continua do dono
 
-        jdbc.update("update tickets set status = 'USED' where id = ?::uuid", ticketId);
+        jdbc.update("update tickets set status = 'USED', used_at = now() where id = ?::uuid", ticketId); // USED sempre tem horário (ck_tickets_used)
         Resp used = transfer(from, ticketId, stranger.email());
         assertThat(used.status()).isEqualTo(409);                                             // só ingressos válidos
-        jdbc.update("update tickets set status = 'VALID' where id = ?::uuid", ticketId);
+        jdbc.update("update tickets set status = 'VALID', used_at = null where id = ?::uuid", ticketId);
         jdbc.update("update events set starts_at = now() - interval '1 hour', ends_at = now() + interval '3 hours' where id = ?", fx.event().getId());
         assertThat(transfer(from, ticketId, stranger.email()).status()).isEqualTo(409);       // evento já começou
     }

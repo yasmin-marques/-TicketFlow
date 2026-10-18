@@ -55,6 +55,10 @@ public class EventSeat {
     @Column(name = "held_until")
     private Instant heldUntil;
 
+    /** Bloqueado pelo organizador: nunca é vendido nem reservado (aparece como indisponível). */
+    @Column(nullable = false)
+    private boolean blocked;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
@@ -73,6 +77,9 @@ public class EventSeat {
 
     /** Livre para ser reservado por {@code reservationId}: disponível, com hold vencido ou já dele. */
     public boolean isFreeFor(UUID reservationId, Instant now) {
+        if (blocked) {
+            return false;
+        }
         return switch (status) {
             case AVAILABLE -> true;
             case SOLD -> false;

@@ -41,7 +41,7 @@ class RefreshTokenServiceTest {
     void setUp() {
         var refresh = new AppProperties.Refresh(Duration.ofDays(7), false, new AppProperties.Cookie("tf_refresh", "/api/auth", false, "Lax"));
         var security = new AppProperties.Security(4, null, refresh, null, null);
-        service = new RefreshTokenService(repository, new AppProperties(security, null, null, null, null, null, null, null, null, null), Clock.fixed(T0, ZoneOffset.UTC));
+        service = new RefreshTokenService(repository, new AppProperties(security, null, null, null, null, null, null, null, null, null, null), Clock.fixed(T0, ZoneOffset.UTC));
     }
 
     private RefreshToken stored(String raw, Instant issuedAt) {

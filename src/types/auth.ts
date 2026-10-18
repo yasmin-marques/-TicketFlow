@@ -19,7 +19,8 @@ export interface AuthUser {
 export interface Session {
   user: AuthUser
   accessToken: string
-  refreshToken: string
+  /** Só nos mocks. Com a API real o refresh token fica num cookie HttpOnly e nunca chega ao JavaScript. */
+  refreshToken?: string
   /** Fim de validade do access token (epoch ms). */
   accessExpiresAt: number
 }

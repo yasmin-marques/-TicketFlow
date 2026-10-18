@@ -2,6 +2,8 @@
 #   cp backend/.env.example .env   (e ajuste os valores)
 #   docker compose up --build
 # Só a infraestrutura (API rodando na sua máquina):  docker compose up -d postgres redis kafka
+# Perfil padrão: dev (dados e contas de demonstração, pagamento SANDBOX). Para simular produção localmente use
+# SPRING_PROFILES_ACTIVE=prod com segredos fortes, TF_COOKIE_SECURE=true e TF_CORS_ORIGINS=https://… (ver backend/README.md).
 services:
   postgres:
     image: postgres:16-alpine
@@ -75,8 +77,13 @@ services:
       TF_CORS_ORIGINS: ${TF_CORS_ORIGINS:-http://localhost:5173}
       TF_APP_URL: ${TF_APP_URL:-http://localhost:5173}
       TF_COOKIE_SECURE: ${TF_COOKIE_SECURE:-false}
+      TF_DEMO_PASSWORD: ${TF_DEMO_PASSWORD:-Demo12345}   # contas de demonstração (só perfil dev)
+      TF_SWAGGER_ENABLED: ${TF_SWAGGER_ENABLED:-true}
+      TF_RATE_LIMIT_ENABLED: ${TF_RATE_LIMIT_ENABLED:-true}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:${TF_API_PORT:-8080}:8080"
+    restart: unless-stopped
+    # healthcheck: definido na imagem (Dockerfile) → /actuator/health/readiness
 
 volumes:
   pgdata:

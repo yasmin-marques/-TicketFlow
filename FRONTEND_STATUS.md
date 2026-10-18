@@ -69,7 +69,16 @@ Resumo (detalhes de corpo/resposta em `docs/API-CONTRACTS.md`):
 
 Somente-mock (não implementar): `POST /dev/orders/{id}/simulate-payment`, `POST /dev/org/reset`.
 
-### Status do backend (Partes 1 e 2 de 3)
+### Status do backend (Partes 1, 2 e 3 — completo)
+
+**Parte 3 (18/10/2026):** o painel do organizador inteiro existe no backend (`/api/org/**`, contratos em `docs/API-CONTRACTS.md` §12),
+além de `PATCH /me`. Os três ajustes abaixo **foram aplicados** no frontend (lista em §12.9 do contrato), mais a tokenização sandbox
+do cartão e o rótulo do funil em Relatórios. Com `VITE_USE_MOCKS=false` + `VITE_API_URL=http://localhost:8080/api` o app inteiro fala
+com a API real; com mocks (padrão) nada mudou. Diferenças que o usuário percebe com a API real: cartões salvos indisponíveis
+(`503`), funil de relatórios medido de reserva → compra (sem visitas), membros da equipe precisam já ter conta, webhooks só cadastrados
+(sem entrega).
+
+#### Histórico (Partes 1 e 2)
 
 Já existem em `backend/` (ver `backend/README.md`): **Catálogo**, **Auth** (as seis rotas), `GET /me`, **Venda** (`/sales`, `/seats`, SSE, lista de
 espera), **Reservas**, **Pedidos** (cartão tokenizado, Pix/boleto com webhook), **Ingressos** (QR assinado, transferência) e o simulador de pagamento

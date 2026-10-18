@@ -125,7 +125,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    ResponseEntity<ApiError> handleUnexpected(Exception ex) {
+    ResponseEntity<ApiError> handleUnexpected(Exception ex, jakarta.servlet.http.HttpServletResponse response) {
+        // A detecção do Spring compara mensagens em inglês; com o SO em outro idioma, IOException com a resposta já
+        // enviada (ex.: SSE) também é desconexão do cliente.
+        if (org.springframework.web.util.DisconnectedClientHelper.isClientDisconnectedException(ex)
+                || (ex instanceof java.io.IOException && response.isCommitted())) {
+            // Cliente (ex.: EventSource) fechou a conexão: não há a quem responder nem erro do servidor.
+            log.debug("Cliente desconectado: {}", ex.toString());
+            return null;
+        }
         String ref = "%04x-%04x".formatted(RANDOM.nextInt(0x10000), RANDOM.nextInt(0x10000));
         log.error("Erro inesperado [ref={}]", ref, ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

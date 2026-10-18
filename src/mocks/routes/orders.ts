@@ -137,7 +137,8 @@ export function registerOrderRoutes(add: AddRoute): void {
       let installments: number | undefined
       if (method === 'card') {
         const card = input.payment.card
-        if (!card || !isValidCardNumber(card.number) || cardExpiryStatus(card.expiry) !== 'ok' || !/^\d{3,4}$/.test(card.cvv ?? '')) {
+        // O mock só recebe os dados crus (toPaymentCard não tokeniza no modo mock).
+        if (!card || !('number' in card) || !isValidCardNumber(card.number) || cardExpiryStatus(card.expiry) !== 'ok' || !/^\d{3,4}$/.test(card.cvv ?? '')) {
           throw new HttpError(422, 'VALIDATION_ERROR', 'Confira os dados do cartão')
         }
         last4 = onlyDigits(card.number).slice(-4)

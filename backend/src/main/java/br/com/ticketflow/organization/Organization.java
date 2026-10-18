@@ -38,6 +38,18 @@ public class Organization {
     @Column(length = 20)
     private String phone;
 
+    @Column(name = "payout_bank", length = 60)
+    private String payoutBank;
+
+    @Column(name = "payout_agency", length = 10)
+    private String payoutAgency;
+
+    @Column(name = "payout_account", length = 20)
+    private String payoutAccount;
+
+    @Column(name = "payout_holder", length = 120)
+    private String payoutHolder;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

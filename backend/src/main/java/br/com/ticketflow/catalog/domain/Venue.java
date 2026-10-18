@@ -33,10 +33,11 @@ public class Venue {
     @Column(length = 120)
     private String district;
 
-    @Column(nullable = false, length = 80)
+    /** Obrigatória para publicar (um rascunho pode ainda não ter). */
+    @Column(length = 80)
     private String city;
 
-    @Column(nullable = false, length = 2, columnDefinition = "char(2)")
+    @Column(length = 2, columnDefinition = "char(2)")
     @JdbcTypeCode(SqlTypes.CHAR)
     private String state;
 

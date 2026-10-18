@@ -71,9 +71,9 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     @Test
     void organizerPassesTheOrganizerGuardButNotTheAdminOne() throws Exception {
         String token = tokenFor(RoleName.ORGANIZER);
-        // Passa pela autorização; ainda não há controller (painel do organizador é de outra etapa) → 404, não 403.
+        // Passa pela autorização do filtro e pelo vínculo (organização própria criada no 1º acesso).
         mvc.perform(get("/api/org/events").header(HttpHeaders.AUTHORIZATION, bearer(token)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
         mvc.perform(get("/api/admin/users").header(HttpHeaders.AUTHORIZATION, bearer(token)))
                 .andExpect(status().isForbidden());
     }
@@ -82,7 +82,7 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     void adminPassesBothGuards() throws Exception {
         String token = tokenFor(RoleName.ADMIN);
         mvc.perform(get("/api/admin/users").header(HttpHeaders.AUTHORIZATION, bearer(token))).andExpect(status().isNotFound());
-        mvc.perform(get("/api/org/events").header(HttpHeaders.AUTHORIZATION, bearer(token))).andExpect(status().isNotFound());
+        mvc.perform(get("/api/org/events").header(HttpHeaders.AUTHORIZATION, bearer(token))).andExpect(status().isOk());
     }
 
     @Test

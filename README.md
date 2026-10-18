@@ -1,8 +1,9 @@
 # TicketFlow
 
 Plataforma de criação, gerenciamento, venda e reserva de ingressos para eventos, com reserva de assentos em tempo real,
-controle de concorrência, pagamentos e processamento assíncrono. Este repositório contém o **frontend** completo
-(três partes); o backend (Java 21 + Spring Boot) ainda será integrado — até lá, uma API simulada local atende o app.
+controle de concorrência, pagamentos e processamento assíncrono. Este repositório contém o **frontend** completo (três partes)
+e o **backend** completo em [`backend/`](backend/README.md) (Java 21 + Spring Boot + PostgreSQL + Redis + Kafka). Por padrão o
+frontend usa uma API simulada local; com `VITE_USE_MOCKS=false` ele fala com o backend real.
 
 > Status detalhado, endpoints pendentes e checklist de produção: [`FRONTEND_STATUS.md`](FRONTEND_STATUS.md) ·
 > contratos de API: [`docs/API-CONTRACTS.md`](docs/API-CONTRACTS.md).
@@ -97,16 +98,18 @@ Modos de simulação — acrescente à URL (persiste na aba até `?mock=off`):
 
 ## Como integrar com o backend
 
-> **Backend (Partes 1 e 2 de 3) disponível em [`backend/`](backend/README.md):** autenticação, catálogo, reservas com concorrência, pedidos,
-> pagamentos (gateway abstraído; sandbox em dev), ingressos com QR assinado e SSE de assentos (Spring Boot 3 + PostgreSQL + Redis + Kafka).
-> `docker compose up --build` na raiz sobe toda a stack. Antes de apontar o frontend para ele, aplique os ajustes de
-> `docs/API-CONTRACTS.md` §10.2 (cookie), §11.3 (SSE) e §11.5 (cartão tokenizado). O painel do organizador ainda depende dos mocks.
+> **Backend completo (Partes 1, 2 e 3) em [`backend/`](backend/README.md):** autenticação, catálogo, reservas com concorrência, pedidos,
+> pagamentos (gateway abstraído; sandbox em dev), ingressos com QR assinado, SSE de assentos e o **painel do organizador** (eventos,
+> lotes, mapa, pedidos, reembolsos, participantes, check-in atômico, dashboard, relatórios, equipe, webhooks), com isolamento por
+> organização. Os ajustes de integração do frontend já foram aplicados (`docs/API-CONTRACTS.md` §12.9).
 
-1. Implemente os endpoints listados em `FRONTEND_STATUS.md` §3 seguindo `docs/API-CONTRACTS.md` (corpo, status, `code` de erro).
-2. Defina `VITE_USE_MOCKS=false` e `VITE_API_URL=https://api…` (CORS com credenciais se usar cookies).
-3. **Autenticação:** substitua a sessão simulada. O ponto de troca é `features/auth/sessionStore.ts`; o cliente HTTP já injeta
-   `Authorization: Bearer` e renova o token uma vez em `401` (`services/api/authBridge.ts`).
-4. **Tempo real:** exponha `GET /events/{id}/seats/stream` (SSE, evento `seat.updated`); veja `services/realtime/seatStream.ts`.
-5. **Pagamento:** troque o envio do cartão por um token do gateway (ver nota em `PaymentStep` e em `docs/API-CONTRACTS.md` §4).
-6. **Produção:** remova o import de `@/mocks/*` de `services/api/http.ts` (ou carregue-o com `import()` somente em dev) para tirar o
-   código de mock do bundle, e apague as rotas `/dev/**`.
+1. Suba a stack: `cp backend/.env.example .env` (preencha os segredos) e `docker compose up --build` na raiz.
+2. Crie `.env.local` com `VITE_USE_MOCKS=false` e `VITE_API_URL=http://localhost:8080/api`; `npm run dev`.
+3. Entre com as contas de demonstração do perfil dev (`organizador@ticketflow.dev`, `portaria@ticketflow.dev`,
+   `comprador@ticketflow.dev`, senha `Demo12345`) — ver `backend/README.md`.
+4. **Autenticação:** refresh token em cookie `HttpOnly` (o axios usa `withCredentials`); access token de 15 min renovado uma vez em `401`.
+5. **Tempo real:** `GET /events/{id}/seats/stream` (SSE `seat.updated`, com `?access_token=`).
+6. **Pagamento:** com a API real o cartão vira um token (`services/payment/cardTokenizer.ts`). Hoje é o token **sandbox** do backend
+   (`tok_<final>`, só dev/test); em produção, substitua pelo SDK do gateway.
+7. **Produção:** remova o import de `@/mocks/*` de `services/api/http.ts` (ou carregue-o com `import()` somente em dev) para tirar o
+   código de mock do bundle. A rota `/api/dev/**` só existe nos perfis dev/test do backend.

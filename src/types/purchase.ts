@@ -166,11 +166,17 @@ export interface CardInput {
   installments: number
 }
 
+/** Cartão já tokenizado pelo gateway: o backend real só aceita isto (nunca número/CVV). */
+export interface TokenizedCard {
+  token: string
+  installments: number
+}
+
 export interface CreateOrderInput {
   reservationId: string
   buyer: Buyer
   holders: TicketHolder[]
-  payment: { method: PaymentMethod; card?: CardInput }
+  payment: { method: PaymentMethod; card?: CardInput | TokenizedCard }
 }
 
 export interface OrderLine {

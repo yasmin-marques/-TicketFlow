@@ -14,6 +14,8 @@ export const http = axios.create({
   baseURL: API_BASE_URL,
   timeout: 20_000,
   headers: { Accept: 'application/json' },
+  // API real: envia/recebe o cookie HttpOnly do refresh token (frontend e API em origens diferentes no desenvolvimento).
+  withCredentials: !USE_MOCKS,
   ...(USE_MOCKS ? { adapter: mockAdapter } : {}),
 })
 

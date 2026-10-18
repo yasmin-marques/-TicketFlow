@@ -12,3 +12,5 @@ tf:
         secure: false
   seed:
     enabled: true
+    # Usuários de demonstração (organizador, portaria, comprador). Só existem no perfil dev; troque com TF_DEMO_PASSWORD.
+    demo-password: ${TF_DEMO_PASSWORD:Demo12345}

@@ -5,7 +5,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,4 +51,28 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             order by case when e.category.id = :categoryId then 0 else 1 end, e.startsAt asc, e.id asc
             """)
     List<Event> findRelated(@Param("id") UUID id, @Param("categoryId") Short categoryId, @Param("now") Instant now, Pageable pageable);
+
+    // ── Painel do organizador: SEMPRE filtrado pela organização da sessão ─────────────────────────────
+
+    @Query("""
+            select e from Event e left join fetch e.venue join fetch e.category
+            where e.id = :id and e.organization.id = :orgId
+            """)
+    Optional<Event> findOwned(@Param("id") UUID id, @Param("orgId") UUID orgId);
+
+    /** Trava o evento da organização (sem joins: só a linha de {@code events}). */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Event e where e.id = :id and e.organization.id = :orgId")
+    Optional<Event> lockOwned(@Param("id") UUID id, @Param("orgId") UUID orgId);
+
+    @Query("""
+            select e from Event e left join fetch e.venue join fetch e.category
+            where e.organization.id = :orgId order by e.startsAt desc, e.id
+            """)
+    List<Event> findAllOwned(@Param("orgId") UUID orgId);
+
+    boolean existsBySlugAndIdNot(String slug, UUID id);
+
+    @Query("select count(e) from Event e where e.venue.id = :venueId")
+    long countByVenue(@Param("venueId") UUID venueId);
 }

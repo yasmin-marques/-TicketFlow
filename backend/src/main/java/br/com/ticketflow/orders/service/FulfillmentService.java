@@ -15,10 +15,10 @@ import br.com.ticketflow.sales.repository.EventSeatRepository;
 import br.com.ticketflow.sales.service.HoldService;
 import br.com.ticketflow.sales.service.LotStock;
 import br.com.ticketflow.tickets.Ticket;
+import br.com.ticketflow.tickets.TicketCodes;
 import br.com.ticketflow.tickets.TicketRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,9 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public class FulfillmentService {
 
-    private static final String CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // sem 0/O/1/I/L
-    private static final SecureRandom RANDOM = new SecureRandom();
-
     private final LotStock stock;
     private final HoldService holds;
     private final EventSeatRepository seats;
@@ -51,9 +48,10 @@ public class FulfillmentService {
     private final SeatUpdateBus bus;
     private final ObjectMapper mapper;
     private final Clock clock;
+    private final TicketCodes codes;
 
     public FulfillmentService(LotStock stock, HoldService holds, EventSeatRepository seats, TicketRepository tickets,
-                              OutboxService outbox, SeatUpdateBus bus, ObjectMapper mapper, Clock clock) {
+                              OutboxService outbox, SeatUpdateBus bus, ObjectMapper mapper, Clock clock, TicketCodes codes) {
         this.stock = stock;
         this.holds = holds;
         this.seats = seats;
@@ -62,6 +60,7 @@ public class FulfillmentService {
         this.bus = bus;
         this.mapper = mapper;
         this.clock = clock;
+        this.codes = codes;
     }
 
     /**
@@ -137,17 +136,42 @@ public class FulfillmentService {
         bus.publishAfterCommit(updates);
     }
 
-    /** Reembolso de pedido pago: cancela ingressos, devolve vendidos ao estoque e libera os assentos. */
+    /** Quem pede o reembolso define o que bloqueia a operação. */
+    public enum RefundPolicy {
+        /** O comprador: todos os ingressos precisam estar válidos e ainda serem dele. */
+        BUYER,
+        /** O organizador (um pedido): ingressos transferidos são cancelados também; ingresso já usado bloqueia. */
+        ORGANIZER,
+        /** Cancelamento do evento: tudo é cancelado e reembolsado. */
+        EVENT_CANCELLED
+    }
+
+    /** Reembolso de pedido pago pelo comprador (regra da Parte 2). */
     public void markRefunded(Order order) {
+        markRefunded(order, RefundPolicy.BUYER);
+    }
+
+    /** Reembolso de pedido pago: cancela ingressos, devolve vendidos ao estoque e libera os assentos. */
+    public void markRefunded(Order order, RefundPolicy policy) {
         Instant now = clock.instant();
         List<Ticket> orderTickets = tickets.lockByOrder(order.getId());
         for (Ticket t : orderTickets) {
-            if (t.getStatus() != Ticket.Status.VALID || !order.getUserId().equals(t.getOwnerUserId())) {
-                throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "REFUND_NOT_ALLOWED",
-                        "Este pedido não pode ser reembolsado: há ingressos usados ou transferidos.");
+            boolean blocked = switch (policy) {
+                case BUYER -> t.getStatus() != Ticket.Status.VALID || !order.getUserId().equals(t.getOwnerUserId());
+                case ORGANIZER -> t.getStatus() == Ticket.Status.USED;
+                case EVENT_CANCELLED -> false;
+            };
+            if (blocked) {
+                throw policy == RefundPolicy.BUYER
+                        ? new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "REFUND_NOT_ALLOWED",
+                                "Este pedido não pode ser reembolsado: há ingressos usados ou transferidos.")
+                        : ApiException.conflict("INVALID_STATE", "O pedido tem ingressos já utilizados e não pode ser reembolsado");
             }
         }
-        orderTickets.forEach(t -> t.setStatus(Ticket.Status.CANCELLED));
+        orderTickets.forEach(t -> {
+            t.setStatus(Ticket.Status.CANCELLED);
+            t.setUsedAt(null);
+        });
 
         List<SeatUpdate> updates = new ArrayList<>();
         for (EventSeat seat : seats.lockByReservation(order.getReservation().getId())) {
@@ -172,25 +196,7 @@ public class FulfillmentService {
 
     private Ticket issue(Order order, TicketType type, String slot, UUID seatId, Map<String, String> holders, Instant now) {
         String holder = holders.getOrDefault(slot, "").trim();
-        return Ticket.issue(newCode(), order, order.getEvent(), type, slot, seatId, holder.isEmpty() ? order.getBuyerName() : holder, order.getUserId(), now);
-    }
-
-    private String newCode() {
-        for (int attempt = 0; attempt < 10; attempt++) {
-            String code = "TF-" + random(4) + "-" + random(4);
-            if (!tickets.existsByCode(code)) {
-                return code;
-            }
-        }
-        throw new IllegalStateException("Não foi possível gerar um código de ingresso único");
-    }
-
-    private static String random(int n) {
-        StringBuilder sb = new StringBuilder(n);
-        for (int i = 0; i < n; i++) {
-            sb.append(CODE_ALPHABET.charAt(RANDOM.nextInt(CODE_ALPHABET.length())));
-        }
-        return sb.toString();
+        return Ticket.issue(codes.next(), order, order.getEvent(), type, slot, seatId, holder.isEmpty() ? order.getBuyerName() : holder, order.getUserId(), now);
     }
 
     private Map<String, String> readHolders(Order order) {

@@ -28,15 +28,17 @@ public class TicketService {
     private final TicketMapper mapper;
     private final OutboxService outbox;
     private final Clock clock;
+    private final TicketCodes codes;
 
     public TicketService(TicketRepository tickets, TicketTransferRepository transfers, UserRepository users, TicketMapper mapper,
-                         OutboxService outbox, Clock clock) {
+                         OutboxService outbox, Clock clock, TicketCodes codes) {
         this.tickets = tickets;
         this.transfers = transfers;
         this.users = users;
         this.mapper = mapper;
         this.outbox = outbox;
         this.clock = clock;
+        this.codes = codes;
     }
 
     @Transactional
@@ -79,6 +81,8 @@ public class TicketService {
         ticket.setOwnerUserId(recipient == null ? null : recipient.getId());
         ticket.setTransferEmail(recipient == null ? email : null);
         ticket.setQrVersion(ticket.getQrVersion() + 1);
+        // O código digitável também muda: quem transferiu não consegue entrar digitando o código antigo na portaria.
+        ticket.setCode(codes.next());
         if (recipient != null) {
             ticket.setHolderName(recipient.getName());
         }

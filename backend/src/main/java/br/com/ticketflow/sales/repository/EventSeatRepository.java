@@ -28,8 +28,16 @@ public interface EventSeatRepository extends JpaRepository<EventSeat, UUID> {
 
     List<EventSeat> findByEventIdOrderByCodeAsc(UUID eventId);
 
-    @Query("select s from EventSeat s where s.eventId = :eventId and s.status <> br.com.ticketflow.sales.domain.SeatStatus.AVAILABLE")
-    List<EventSeat> findNotAvailable(@Param("eventId") UUID eventId);
+    @Query("select s from EventSeat s where s.eventId = :eventId and (s.status <> br.com.ticketflow.sales.domain.SeatStatus.AVAILABLE or s.blocked = true)")
+    List<EventSeat> findNotAvailableOrBlocked(@Param("eventId") UUID eventId);
+
+    @Query("select s.code from EventSeat s where s.eventId = :eventId")
+    List<String> findCodesByEvent(@Param("eventId") UUID eventId);
+
+    /** Trava todos os assentos do evento (edição do mapa pelo organizador), em ordem de id. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from EventSeat s where s.eventId = :eventId order by s.id")
+    List<EventSeat> lockByEvent(@Param("eventId") UUID eventId);
 
     List<EventSeat> findByEventIdAndRowLabelOrderBySeatNumberAsc(UUID eventId, String rowLabel);
 

@@ -1,5 +1,6 @@
 import { subscribeSeatUpdates } from '@/mocks/seats'
 import type { SeatUpdate } from '@/types/purchase'
+import { authBridge } from '../api/authBridge'
 import { API_BASE_URL, USE_MOCKS } from '../api/http'
 
 export type StreamStatus = 'open' | 'error'
@@ -20,7 +21,10 @@ export function openSeatStream(
 ): () => void {
   if (USE_MOCKS) return subscribeSeatUpdates(eventId, handlers.onUpdate, handlers.onStatus)
 
-  const source = new EventSource(`${API_BASE_URL}/events/${eventId}/seats/stream`, { withCredentials: true })
+  // EventSource não envia Authorization: o token de acesso vai na query (opcional; evita receber o eco das próprias ações).
+  const token = authBridge.getAccessToken()
+  const query = token ? `?access_token=${encodeURIComponent(token)}` : ''
+  const source = new EventSource(`${API_BASE_URL}/events/${eventId}/seats/stream${query}`, { withCredentials: true })
   source.onopen = () => handlers.onStatus('open')
   source.onerror = () => handlers.onStatus('error') // o navegador reconecta sozinho
   source.addEventListener('seat.updated', (e) => {

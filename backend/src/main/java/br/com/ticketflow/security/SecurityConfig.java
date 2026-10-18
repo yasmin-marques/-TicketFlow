@@ -30,7 +30,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * <p>Regras (a primeira que casar vence):
  * <ul>
  *   <li>público: {@code /api/auth/**}, catálogo (GET), documentação e health;</li>
- *   <li>{@code /api/org/**}: ORGANIZER ou ADMIN; {@code /api/admin/**}: ADMIN;</li>
+ *   <li>{@code /api/org/**}: ORGANIZER ou ADMIN (e, no serviço, vínculo com a organização e papel de membro — ver
+ *       {@code OrgAccessService}); {@code /api/admin/**}: ADMIN;</li>
  *   <li>qualquer outra rota {@code /api/**}: usuário autenticado (negar por padrão).</li>
  * </ul>
  */
@@ -46,7 +47,14 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(h -> h.contentTypeOptions(Customizer.withDefaults())
                         .frameOptions(f -> f.deny())
-                        .referrerPolicy(r -> r.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)))
+                        .referrerPolicy(r -> r.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
+                        // HSTS só é enviado em HTTPS (o padrão do Spring Security); 1 ano, com subdomínios.
+                        .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31_536_000))
+                        // A API só devolve JSON/SSE: nada pode ser carregado nem embutido a partir das respostas (exceto o Swagger UI).
+                        .addHeaderWriter(new org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter(
+                                request -> !request.getRequestURI().startsWith("/api/swagger-ui") && !request.getRequestURI().startsWith("/api/docs"),
+                                new org.springframework.security.web.header.writers.StaticHeadersWriter(
+                                        "Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'"))))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
@@ -95,8 +103,9 @@ public class SecurityConfig {
         CorsConfiguration cors = new CorsConfiguration();
         cors.setAllowedOrigins(props.cors().allowedOrigins());
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        cors.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Idempotency-Key"));
-        cors.setExposedHeaders(List.of("Retry-After"));
+        cors.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Idempotency-Key", "X-Organization-Id", "X-Request-Id",
+                "Last-Event-ID"));
+        cors.setExposedHeaders(List.of("Retry-After", "X-Request-Id", "Idempotent-Replayed"));
         cors.setAllowCredentials(true); // necessário para o cookie de refresh
         cors.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

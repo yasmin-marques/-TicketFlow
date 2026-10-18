@@ -169,9 +169,10 @@ public class SalesService {
         UUID mine = userId == null ? null : reservations.findActiveByUser(userId)
                 .filter(r -> r.getEvent().getId().equals(eventId)).map(Reservation::getId).orElse(null);
         Map<String, String> out = new LinkedHashMap<>();
-        List<EventSeat> source = includeAvailable ? seats.findByEventIdOrderByCodeAsc(eventId) : seats.findNotAvailable(eventId);
+        List<EventSeat> source = includeAvailable ? seats.findByEventIdOrderByCodeAsc(eventId) : seats.findNotAvailableOrBlocked(eventId);
         for (EventSeat s : source) {
-            if (s.getStatus() == SeatStatus.SOLD) {
+            if (s.getStatus() == SeatStatus.SOLD || s.isBlocked()) {
+                // bloqueado pelo organizador: para o comprador é um lugar indisponível
                 out.put(s.getCode(), "sold");
             } else if (s.isEffectivelyAvailable(now)) {
                 if (includeAvailable) {
@@ -184,6 +185,18 @@ public class SalesService {
                 out.put(s.getCode(), "reserved");
             }
         }
+        // Plantas do editor do organizador podem ter vãos: posições da grade retangular sem assento real ficam indisponíveis.
+        maps.findById(eventId).ifPresent(m -> {
+            Set<String> existing = new java.util.HashSet<>(seats.findCodesByEvent(eventId));
+            for (char row : m.getRows().toCharArray()) {
+                for (int n = 1; n <= m.getSeatsPerRow(); n++) {
+                    String code = "" + row + String.format("%02d", n);
+                    if (!existing.contains(code)) {
+                        out.put(code, "sold");
+                    }
+                }
+            }
+        });
         return out;
     }
 

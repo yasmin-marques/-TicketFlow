@@ -225,7 +225,7 @@ o frontend precisa ajustar. Rotas e formatos não mencionados aqui seguem as se�
 O access token dura 15 min; a resposta de 401 distingue `TOKEN_EXPIRED` (renovar) de `UNAUTHENTICATED`. `403 FORBIDDEN` = papel insuficiente.
 Regra de senha (igual à do frontend): ≥ 8 caracteres com letra e número (máx. 72 bytes).
 
-### 10.2 Ajustes necessários no frontend (não aplicados — o frontend segue funcionando com mocks)
+### 10.2 Ajustes necessários no frontend (**aplicados na Parte 3** — ver §12.9; os mocks seguem funcionando)
 
 Inconsistência: o tipo `Session` (`src/types/auth.ts`) exige `refreshToken` e `AuthProvider` o lê do `localStorage` para chamar
 `authService.refresh(...)`. Com cookie `HttpOnly` o JavaScript nunca vê o token. Proposta, mínima e localizada:
@@ -256,8 +256,8 @@ ao custo de deixá-lo acessível ao JavaScript. Não recomendado em produção.
 
 ### 10.4 Ainda não implementado no backend
 
-Cartões salvos (`/me/cards`), `PATCH /me` e todo o painel `/org/**` (já protegido por papel, mas sem controllers: responde `404`
-a quem tem o papel e `403` a quem não tem). Venda, reservas, pedidos e ingressos estão na §11.
+~~`PATCH /me`, cartões salvos e o painel `/org/**`~~ — implementados na Parte 3 (§12). Cartões salvos dependem do cofre do
+gateway: `GET /me/cards` devolve `[]` e `POST` responde `503 CARD_VAULT_UNAVAILABLE` (§12.8).
 
 ## 11. Backend real — Parte 2 (reservas, concorrência, pedidos, pagamentos, ingressos, tempo real)
 
@@ -361,3 +361,198 @@ Cada mudança relevante grava um evento na tabela `outbox_events` **na mesma tra
 (entrega ao-menos-uma-vez; chave = agregado) e os consumidores deduplicam por `(consumer, event_id)`. O Kafka **não** substitui as transações do banco:
 vendas, reservas e idempotência são decididas apenas no PostgreSQL.
 
+## 12. Backend real — Parte 3 (painel do organizador, check-in, segurança)
+
+Implementado em `backend/` (pacote `org/`). Formatos seguem `src/types/organizer.ts`; abaixo, **as regras reais** e onde diferem
+dos mocks (§9). Prefixo `/api`. Ids são UUID. Dinheiro em reais, datas ISO 8601 com offset de São Paulo; datas de lote e filtros
+de período em `YYYY-MM-DD` (fuso de São Paulo).
+
+### 12.1 Autorização e isolamento
+
+Três camadas, todas no servidor:
+
+1. **Filtro de segurança:** `/api/org/**` exige JWT com papel `ORGANIZER` ou `ADMIN` (`401 UNAUTHENTICATED`/`TOKEN_EXPIRED`, `403 FORBIDDEN`).
+2. **Vínculo no banco, a cada requisição** (`OrgAccessService`): o usuário precisa estar ativo e ter **hoje** o papel no banco
+   (um papel revogado vale na hora, sem esperar o token expirar) e um vínculo em `organization_members`. A organização é sempre
+   a do vínculo — nenhum id de organização do cliente é usado sem validação. Com várias organizações, o cliente pode enviar
+   `X-Organization-Id` (aceito só se houver vínculo; `ADMIN` pode escolher qualquer uma) — o frontend não envia, então vale a
+   primeira. Um `ORGANIZER` sem organização (promovido pelo administrador) ganha uma organização própria no 1º acesso.
+3. **Papel do membro** (`OrgPermission`), checado no serviço:
+
+| Ação | OWNER | MANAGER | CHECKIN (portaria) |
+|---|:-:|:-:|:-:|
+| Ver eventos e lotes | ✓ | ✓ | ✓ |
+| Criar/editar/publicar/cancelar eventos, lotes e mapa | ✓ | ✓ | — |
+| Ver pedidos · reembolsar | ✓ | ✓ | — |
+| Dashboard e relatórios | ✓ | ✓ | — |
+| Participantes, check-in (scanner e manual) | ✓ | ✓ | ✓ |
+| Desfazer check-in | ✓ | ✓ | — |
+| Ver configurações | ✓ | ✓ | — |
+| Alterar organização, repasse, equipe e webhooks | ✓ | — | — |
+
+Recurso de **outra organização → `404 NOT_FOUND`** (não revela que existe), em leitura e escrita. Filtros com o id de outra
+organização (`?eventId=`) simplesmente não retornam nada. Papel insuficiente → `403 FORBIDDEN`.
+
+### 12.2 Eventos
+
+| Rota | Comportamento |
+|---|---|
+| `GET /org/events?status&q` | `{ items: OrgEventSummary[], total, counts: { all, draft, published, ended, cancelled } }`. `ended` é derivado: publicado cujo término (ou início) já passou. `q` ignora acentos/maiúsculas |
+| `GET /org/events/slug-available?slug&exceptId` | `{ slug, available }`. O slug é normalizado (`"Show Único"` → `show-unico`) e checado contra **todos** os eventos (o catálogo é global). `exceptId` só é considerado se o evento for da sua organização. Reservados: `featured`, `upcoming`, `suggest`, `novo`, `new`, `admin`, `org` |
+| `POST /org/events` | `201 OrgEvent` em **rascunho**. Campos parciais: sem `startsAt` → hoje+30 dias; sem `endsAt` → início+4 h; slug gerado do título (com `-2`, `-3`… se ocupado). `422 VALIDATION_ERROR` para título com menos de 3 caracteres, categoria inexistente, término ≤ início |
+| `GET /org/events/{id}` | `OrgEvent` com `capacity` (soma dos lotes), `sold` (ingressos válidos+usados), `revenue` (subtotal dos pedidos **pagos**, sem a taxa) e `checkedIn`. `seatMap` é `null` sem mapa |
+| `PATCH /org/events/{id}` | Edição parcial (ausente = sem mudança). `409 INVALID_STATE` em evento encerrado/cancelado ou ao mudar o slug de evento com pedidos; `409 SLUG_TAKEN`; `422` para slug inválido/reservado. Evento **publicado** precisa continuar publicável (`422 VALIDATION_ERROR` com `errors[]`) |
+| `POST /org/events/{id}/publish` | Só rascunho (`409 INVALID_STATE`). `422 PUBLISH_BLOCKED` com `errors: string[]`: nome ≥ 3, descrição ≥ 80, local com nome **+ cidade + UF**, término > início, início no futuro, ≥ 1 lote, algum lote ainda dentro da janela; com mapa: mapa com assentos vendáveis, cada setor com lote, e **soma dos lotes do setor ≤ assentos vendáveis do setor**. Publicado → aparece no catálogo público no mesmo commit (busca, detalhe, `/sales`) |
+| `POST /org/events/{id}/unpublish` | Volta a rascunho e sai do catálogo — só sem pedidos (de nenhum status) e sem reservas ativas (`409 INVALID_STATE`). Os lotes saem de venda **antes** da checagem (nenhuma reserva nova entra no meio) |
+| `POST /org/events/{id}/cancel` | Rascunho ou publicado. Na mesma transação: tira os lotes de venda, libera reservas ativas, expira pedidos pendentes e **reembolsa todos os pagos** (gateway + ingressos `cancelled` + estoque/assentos devolvidos). Gera aviso e auditoria. `409` se já encerrado/cancelado |
+| `DELETE /org/events/{id}` | **`204`**. Só rascunho que nunca teve reserva nem pedido (`409 INVALID_STATE`) |
+| `PUT /org/events/{id}/seat-map` `{ seatMap }` | Salva o mapa inteiro (`null` remove). Ver §12.3 |
+
+Política de cancelamento: `full-7d` (reembolso pelo comprador até 7 dias, > 48 h do evento — regra da Parte 2) ou `none`
+(**o comprador não consegue cancelar**; o organizador ainda reembolsa pelo painel). Os textos da política aparecem no detalhe público.
+O local de um evento é próprio dele; locais compartilhados (dados de demonstração) são copiados na primeira edição.
+
+### 12.3 Mapa de assentos
+
+* Validação (`422 VALIDATION_ERROR`): 1–20 setores; até 26 fileiras de uma letra (`A`…`Z`), até 99 posições por fileira;
+  rótulo = letra da fileira + 2–3 dígitos (`A01`, `B12`); sem repetição; setor existente; até 2.600 assentos.
+* **Vínculo com a venda:** cada setor vira (ou reaproveita) um tipo de ingresso com assento — o de mesmo código ou **mesmo nome**
+  do "Tipo" do lote (ex.: lote "Premium" + setor "Premium"). Crie o lote com o mesmo nome do setor. O preço cobrado é sempre
+  o do **lote**; o `price` do setor é só informativo. Tipos que não correspondem a setor são "sem assento" (pista).
+* Edição com vendas: evento e todos os assentos são travados; assento **vendido ou com reserva ativa** não pode ser removido,
+  bloqueado nem mudar de setor → **`409 SEAT_SOLD`** (`seatId` no corpo; nada muda). Assento com histórico de ingresso
+  (reembolsado) não é apagado, fica bloqueado. Bloqueios/desbloqueios são enviados no SSE do comprador.
+* Comprador: a jornada de compra usa uma grade retangular (fileiras × posições). Vãos (`null`) e assentos bloqueados aparecem
+  como `sold` em `GET /events/{id}/seats` e não podem ser reservados. **Limitação:** se a numeração não seguir a posição
+  (ex.: renumerar depois de criar vãos), a grade do comprador desloca os rótulos; fileiras com setores misturados são exibidas
+  com o setor majoritário.
+
+### 12.4 Lotes
+
+| Rota | Comportamento |
+|---|---|
+| `GET /org/events/{id}/lots` | `OrgLot[]`. `sold` = vendidos do lote. `status`: `draft` (evento em rascunho) · `sold-out` · `ended` (fora da janela ou evento encerrado/cancelado) · `published` |
+| `POST /org/events/{id}/lots` | `201`. Obrigatórios: `typeName`, `name`, `price` (0–100000), `quantity` (≥ 1), `startsAt`/`endsAt` (`YYYY-MM-DD`; vende do início do 1º dia ao fim do último). Evento publicado → o lote já entra à venda |
+| `PATCH /org/lots/{id}` | `422` se `quantity` < vendidos + reservados; `409` ao trocar o tipo de lote com vendas/reservas. **Preço novo vale só para novas reservas** (as existentes guardam o preço) |
+| `DELETE /org/lots/{id}` | **`204`**. `409 INVALID_STATE` se o lote tem ou teve vendas/reservas |
+
+A checagem e a escrita rodam com a linha do lote travada (não correm contra compradores segurando estoque).
+`perCustomerLimit` é gravado mas **ainda não é aplicado entre pedidos** (só `maxPerOrder` = 6 por pedido).
+
+### 12.5 Pedidos e reembolso
+
+* `GET /org/orders?q&eventId&method&status&from&to&page&pageSize` → `OrgPage<OrgOrder>`. Filtro, contagem e paginação no
+  banco; `pageSize` 1–500 (padrão 12; 500 para o CSV); página fora do intervalo é ajustada. `q` busca código, comprador, e-mail e
+  evento. `from`/`to` pela data de criação. Parâmetro inválido → `400 INVALID_PARAMETER`.
+* `status`: `paid` · `pending` · `refunded` · **`declined` = pagamento não concluído** (Pix/boleto vencido ou recusado depois).
+  Recusas de cartão no checkout (`402`) não criam pedido, então não aparecem.
+* Sem CPF/telefone/dados de pagamento na listagem (só `cardLast4`).
+* `GET /org/orders/{id}` — detalhe.
+* `POST /org/orders/{id}/refund` → `OrgOrder` reembolsado. `409 INVALID_STATE` se não está pago ou se há ingresso já
+  utilizado. Ingressos transferidos também são cancelados. Estoque e assentos voltam à venda; gateway chamado com chave de
+  idempotência `refund-<id>` (repetir não estorna duas vezes); `502 REFUND_FAILED` se o gateway não confirmar (nada muda).
+
+### 12.6 Participantes e check-in
+
+* `GET /org/attendees?eventId&q&status&page&pageSize` → `OrgAttendeesResponse` (`checkedIn` e `sold` do escopo, ignorando
+  `q`/`status`). Um participante por ingresso emitido; `status`: `checked-in` · `waiting` · `cancelled`; `email` = dono atual
+  (ou destinatário de transferência pendente). `pageSize` padrão 15, máx. 500.
+* `POST /org/attendees/{ticketId}/checkin` `{ gate? }` → `OrgAttendee`. `409 ALREADY_USED` se já entrou · `409 INVALID_STATE`
+  se cancelado · `409 EVENT_NOT_ACTIVE` se o evento não está publicado/em andamento.
+* `DELETE /org/attendees/{ticketId}/checkin` → `OrgAttendee` (`waiting`). Só OWNER/MANAGER; `409 INVALID_STATE` sem check-in
+  para desfazer ou evento cancelado. Auditado (portão e horário anteriores).
+* `GET /org/events/{id}/checkin` → `CheckinStats`: `checkedIn`, `sold`, `perMinute` (entradas válidas nos últimos 10 min ÷ 10),
+  `gates` (Portão A/B/C + os já usados), `recent` (12 últimas leituras).
+* `POST /org/events/{id}/checkin` `{ code, gate }` → **sempre `200`** com `result`:
+
+| `result` | Quando |
+|---|---|
+| `valid` | Entrada registrada agora (`holderName`, `typeName`, `sector`, `seat`) |
+| `used` | Já entrou — com `checkedInAt` e `gate` da **primeira** entrada |
+| `invalid` | Assinatura do QR inválida/adulterada; QR anterior a uma transferência (versão diferente); código desconhecido; ingresso de **outro evento** (sem revelar dados dele); cancelado/reembolsado |
+
+  `409 EVENT_NOT_ACTIVE` se o evento não está publicado ou já terminou; `422` com `code` vazio; `404` evento de outra organização.
+  Aceita o QR (`TF1.<ticketId>.<versão>.<HMAC>`, assinatura verificada no servidor) e o código digitável `TF-XXXX-XXXX`.
+  **Na transferência o código digitável também muda** (Parte 3), então o código anterior deixa de valer como o QR anterior.
+* **Atomicidade:** a entrada é um único `UPDATE tickets SET status='USED' … WHERE id=? AND status='VALID' AND qr_version=?`.
+  Leituras simultâneas do mesmo ingresso disputam a mesma linha: uma vê `valid`, as outras `used` (testado com 12 leituras em
+  paralelo, QR e código misturados, e com check-in manual concorrendo com o scanner). Toda leitura fica em `checkin_scans`.
+* Sem janela de horário de abertura: qualquer evento publicado e não encerrado aceita leituras.
+
+### 12.7 Dashboard e relatórios (dados reais)
+
+`GET /org/dashboard?range=7|30|90&eventId=` (outro `range` → 30). Tudo calculado no banco:
+* `revenue` = subtotal dos pedidos com status `PAID` **pela data de pagamento** (reembolsados saem; taxa de serviço não entra);
+  `sold` = ingressos desses pedidos; `delta` = variação % vs. período anterior de mesmo tamanho (`null` sem base).
+* `occupancy` = ingressos válidos+usados ÷ soma dos lotes dos eventos publicados/encerrados (delta em pontos percentuais);
+  `checkins.pctOfSold`; `goal` = capacidade.
+* `salesByDay`/`cumulative`/`byType` por dia (fuso de São Paulo); `revenueByEvent` top 5 (todo o período); `activeEvents` até 8.
+
+`GET /org/reports?eventId&from&to` (padrão: últimos 45 dias; máx. 400 dias; sem `eventId` → evento publicado/encerrado mais
+recente; `404` se não houver): `revenue`, `sold`, `avgTicket` no período; `occupancyPct`, `checkins`, `checkinPct` totais;
+`byLot` (vendidos/total por lote); `bySector` (ocupação por setor do mapa ou, sem mapa, por tipo).
+**Diferença em relação ao mock:** não existe analytics de visitas. O funil real é **Reservas criadas → Pedidos criados → Pagos**
+e `conversionPct` = pagos ÷ reservas criadas; `expiredReservationsPct` = reservas expiradas ÷ criadas — ambos medidos, não
+estimados. A resposta traz `conversionBasis: "reservation-to-paid"` e a tela de relatórios identifica a base (§12.9).
+Observação: os eventos de **demonstração** (perfil dev) já nascem com `quantity_sold` nos lotes sem pedidos correspondentes,
+então em `byLot` aparecem vendas sem receita; eventos criados pelo painel não têm essa diferença.
+
+### 12.8 Configurações, equipe, webhooks, avisos e busca
+
+* `GET/PATCH /org/settings` → `OrgSettings` (escrita só OWNER). `document` aceita CNPJ ou CPF (formato); `email` validado;
+  nome de organização único (`409 NAME_TAKEN`). Auditoria registra **que** o repasse mudou, não os valores.
+* `POST /org/members` `{ name, email, role: MANAGER|CHECKIN }` → `201 OrgSettings`. **A pessoa precisa já ter conta**
+  (`422 USER_NOT_FOUND` — não há convite por e-mail porque o cadastro ainda não verifica e-mail). `409 EMAIL_TAKEN` se já é
+  membro. Recebe o papel `ORGANIZER` (vale no próximo login/renovação). `DELETE /org/members/{userId}`: o OWNER não sai
+  (`409`); sem outra organização, a pessoa perde o papel `ORGANIZER` na hora.
+* `POST/PATCH/DELETE /org/webhooks` → `OrgSettings`. Só `https://` com domínio público e porta 443 (recusa `localhost`, IPs,
+  nomes internos — proteção básica contra SSRF); eventos: `order.paid`, `order.refunded`, `ticket.checked_in`; até 10 por
+  organização. Um segredo de assinatura é gerado e **nunca devolvido**. **As entregas ainda não são feitas** (cadastro apenas).
+* `GET /org/notifications` (30 mais recentes; `read` por usuário) · `POST /org/notifications/read` → `{ ok: true }`. Avisos
+  gerados: evento publicado, evento cancelado (com nº de reembolsos), pedido reembolsado, novo membro.
+* `GET /org/search?q=` (≥ 2 caracteres): até 5 eventos (título) e 5 pedidos (código/comprador/e-mail). Portaria não recebe pedidos.
+* Conta do comprador: `PATCH /me` implementado (nome, telefone, CPF, nascimento `dd/mm/aaaa`, notificações; `422` com `errors`).
+  `GET /me/cards` → `[]`; `POST /me/cards` → `503 CARD_VAULT_UNAVAILABLE` (e `422 CARD_DATA_NOT_ALLOWED` se vier número/CVV);
+  `DELETE` → `404`. Cartões salvos dependem do cofre do gateway.
+
+### 12.9 Ajustes feitos no frontend (mínimos, mesmo design e fluxos)
+
+| Arquivo | Mudança | Por quê |
+|---|---|---|
+| `services/api/http.ts` | `withCredentials: !USE_MOCKS` | enviar/receber o cookie `HttpOnly` do refresh entre `localhost:5173` e `:8080` |
+| `types/auth.ts`, `services/api/auth.service.ts` | `refreshToken` opcional; `refresh()` envia `{}` sem token | a API real lê o refresh do cookie e não o devolve no corpo |
+| `services/realtime/seatStream.ts` | `?access_token=` no `EventSource` | o stream não reenvia ao usuário as mudanças que ele mesmo causou |
+| `services/payment/cardTokenizer.ts` (novo), `features/checkout/PaymentStep.tsx`, `types/purchase.ts` | com a API real envia `card: { token, installments }` | o servidor recusa número/CVV (`422 CARD_DATA_NOT_ALLOWED`). **Sandbox:** o token é `tok_<4 últimos dígitos>` (só funciona com o backend em dev/test). Produção precisa do SDK do gateway |
+| `pages/org/ReportsPage.tsx` | subtítulo e rótulo da conversão conforme o modo | com a API real os números são medidos (reserva → compra), não "estimativas simuladas" de visitas |
+| `mocks/routes/orders.ts` | só ajuste de tipo | compilar com o novo tipo do cartão |
+
+Com mocks (`VITE_USE_MOCKS=true`, padrão) tudo continua igual.
+
+**Sessão com a API real:** a `Session` (usuário + access token de 15 min) continua em `localStorage` (o mesmo `sessionStore`);
+o refresh token fica **só** no cookie `HttpOnly`. Ao recarregar a página com o access token vencido, a 1ª chamada recebe
+`401 TOKEN_EXPIRED`, o cliente chama `POST /auth/refresh` (cookie) uma vez e repete. Recomendação para produção: manter o
+access token só em memória e restaurar a sessão com `refresh()` ao abrir o app.
+
+### 12.10 Segurança operacional
+
+* **Limite de requisições** por IP/minuto (Redis, compartilhado entre instâncias; contadores locais se o Redis cair):
+  geral 300, `/api/auth/**` 30, portaria (`…/checkin`) 240, webhooks 600 → `429 RATE_LIMITED` com `Retry-After` e
+  `retryAfterSeconds` (com cabeçalhos CORS, para o navegador ler). Configurável por `TF_RATE_LIMIT_*`. O bloqueio de login
+  (5 falhas/15 min por e-mail+IP) continua.
+* **CORS:** só as origens de `TF_CORS_ORIGINS`, com credenciais; cabeçalhos aceitos: `Authorization`, `Content-Type`, `Accept`,
+  `Idempotency-Key`, `X-Organization-Id`, `X-Request-Id`, `Last-Event-ID`; expostos: `Retry-After`, `X-Request-Id`, `Idempotent-Replayed`.
+* **Cabeçalhos:** `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (exceto Swagger UI), HSTS em HTTPS,
+  `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: no-referrer`.
+* **Correlação:** toda resposta tem `X-Request-Id` (o enviado pelo cliente, se seguro, ou um novo); ele aparece nos logs.
+  Linha de acesso sem query string (tokens de `?access_token=` não vão para o log).
+* **Auditoria** (`audit_log`): criação/edição/publicação/despublicação/cancelamento/exclusão de eventos, mapa, lotes,
+  reembolsos, check-in manual e reversão, configurações, equipe e webhooks — com usuário, organização, IP e detalhes.
+* **Somente desenvolvimento:** `POST /api/dev/orders/{id}/simulate-payment` existe apenas nos perfis `dev`/`test`; o perfil
+  `prod` recusa subir com `dev`/`test` ativos.
+
+### 12.11 Códigos de erro do painel
+
+`401 UNAUTHENTICATED`/`TOKEN_EXPIRED` · `403 FORBIDDEN` · `404 NOT_FOUND` · `400 INVALID_PARAMETER` · `422 VALIDATION_ERROR`
+(`errors`) · `422 PUBLISH_BLOCKED` (`errors[]`) · `422 USER_NOT_FOUND` · `409 INVALID_STATE` · `409 SLUG_TAKEN` · `409 SEAT_SOLD`
+(`seatId`) · `409 ALREADY_USED` · `409 EVENT_NOT_ACTIVE` · `409 EMAIL_TAKEN` · `409 NAME_TAKEN` · `409 CONCURRENT_UPDATE`/`CONFLICT`
+(repita) · `429 RATE_LIMITED` · `502 REFUND_FAILED` · `503 CARD_VAULT_UNAVAILABLE`/`PAYMENT_PROVIDER_UNAVAILABLE` · `500 INTERNAL_ERROR` (`ref`).

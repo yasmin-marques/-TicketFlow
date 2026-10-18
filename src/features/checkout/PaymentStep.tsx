@@ -14,6 +14,7 @@ import type { Slot } from '@/lib/purchase'
 import { cardBrand, maskCardNumber, maskExpiry } from '@/lib/validation'
 import { ApiError, newIdempotencyKey } from '@/services/api/http'
 import { ordersService } from '@/services/api/purchase.service'
+import { toPaymentCard } from '@/services/payment/cardTokenizer'
 import type { CreateOrderInput, Order, PaymentMethod, Reservation } from '@/types/purchase'
 import type { CheckoutDraft } from './draft'
 import { paymentSchemaFor, type PaymentFormValues } from './schemas'
@@ -76,7 +77,7 @@ export function PaymentStep({ reservation, slots, draft, onBack, onPaid, onExpir
       reservationId: reservation.id,
       buyer: draft.buyer,
       holders: slots.flatMap((s, i) => (draft.holders[i] ? [{ slot: s.slot, name: draft.holders[i]! }] : [])),
-      payment: method === 'card' && values.card ? { method, card: values.card } : { method },
+      payment: method === 'card' && values.card ? { method, card: await toPaymentCard(values.card) } : { method },
     }
     try {
       const order = await ordersService.create(input, idemKey.current)

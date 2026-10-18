@@ -75,6 +75,13 @@ public class Ticket {
     @Column(name = "used_at")
     private Instant usedAt;
 
+    /** Portão do check-in (o estado {@code USED} só muda por UPDATE atômico condicional — ver CheckinService). */
+    @Column(name = "checked_in_gate", length = 60)
+    private String checkedInGate;
+
+    @Column(name = "checked_in_by")
+    private UUID checkedInBy;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

@@ -34,5 +34,7 @@ public final class TestContainers {
         registry.add("tf.tickets.qr-secret", () -> "qr-secret-qr-secret-qr-secret-qr-secret-1234");
         // Os testes controlam o tempo: a expiração roda sob demanda; o relay do outbox roda de verdade.
         registry.add("tf.jobs.expiry-enabled", () -> false);
+        // Muitos testes disparam centenas de requisições do mesmo IP; o limitador tem testes próprios (RateLimitFilterTest).
+        registry.add("tf.rate-limit.enabled", () -> false);
     }
 }

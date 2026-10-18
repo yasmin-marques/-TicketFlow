@@ -43,7 +43,8 @@ public class Event {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    /** Obrigatório para publicar; um rascunho pode ainda não ter local. */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
@@ -102,6 +103,21 @@ public class Event {
     @Column(name = "search_text", nullable = false, columnDefinition = "text")
     private String searchText = "";
 
+    /** {@code full-7d} (reembolso pelo comprador até 7 dias) ou {@code none}. */
+    @Column(name = "cancellation_policy", nullable = false, length = 10)
+    private String cancellationPolicy = "full-7d";
+
+    /** Nome do arquivo de capa informado no painel (o upload real ainda não existe). */
+    @Column(name = "cover_name", length = 200)
+    private String coverName;
+
+    /** Planta do editor do organizador (JSON). Os assentos vendáveis ficam em {@code event_seats}. */
+    @Column(name = "seat_layout", columnDefinition = "text")
+    private String seatLayout;
+
+    @Column(name = "cancelled_at")
+    private Instant cancelledAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -142,6 +158,12 @@ public class Event {
         this.status = EventStatus.PUBLISHED;
         this.publishedAt = now;
         this.updatedAt = now;
+    }
+
+    /** Publicado cujo horário de término (ou de início, sem término) já passou. */
+    public boolean hasEnded(Instant now) {
+        Instant end = endsAt != null ? endsAt : startsAt;
+        return status == EventStatus.ENDED || (status == EventStatus.PUBLISHED && end.isBefore(now));
     }
 
     public void addScheduleItem(EventScheduleItem item) {

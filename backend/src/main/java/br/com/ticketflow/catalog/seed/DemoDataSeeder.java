@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
  * (perfil {@code dev}) e é idempotente: nada é criado se já houver eventos.
  */
 @Component
+@org.springframework.core.annotation.Order(1)
 @ConditionalOnProperty(prefix = "tf.seed", name = "enabled", havingValue = "true")
 public class DemoDataSeeder implements ApplicationRunner {
 

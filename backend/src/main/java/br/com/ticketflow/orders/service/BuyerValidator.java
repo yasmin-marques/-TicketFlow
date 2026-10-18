@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import org.springframework.http.HttpStatus;
 
 /** Mesmas regras do formulário do frontend, revalidadas no servidor. */
-final class BuyerValidator {
+public final class BuyerValidator {
 
     private static final Pattern EMAIL = Pattern.compile("^\\S+@\\S+\\.\\S+$");
     private static final DateTimeFormatter BR_DATE = DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
@@ -42,11 +42,11 @@ final class BuyerValidator {
         }
     }
 
-    static String digits(String s) {
+    public static String digits(String s) {
         return s == null ? "" : s.replaceAll("\\D", "");
     }
 
-    static boolean validCpf(String cpf) {
+    public static boolean validCpf(String cpf) {
         if (cpf.length() != 11 || cpf.chars().distinct().count() == 1) {
             return false;
         }
@@ -62,7 +62,7 @@ final class BuyerValidator {
         return r == 10 ? 0 : r;
     }
 
-    static boolean validBirthDate(String raw, LocalDate today) {
+    public static boolean validBirthDate(String raw, LocalDate today) {
         try {
             LocalDate d = LocalDate.parse(raw, BR_DATE);
             return !d.isAfter(today) && d.isAfter(today.minusYears(120));

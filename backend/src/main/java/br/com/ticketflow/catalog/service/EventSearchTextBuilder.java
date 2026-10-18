@@ -13,9 +13,11 @@ public final class EventSearchTextBuilder {
         append(sb, e.getTitle());
         append(sb, e.getSubtitle());
         append(sb, e.getCategory().getName());
-        append(sb, e.getVenue().getName());
-        append(sb, e.getVenue().getCity());
-        append(sb, e.getVenue().getState());
+        if (e.getVenue() != null) {
+            append(sb, e.getVenue().getName());
+            append(sb, e.getVenue().getCity());
+            append(sb, e.getVenue().getState());
+        }
         append(sb, e.getOrganization().getName());
         return Texts.normalize(sb.toString());
     }

@@ -11,6 +11,7 @@ import { useOrgEvents, useOrgReport } from '@/features/org/hooks'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { cn } from '@/lib/cn'
 import { formatPrice, formatPriceExact } from '@/lib/format'
+import { USE_MOCKS } from '@/services/api/http'
 
 const dayKey = (offset: number) => new Date(Date.now() - offset * 86_400_000).toISOString().slice(0, 10)
 const shortDay = (key: string) => {
@@ -34,7 +35,13 @@ export function ReportsPage() {
     <>
       <OrgPageHeader
         title="Relatórios"
-        subtitle={data ? 'Funil e conversão são estimativas simuladas neste ambiente' : undefined}
+        subtitle={
+          data
+            ? USE_MOCKS
+              ? 'Funil e conversão são estimativas simuladas neste ambiente'
+              : 'Funil e conversão medidos de reserva até pagamento (visitas à página não são rastreadas)'
+            : undefined
+        }
         actions={
           <>
             <Select value={effective} onChange={setEventId} aria-label="Evento" options={selectable.map((e) => ({ value: e.id, label: e.title }))} className="max-w-64" />
@@ -69,7 +76,7 @@ export function ReportsPage() {
               { label: 'Ocupação', value: `${data.occupancyPct}%` },
               { label: 'Ticket médio', value: formatPriceExact(data.avgTicket) },
               { label: 'Check-ins', value: data.checkins.toLocaleString('pt-BR'), sub: <span className="text-muted">{data.checkinPct}%</span> },
-              { label: 'Conversão (visita → compra)', value: `${data.conversionPct.toLocaleString('pt-BR')}%` },
+              { label: USE_MOCKS ? 'Conversão (visita → compra)' : 'Conversão (reserva → compra)', value: `${data.conversionPct.toLocaleString('pt-BR')}%` },
               { label: 'Reservas expiradas', value: `${data.expiredReservationsPct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` },
             ]}
           />
