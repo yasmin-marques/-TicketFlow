@@ -49,6 +49,10 @@ public class TicketLot {
     @Column(name = "quantity_sold", nullable = false)
     private int quantitySold;
 
+    /** Unidades seguradas por reservas ativas ou pedidos pendentes (ainda não vendidas). */
+    @Column(name = "quantity_held", nullable = false)
+    private int quantityHeld;
+
     @Column(name = "sales_start", nullable = false)
     private Instant salesStart;
 
@@ -75,7 +79,7 @@ public class TicketLot {
     private Instant updatedAt;
 
     @Version
-    private long version;
+    private Long version;
 
     public static TicketLot of(String name, long priceCents, int total, int sold, Instant start, Instant end, int position, Instant now) {
         TicketLot l = new TicketLot();
@@ -95,6 +99,11 @@ public class TicketLot {
 
     public int remaining() {
         return quantityTotal - quantitySold;
+    }
+
+    /** Disponível para novas reservas: nem vendido nem segurado. */
+    public int available() {
+        return quantityTotal - quantitySold - quantityHeld;
     }
 
     public boolean isSoldOut() {

@@ -16,17 +16,24 @@ import br.com.ticketflow.common.Texts;
 import br.com.ticketflow.config.AppProperties;
 import br.com.ticketflow.organization.Organization;
 import br.com.ticketflow.organization.OrganizationRepository;
+import br.com.ticketflow.sales.service.SeatMapService;
+import br.com.ticketflow.sales.service.SeatMapService.SectorSpec;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -36,9 +43,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Popula o catálogo com os mesmos eventos de demonstração do frontend (datas relativas a hoje), para que o
- * app funcione sem mocks. Só roda com {@code tf.seed.enabled=true} (perfil {@code dev}) e é idempotente:
- * nada é criado se já houver eventos.
+ * Popula o catálogo com os mesmos eventos de demonstração do frontend (datas relativas a hoje), com tipos de
+ * ingresso, lotes e mapa de assentos equivalentes aos dos mocks. Só roda com {@code tf.seed.enabled=true}
+ * (perfil {@code dev}) e é idempotente: nada é criado se já houver eventos.
  */
 @Component
 @ConditionalOnProperty(prefix = "tf.seed", name = "enabled", havingValue = "true")
@@ -52,6 +59,8 @@ public class DemoDataSeeder implements ApplicationRunner {
             "Rio de Janeiro", new double[] {-22.9068, -43.1729},
             "Belo Horizonte", new double[] {-19.9167, -43.9345},
             "Curitiba", new double[] {-25.4284, -49.2733});
+    private static final Set<String> ACCESSIBLE = Set.of("G01", "G02", "G15", "G16", "H01", "H02", "H15", "H16");
+    private static final int SECTOR_SEATS = 64; // 4 filas x 16
 
     private enum Flag { NONE, LAST, SOLD_OUT }
 
@@ -64,17 +73,19 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final VenueRepository venues;
     private final OrganizationRepository organizations;
     private final EventAvailabilityService availability;
+    private final SeatMapService seatMaps;
     private final Clock clock;
     private final ZoneId zone;
 
     public DemoDataSeeder(EventRepository events, CategoryRepository categories, VenueRepository venues,
-                          OrganizationRepository organizations, EventAvailabilityService availability,
+                          OrganizationRepository organizations, EventAvailabilityService availability, SeatMapService seatMaps,
                           Clock clock, AppProperties props) {
         this.events = events;
         this.categories = categories;
         this.venues = venues;
         this.organizations = organizations;
         this.availability = availability;
+        this.seatMaps = seatMaps;
         this.clock = clock;
         this.zone = ZoneId.of(props.catalog().timezone());
     }
@@ -117,18 +128,9 @@ public class DemoDataSeeder implements ApplicationRunner {
                         "Se o evento for cancelado, o valor dos ingressos e a taxa de serviço são devolvidos integralmente, pelo mesmo meio de pagamento, em até 5 dias úteis."));
             }
 
-            int total = 500;
-            int sold = switch (r.flag()) {
-                case SOLD_OUT -> total;
-                case LAST -> total - 10;
-                case NONE -> 100;
-            };
-            TicketType type = r.seats()
-                    ? TicketType.of("standard", "Assento marcado", "Assento numerado", TicketKind.SEATED, "standard", 0, now)
-                    : TicketType.of("geral", "Ingresso", "Acesso geral", TicketKind.GENERAL, null, 0, now);
-            type.addLot(TicketLot.of("Lote único", r.price() * 100, total, sold, now.minusSeconds(30L * 86400),
-                    startsAt, 0, now));
-            e.addTicketType(type);
+            Map<String, Set<String>> soldBySector = new HashMap<>();
+            List<SectorSpec> sectors = new ArrayList<>();
+            addTicketTypes(e, r, startsAt, now, sectors, soldBySector);
 
             availability.recalculate(e, now);
             // A ordem define "mais recentes": linhas posteriores são mais novas.
@@ -138,21 +140,103 @@ public class DemoDataSeeder implements ApplicationRunner {
             index++;
             e.setSearchText(EventSearchTextBuilder.build(e));
             events.save(e);
+
+            if (!sectors.isEmpty()) {
+                Set<String> sold = new HashSet<>();
+                soldBySector.values().forEach(sold::addAll);
+                seatMaps.create(e.getId(), "ABCDEFGH", 16, 8, sectors, ACCESSIBLE, now, sold);
+            }
         }
         log.info("Catálogo de demonstração criado: {} eventos.", rows.size());
+    }
+
+    /** Tipos e lotes equivalentes aos de {@code src/mocks/data/sales.ts}. */
+    private void addTicketTypes(Event e, Row r, Instant startsAt, Instant now, List<SectorSpec> sectors, Map<String, Set<String>> soldBySector) {
+        Instant open = now.minus(Duration.ofDays(30));
+        boolean soldOut = r.flag() == Flag.SOLD_OUT;
+        boolean last = r.flag() == Flag.LAST;
+        long base = r.price() * 100;
+        int pos = 0;
+
+        if (r.seats()) {
+            boolean neon = r.title().startsWith("Neon Horizon");
+            long standard = base;
+            long premium = neon ? 12_000 : round5(base * 3 / 2);
+            if (neon) {
+                TicketType pista = general("pista", "Pista", "Acesso geral · em pé", pos++, now);
+                pista.addLot(TicketLot.of("2º lote", 10_000, 400, 88, open, startsAt, 0, now));
+                e.addTicketType(pista);
+            }
+            TicketType prem = seated("premium", "Premium", "Área frontal + open bar · assento marcado", pos++, now);
+            TicketType std = seated("standard", "Standard", "Visão lateral · assento marcado", pos++, now);
+            int soldPremium = soldSeats("premium", "ABCD", soldOut, last, soldBySector);
+            int soldStd = soldSeats("standard", "EFGH", soldOut, last, soldBySector);
+            prem.addLot(TicketLot.of("1º lote", premium, SECTOR_SEATS, soldPremium, open, startsAt, 0, now));
+            std.addLot(TicketLot.of("1º lote", standard, SECTOR_SEATS, soldStd, open, startsAt, 0, now));
+            e.addTicketType(prem);
+            e.addTicketType(std);
+            sectors.add(new SectorSpec("premium", "Premium", prem, "ABCD"));
+            sectors.add(new SectorSpec("standard", "Standard", std, "EFGH"));
+            if (neon) {
+                TicketType cam = general("camarote", "Camarote", "Mesa para 4 · serviço exclusivo", pos, now);
+                cam.addLot(TicketLot.of("1º lote", 25_000, 40, 40, open, now.plus(Duration.ofDays(5)), 0, now));
+                cam.addLot(TicketLot.of("2º lote", 28_000, 40, 0, now.plus(Duration.ofDays(5)), startsAt, 1, now));
+                e.addTicketType(cam);
+            }
+        } else if (base == 0) {
+            TicketType free = general("gratuito", "Ingresso gratuito", "Entrada gratuita mediante inscrição", pos, now);
+            free.addLot(TicketLot.of("Lote único", 0, 120, soldOut ? 120 : last ? 110 : 40, open, startsAt, 0, now));
+            e.addTicketType(free);
+        } else {
+            int total = 200;
+            TicketType inteira = general("inteira", "Inteira", "Acesso geral", pos++, now);
+            inteira.addLot(TicketLot.of("1º lote", base, total, soldOut ? total : last ? total - 10 : 60, open, startsAt, 0, now));
+            TicketType meia = general("meia", "Meia-entrada", "Estudantes, idosos e PCD — com comprovação na entrada", pos, now);
+            long half = round5(base / 2) == 0 ? base : round5(base / 2);
+            meia.addLot(TicketLot.of("1º lote", half, 100, soldOut ? 100 : last ? 90 : 30, open, startsAt, 0, now));
+            e.addTicketType(inteira);
+            e.addTicketType(meia);
+        }
+    }
+
+    /** Assentos vendidos de um setor (padrão determinístico); devolve a quantidade. */
+    private static int soldSeats(String sector, String rowLetters, boolean soldOut, boolean last, Map<String, Set<String>> soldBySector) {
+        Set<String> sold = new HashSet<>();
+        for (int ri = 0; ri < rowLetters.length(); ri++) {
+            for (int n = 1; n <= 16; n++) {
+                boolean take = soldOut || (last ? (ri * 16 + n) % 11 != 0 : (ri * 16 + n) % 7 == 0);
+                if (take) {
+                    sold.add("" + rowLetters.charAt(ri) + String.format("%02d", n));
+                }
+            }
+        }
+        soldBySector.put(sector, sold);
+        return sold.size();
+    }
+
+    private static long round5(long cents) {
+        return Math.round(cents / 500.0) * 500;
+    }
+
+    private static TicketType general(String code, String name, String description, int position, Instant now) {
+        return TicketType.of(code, name, description, TicketKind.GENERAL, null, position, now);
+    }
+
+    private static TicketType seated(String code, String name, String description, int position, Instant now) {
+        return TicketType.of(code, name, description, TicketKind.SEATED, code, position, now);
     }
 
     private Venue venue(Row r, Instant now) {
         Venue v = Venue.create(r.venue(), r.city(), r.state(), now);
         if (r.km() != null) {
             // Aproxima a distância informada deslocando o local para o norte da origem.
-            v.setLatitude(BigDecimal.valueOf(SP_LAT + r.km() / 111.0).setScale(6, java.math.RoundingMode.HALF_UP));
-            v.setLongitude(BigDecimal.valueOf(SP_LNG).setScale(6, java.math.RoundingMode.HALF_UP));
+            v.setLatitude(BigDecimal.valueOf(SP_LAT + r.km() / 111.0).setScale(6, RoundingMode.HALF_UP));
+            v.setLongitude(BigDecimal.valueOf(SP_LNG).setScale(6, RoundingMode.HALF_UP));
         } else {
             double[] c = CITY_CENTERS.get(r.city());
             if (c != null) {
-                v.setLatitude(BigDecimal.valueOf(c[0]).setScale(6, java.math.RoundingMode.HALF_UP));
-                v.setLongitude(BigDecimal.valueOf(c[1]).setScale(6, java.math.RoundingMode.HALF_UP));
+                v.setLatitude(BigDecimal.valueOf(c[0]).setScale(6, RoundingMode.HALF_UP));
+                v.setLongitude(BigDecimal.valueOf(c[1]).setScale(6, RoundingMode.HALF_UP));
             }
         }
         return v;

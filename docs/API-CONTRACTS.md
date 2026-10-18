@@ -256,6 +256,108 @@ ao custo de deixá-lo acessível ao JavaScript. Não recomendado em produção.
 
 ### 10.4 Ainda não implementado no backend
 
-Venda (`/events/{slug}/sales`, assentos, SSE), reservas, pedidos/pagamento, ingressos, cartões e todo o painel `/org/**`
-(já protegido por papel, mas sem controllers: responde `404` a quem tem o papel e `403` a quem não tem).
+Cartões salvos (`/me/cards`), `PATCH /me` e todo o painel `/org/**` (já protegido por papel, mas sem controllers: responde `404`
+a quem tem o papel e `403` a quem não tem). Venda, reservas, pedidos e ingressos estão na §11.
+
+## 11. Backend real — Parte 2 (reservas, concorrência, pedidos, pagamentos, ingressos, tempo real)
+
+Implementado em `backend/` (detalhes de arquitetura em `backend/README.md`). Formatos de `EventSales`, `Reservation`, `Order` e
+`Ticket` seguem `src/types/purchase.ts`; abaixo estão **as regras reais** e **onde diferem dos mocks**.
+
+### 11.1 Identificadores e valores
+* `eventId` = UUID do evento (o `id` de `EventSummary`); `ticketTypeId` = **código** do tipo (`pista`, `premium`…); reservas, pedidos
+  e ingressos têm UUID como `id`. Pedidos têm também `code` legível (`TF-48214`) e ingressos `code` (`TF-7K2M-9QX4`).
+* Dinheiro em **reais** na API (centavos no banco). `unitFee = round(preço × serviceFeePct / 100)` por unidade; `total = subtotal + fee`.
+* Datas ISO 8601 com offset (`-03:00`), em milissegundos.
+
+### 11.2 Venda e disponibilidade (públicas)
+| Rota | Comportamento |
+|---|---|
+| `GET /events/{slug}/sales` | `EventSales`. `lot.status`: `open` (primeiro lote com janela aberta e estoque **livre**), `sold-out` (+ `nextLotNote` "2º lote abre em 20/10" se há próximo lote) ou `upcoming` (+ `opensAt`). `lot.remaining` desconta o que está **reservado** por outros. `maxPerOrder` = 6 |
+| `GET /events/{eventId}/seats` | `{ eventId, seats: { "B03": "sold" \| "reserved" }, updatedAt }`. Autenticação **opcional**: com token, os assentos da reserva ativa do próprio usuário não aparecem. Um hold vencido já aparece como livre |
+| `GET /events/{eventId}/seats/stream` | SSE — §11.3 |
+| `POST /events/{eventId}/ticket-types/{typeId}/waitlist` | (auth) `200 { ok: true }`, idempotente. Quando o estoque volta, o usuário é notificado **uma vez** (Kafka) |
+
+### 11.3 SSE (`seat.updated`)
+`event: seat.updated` / `data: {"seatId":"B03","status":"reserved"}` (`available | reserved | sold`). Emitido **somente depois do commit**
+(nunca anuncia algo que foi desfeito), por reserva, troca de assentos, liberação, expiração, venda e reembolso. Comentário `: hb` a cada 15 s;
+conexões fecham após 30 min (o `EventSource` reconecta sozinho). Entre instâncias da API a entrega passa pelo Redis (pub/sub).
+* **Autenticação:** `EventSource` não envia cabeçalhos. O stream é público (o mapa também é); se o cliente passar `?access_token=<JWT de acesso>`,
+  o servidor **não reenvia a ele as mudanças causadas por ele mesmo**. Token inválido/expirado → `401`.
+  **Ajuste no frontend:** `openSeatStream` deve acrescentar `?access_token=` (e reabrir o stream quando o token for renovado, porque o
+  `EventSource` reconecta com a URL antiga). O cookie `tf_refresh` **não** é enviado ao stream (`Path=/api/auth`). Sem o token, o cliente
+  recebe também o eco das próprias ações e deve ignorá-lo para os assentos da sua reserva.
+* **Recuperação:** ao reconectar, o navegador envia `Last-Event-ID`; o servidor então reenvia o **estado de todos os assentos** (inclusive
+  `available`), cobrindo mensagens perdidas. Mensagens são "melhor esforço": a fonte da verdade é `GET /seats` (PostgreSQL).
+
+### 11.4 Reservas
+* `POST /reservations` (**`Idempotency-Key` obrigatório**): `201 Reservation`; `expiresAt = criação + 10 min` (fonte única do contador, **nunca renovada**).
+  Libera a reserva ativa anterior do usuário. `seatIds` parcial é válido (≤ `quantity`). Estoque sem assento e assentos são segurados **atomicamente**.
+* `GET /reservations/{id}`: `status` = `active | expired | released | completed` (uma reserva vencida já responde `expired`).
+* `PUT /reservations/{id}/items/{ticketTypeId}/seats` (`Idempotency-Key` opcional): **substitui** o conjunto; reenviar o mesmo é no-op.
+  Tudo-ou-nada: se um assento foi perdido, nenhum muda. Tipo sem assento → `404`.
+* `DELETE /reservations/{id}` → `200 { ok: true }` (repetível).
+* Reservas de outras pessoas respondem **`404`** (não revelam existência).
+
+| Status | `code` | Quando |
+|---|---|---|
+| `409` | `SEAT_UNAVAILABLE` | Perdeu a disputa. Corpo: `seatIds` (os perdidos) e `suggestions` (vizinhos livres, mesma fila/setor) |
+| `409` | `INSUFFICIENT_STOCK` | Não há unidades livres agora (podem voltar: estão em outras reservas) |
+| `409` | `LOT_CLOSED` | Lote esgotado, fora da janela ou ainda não aberto |
+| `410` | `RESERVATION_EXPIRED` | Reserva vencida (a liberação do estoque é imediata) |
+| `422` | `LIMIT_EXCEEDED` / `VALIDATION_ERROR` | Mais de `maxPerOrder`; assento inexistente ou fora do setor; repetido; mais assentos que ingressos |
+| `422` | `IDEMPOTENCY_KEY_REQUIRED` / `IDEMPOTENCY_KEY_REUSED` | Sem o cabeçalho / mesma chave com outro método, caminho ou corpo |
+| `409` | `REQUEST_IN_PROGRESS` | A mesma chave ainda está sendo processada (repita) |
+| `409` | `CONCURRENT_UPDATE` / `CONFLICT` | Deadlock/versão/restrição do banco; a operação foi desfeita — **repita com a mesma chave** |
+
+**Idempotência:** persistida por `(usuário, Idempotency-Key)`. A mesma chave devolve a **mesma resposta** (inclusive erros definitivos 4xx, como o
+`402`), com o cabeçalho `Idempotent-Replayed: true`, sem repetir efeitos. Erros inesperados (5xx) liberam a chave para nova tentativa.
+
+### 11.5 Pedidos e pagamento
+`POST /orders` (**`Idempotency-Key` obrigatório**) aceita o corpo do §4, **com uma mudança de segurança**:
+
+```jsonc
+"payment": { "method": "card", "card": { "token": "tok_4242", "installments": 1 } }   // card | pix | boleto
+```
+* **O servidor NUNCA recebe número de cartão nem CVV.** O corpo com `card.number`/`card.cvv` é recusado com `422 CARD_DATA_NOT_ALLOWED` **antes de
+  qualquer registro** (nem o hash da idempotência é gravado). O navegador deve trocar os dados do cartão por um `token` direto com o gateway
+  (SDK do gateway) e enviar só o token. `last4`/bandeira vêm do gateway. **Ajuste no frontend:** `PaymentStep` envia hoje `card.number/cvv/expiry`.
+* **Provedor sandbox (perfis `dev`/`test`, claramente identificado, não cobra nada):** `tok_<4 dígitos>` aprova; `tok_0002` recusa; qualquer outro valor recusa.
+  Fora de dev/test, sem gateway implementado, pagamentos respondem `503 PAYMENT_PROVIDER_UNAVAILABLE` (nunca finge cobrar).
+
+| Resultado | Significado |
+|---|---|
+| `201` `status: "paid"` | Cartão aprovado; `tickets[]` já emitidos |
+| `201` `status: "pending"` | Pix (`pix:{code,expiresAt}`, 30 min) ou boleto (`boleto:{line,dueAt}`, 3 dias). Estoque e assentos **continuam segurados**; ingressos só após a confirmação |
+| `402 PAYMENT_DECLINED` | Nada é cobrado e **a reserva continua ativa** (tente outro cartão na mesma reserva, com nova chave) |
+| `409 ALREADY_COMPLETED` | A reserva já virou pedido (checkouts concorrentes: só um vence) |
+| `410 RESERVATION_EXPIRED` | Reserva vencida |
+| `422 SEATS_INCOMPLETE` / `VALIDATION_ERROR` | Faltam assentos; dados do comprador inválidos (`errors: { cpf: … }`); método inválido |
+
+`GET /orders`, `GET /orders/{id}` (só do dono; senão `404`). `status`: `paid | pending | refunded | expired` (pendente com prazo vencido já aparece `expired`).
+`refundable` = pago **e** ≤ 7 dias da compra **e** > 48 h do evento **e** todos os ingressos ainda válidos e do comprador.
+`POST /orders/{id}/cancel`: pendente → `expired` (libera estoque); pago → reembolso no gateway, ingressos `cancelled`, assentos/estoque devolvidos;
+fora da regra → `422 REFUND_NOT_ALLOWED`; já encerrado → `409 INVALID_STATE`.
+
+### 11.6 Webhooks de pagamento (Pix/boleto)
+`POST /api/webhooks/payments/{provider}` (público; autenticado pela **assinatura**). Cabeçalho `X-TF-Signature: t=<unix>,v1=<hex>` com
+`v1 = HMAC-SHA256(TF_WEBHOOK_SECRET, "<t>.<corpo cru>")`; tolerância de 5 min; comparação em tempo constante. Corpo (sandbox):
+`{ "id": "evt_…", "type": "payment.confirmed" | "payment.failed", "providerRef": "…" }`. Resposta `200 { received, duplicate }`; assinatura inválida → `401`.
+Proteção contra repetição: `event_id` único por provedor (reenvio = `duplicate:true`, sem efeito), timestamp assinado e o próprio estado do pedido
+(confirmar um pedido já pago não faz nada). Confirmação **após o prazo** não emite ingressos: o pedido segue `expired` e o pagamento é estornado.
+Só dev/test: `POST /api/dev/orders/{id}/simulate-payment` (equivale ao webhook para o dono do pedido; é o `simulatePayment` do frontend).
+
+### 11.7 Ingressos
+* `GET /tickets`, `GET /tickets/{id}` (do dono; senão `404`). `qrPayload = TF1.<ticketId>.<versão>.<assinatura>`, onde a assinatura é HMAC-SHA256
+  (`TF_QR_SECRET`) — o check-in (Parte 3) valida a assinatura **e** compara a `versão` e o estado com o banco.
+* `POST /tickets/{id}/transfer { email }` → `{ ok, recipient }`. Só o dono, ingresso `valid`, evento ainda não iniciado, e-mail de outra pessoa.
+  A **versão do QR sobe** (o QR anterior deixa de valer) e o ingresso sai da conta de origem na mesma transação. Se o destinatário não tem conta, o
+  ingresso fica reservado ao e-mail e aparece em "Meus ingressos" quando ele se cadastrar com esse e-mail (**o cadastro ainda não verifica e-mail**).
+* Emissão: um ingresso por posição do pedido, **somente** após o pagamento confirmado (`UNIQUE(order_id, slot)` impede duplicação).
+
+### 11.8 Eventos de negócio (Kafka) e consistência
+Cada mudança relevante grava um evento na tabela `outbox_events` **na mesma transação** (`order.paid`, `ticket.issued`, `order.pending`, `order.expired`,
+`order.refunded`, `ticket.transferred`, `stock.released`, `payment.late-refunded`). Um relay publica no tópico `ticketflow.domain-events`
+(entrega ao-menos-uma-vez; chave = agregado) e os consumidores deduplicam por `(consumer, event_id)`. O Kafka **não** substitui as transações do banco:
+vendas, reservas e idempotência são decididas apenas no PostgreSQL.
 

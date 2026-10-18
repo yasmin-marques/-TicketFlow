@@ -6,7 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Configuração tipada do TicketFlow (prefixo {@code tf}). */
 @ConfigurationProperties(prefix = "tf")
-public record AppProperties(Security security, Cors cors, Catalog catalog, Seed seed) {
+public record AppProperties(Security security, Cors cors, Catalog catalog, Seed seed, Sales sales, Payments payments,
+                            Tickets tickets, Redis redis, Kafka kafka, Jobs jobs) {
 
     public record Security(int bcryptStrength, Jwt jwt, Refresh refresh, PasswordReset passwordReset, Login login) {}
 
@@ -31,4 +32,27 @@ public record AppProperties(Security security, Cors cors, Catalog catalog, Seed 
             int maxPageSize) {}
 
     public record Seed(boolean enabled) {}
+
+    /** Regras de venda. */
+    public record Sales(
+            int maxPerOrder,
+            Duration reservationTtl,
+            Duration pixTtl,
+            Duration boletoTtl,
+            Duration refundWindow,
+            Duration refundMinLead,
+            int maxSseConnections) {}
+
+    /** Pagamentos. {@code webhookSecret} vazio = webhooks recusados. */
+    public record Payments(String webhookSecret, Duration webhookTolerance) {}
+
+    /** {@code qrSecret} assina o conteúdo do QR Code (HMAC). Vazio = chave efêmera (somente desenvolvimento). */
+    public record Tickets(String qrSecret) {}
+
+    public record Redis(boolean enabled) {}
+
+    public record Kafka(boolean enabled, String topic) {}
+
+    /** Liga/desliga tarefas agendadas (os testes desligam a expiração para controlar o tempo). */
+    public record Jobs(boolean expiryEnabled, boolean outboxEnabled) {}
 }

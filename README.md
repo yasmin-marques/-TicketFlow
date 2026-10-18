@@ -97,9 +97,10 @@ Modos de simulação — acrescente à URL (persiste na aba até `?mock=off`):
 
 ## Como integrar com o backend
 
-> **Backend (Parte 1 de 3) disponível em [`backend/`](backend/README.md):** fundação, autenticação e catálogo público
-> (Spring Boot 3 + PostgreSQL). `docker compose up --build` na raiz sobe banco e API. Antes de apontar o frontend para ele,
-> aplique os ajustes de cookie de `docs/API-CONTRACTS.md` §10.2. Venda, reserva, pedidos e painel do organizador ainda dependem dos mocks.
+> **Backend (Partes 1 e 2 de 3) disponível em [`backend/`](backend/README.md):** autenticação, catálogo, reservas com concorrência, pedidos,
+> pagamentos (gateway abstraído; sandbox em dev), ingressos com QR assinado e SSE de assentos (Spring Boot 3 + PostgreSQL + Redis + Kafka).
+> `docker compose up --build` na raiz sobe toda a stack. Antes de apontar o frontend para ele, aplique os ajustes de
+> `docs/API-CONTRACTS.md` §10.2 (cookie), §11.3 (SSE) e §11.5 (cartão tokenizado). O painel do organizador ainda depende dos mocks.
 
 1. Implemente os endpoints listados em `FRONTEND_STATUS.md` §3 seguindo `docs/API-CONTRACTS.md` (corpo, status, `code` de erro).
 2. Defina `VITE_USE_MOCKS=false` e `VITE_API_URL=https://api…` (CORS com credenciais se usar cookies).

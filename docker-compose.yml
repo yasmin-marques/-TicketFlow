@@ -1,7 +1,7 @@
-# Ambiente local do TicketFlow: PostgreSQL + API Spring Boot.
+# Ambiente local do TicketFlow: PostgreSQL + Redis + Kafka + API Spring Boot.
 #   cp backend/.env.example .env   (e ajuste os valores)
 #   docker compose up --build
-# Redis e Kafka entram na Parte 2 (hoje não são usados).
+# Só a infraestrutura (API rodando na sua máquina):  docker compose up -d postgres redis kafka
 services:
   postgres:
     image: postgres:16-alpine
@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: ${TF_DB_USER:-ticketflow}
       POSTGRES_PASSWORD: ${TF_DB_PASSWORD:?Defina TF_DB_PASSWORD no .env}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${TF_DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -19,17 +19,59 @@ services:
       timeout: 3s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]   # apenas coordenação/efêmero; a verdade está no PostgreSQL
+    ports:
+      - "127.0.0.1:${TF_REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  kafka:
+    image: apache/kafka:3.8.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    ports:
+      - "127.0.0.1:${TF_KAFKA_PORT:-29092}:29092"   # use TF_KAFKA_BOOTSTRAP=localhost:29092 quando a API roda fora do Docker
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+
   backend:
     build: ./backend
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       TF_DB_URL: jdbc:postgresql://postgres:5432/${TF_DB_NAME:-ticketflow}
       TF_DB_USER: ${TF_DB_USER:-ticketflow}
       TF_DB_PASSWORD: ${TF_DB_PASSWORD}
+      TF_REDIS_HOST: redis
+      TF_KAFKA_BOOTSTRAP: kafka:9092
       TF_JWT_SECRET: ${TF_JWT_SECRET:?Defina TF_JWT_SECRET (>= 32 caracteres) no .env}
+      TF_QR_SECRET: ${TF_QR_SECRET:?Defina TF_QR_SECRET (>= 32 caracteres) no .env}
+      TF_WEBHOOK_SECRET: ${TF_WEBHOOK_SECRET:-}
       TF_CORS_ORIGINS: ${TF_CORS_ORIGINS:-http://localhost:5173}
       TF_APP_URL: ${TF_APP_URL:-http://localhost:5173}
       TF_COOKIE_SECURE: ${TF_COOKIE_SECURE:-false}

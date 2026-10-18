@@ -53,6 +53,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/events", "/api/events/featured", "/api/events/upcoming", "/api/events/suggest",
                                 "/api/events/{slug}", "/api/events/{slug}/related", "/api/categories").permitAll()
+                        // Venda pública: lotes, mapa e disponibilidade (o stream aceita ?access_token= porque EventSource não envia cabeçalhos)
+                        .requestMatchers(HttpMethod.GET, "/api/events/*/sales", "/api/events/*/seats", "/api/events/*/seats/stream").permitAll()
+                        // Webhooks do gateway: autenticados pela assinatura HMAC do corpo, não por JWT
+                        .requestMatchers(HttpMethod.POST, "/api/webhooks/payments/*").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers("/api/docs/**", "/api/swagger-ui.html", "/api/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/org/**").hasAnyRole("ORGANIZER", "ADMIN")

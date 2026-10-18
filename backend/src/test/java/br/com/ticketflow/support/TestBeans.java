@@ -1,8 +1,11 @@
 package br.com.ticketflow.support;
 
+import br.com.ticketflow.shared.port.NotificationSender;
 import br.com.ticketflow.shared.port.PasswordResetNotifier;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -36,9 +39,35 @@ public class TestBeans {
         }
     }
 
+    /** Registra as notificações transacionais disparadas pelos consumidores Kafka. */
+    public static class CapturingSender implements NotificationSender {
+        public record Sent(String email, String template, Map<String, Object> data) {}
+
+        private final List<Sent> sent = new CopyOnWriteArrayList<>();
+
+        @Override
+        public void send(String recipientEmail, String template, Map<String, Object> data) {
+            sent.add(new Sent(recipientEmail, template, data));
+        }
+
+        public List<Sent> all() {
+            return sent;
+        }
+
+        public long count(String email, String template) {
+            return sent.stream().filter(s -> s.email().equalsIgnoreCase(email) && s.template().equals(template)).count();
+        }
+    }
+
     @Bean
     @Primary
     CapturingNotifier capturingNotifier() {
         return new CapturingNotifier();
+    }
+
+    @Bean
+    @Primary
+    CapturingSender capturingSender() {
+        return new CapturingSender();
     }
 }

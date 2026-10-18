@@ -54,7 +54,7 @@ class CatalogIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void seed() {
-        events.deleteAll();
+        resetSalesData();
         Instant now = Instant.now();
         Organization org = organizations.save(Organization.create("Org " + UUID.randomUUID(), "org-" + UUID.randomUUID(), now));
         Venue sp = venue("Casa SP", "São Paulo", "SP", "-23.5600", "-46.6500", now);

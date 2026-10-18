@@ -1,4 +1,23 @@
 spring:
+  data:
+    redis:
+      host: ${TF_REDIS_HOST:localhost}
+      port: ${TF_REDIS_PORT:6379}
+      password: ${TF_REDIS_PASSWORD:}
+      timeout: 2s
+  kafka:
+    bootstrap-servers: ${TF_KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 15000
+        request.timeout.ms: 5000
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      ack-mode: record
   application:
     name: ticketflow-backend
   datasource:
@@ -88,3 +107,24 @@ tf:
     max-page-size: 100
   seed:
     enabled: false
+  sales:
+    max-per-order: 6
+    reservation-ttl: PT10M       # contrato do frontend: 10 minutos
+    pix-ttl: PT30M
+    boleto-ttl: P3D
+    refund-window: P7D           # reembolso até 7 dias após a compra...
+    refund-min-lead: P2D         # ...e com mais de 48 h de antecedência do evento
+    max-sse-connections: 5000
+  payments:
+    webhook-secret: ${TF_WEBHOOK_SECRET:}   # HMAC-SHA256 compartilhado com o gateway; vazio = webhooks recusados
+    webhook-tolerance: PT5M
+  tickets:
+    qr-secret: ${TF_QR_SECRET:}              # >= 32 bytes; vazio = chave efêmera (QR deixa de valer ao reiniciar)
+  redis:
+    enabled: true
+  kafka:
+    enabled: true
+    topic: ticketflow.domain-events
+  jobs:
+    expiry-enabled: true
+    outbox-enabled: true

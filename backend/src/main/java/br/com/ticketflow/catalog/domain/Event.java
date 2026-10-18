@@ -109,7 +109,7 @@ public class Event {
     private Instant updatedAt;
 
     @Version
-    private long version;
+    private Long version;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")

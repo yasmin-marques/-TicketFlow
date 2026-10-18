@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 /** Bloqueia uma chave (e-mail + IP) após N falhas dentro da janela, por um período. */
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(prefix = "tf.redis", name = "enabled", havingValue = "false")
 public class InMemoryLoginAttemptLimiter implements LoginAttemptLimiter {
 
     private static final int MAX_TRACKED_KEYS = 50_000;

@@ -69,11 +69,15 @@ Resumo (detalhes de corpo/resposta em `docs/API-CONTRACTS.md`):
 
 Somente-mock (não implementar): `POST /dev/orders/{id}/simulate-payment`, `POST /dev/org/reset`.
 
-### Status do backend (Parte 1 de 3)
+### Status do backend (Partes 1 e 2 de 3)
 
-Já existem em `backend/` (ver `backend/README.md`): **Catálogo** (todas as rotas da linha acima), **Auth** (as seis rotas) e `GET /me`.
-Para usá-los é preciso aplicar os ajustes de cookie descritos em `docs/API-CONTRACTS.md` §10.2 (`withCredentials`, `Session` sem
-`refreshToken`). Venda, reserva, pedidos, ingressos, cartões, `PATCH /me` e o painel do organizador **seguem só nos mocks**.
+Já existem em `backend/` (ver `backend/README.md`): **Catálogo**, **Auth** (as seis rotas), `GET /me`, **Venda** (`/sales`, `/seats`, SSE, lista de
+espera), **Reservas**, **Pedidos** (cartão tokenizado, Pix/boleto com webhook), **Ingressos** (QR assinado, transferência) e o simulador de pagamento
+de dev. Para usá-los o frontend precisa de **três ajustes** (nada foi alterado ainda; os mocks continuam funcionando):
+1. cookie de refresh: `withCredentials` e `Session` sem `refreshToken` (`docs/API-CONTRACTS.md` §10.2);
+2. **cartão tokenizado**: enviar `payment.card = { token, installments }` em vez de número/CVV (o servidor recusa dados crus — §11.5);
+3. SSE: `?access_token=` no `EventSource` (§11.3).
+Cartões salvos, `PATCH /me` e o painel do organizador **seguem só nos mocks**.
 
 ## 4. Contratos provisórios (resumo)
 

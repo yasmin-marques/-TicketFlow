@@ -97,6 +97,28 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError(404, "NOT_FOUND", "Rota não encontrada"));
     }
 
+    /** Deadlock / falha de lock / versão otimista: a operação foi desfeita e pode ser repetida (mesma Idempotency-Key). */
+    @ExceptionHandler(org.springframework.dao.ConcurrencyFailureException.class)
+    ResponseEntity<ApiError> handleConcurrency(org.springframework.dao.ConcurrencyFailureException ex) {
+        log.warn("Conflito de concorrência: {}", ex.getClass().getSimpleName());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError(409, "CONCURRENT_UPDATE", "Outra operação alterou os mesmos dados. Tente novamente."));
+    }
+
+    /** Restrição do banco violada (última barreira contra venda duplicada etc.): nunca vira 500 nem expõe SQL. */
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    ResponseEntity<ApiError> handleIntegrity(org.springframework.dao.DataIntegrityViolationException ex) {
+        log.warn("Violação de integridade: {}", ex.getMostSpecificCause().getClass().getSimpleName());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError(409, "CONFLICT", "Não foi possível concluir por conflito com outra operação. Tente novamente."));
+    }
+
+    /** Cliente SSE/HTTP desconectou no meio da resposta: nada a responder. */
+    @ExceptionHandler(org.springframework.web.context.request.async.AsyncRequestNotUsableException.class)
+    void handleClientGone() {
+        // intencionalmente vazio
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<ApiError> handleDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiError(403, "FORBIDDEN", "Acesso negado"));

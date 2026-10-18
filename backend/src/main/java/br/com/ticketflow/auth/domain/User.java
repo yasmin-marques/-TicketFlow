@@ -67,7 +67,7 @@ public class User {
     private Instant updatedAt;
 
     @Version
-    private long version;
+    private Long version;
 
     // Poucos papéis por usuário: carregamento imediato evita LazyInitializationException ao montar o token.
     @ManyToMany(fetch = FetchType.EAGER)

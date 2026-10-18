@@ -45,7 +45,7 @@ public class Organization {
     private Instant updatedAt;
 
     @Version
-    private long version;
+    private Long version;
 
     public static Organization create(String name, String slug, Instant now) {
         Organization o = new Organization();

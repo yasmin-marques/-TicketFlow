@@ -76,11 +76,15 @@
             <optional>true</optional>
         </dependency>
 
-        <!--
-          Parte 2 (não habilitado ainda): Redis (locks/idempotência/rate limit) e Apache Kafka (eventos).
-          Quando entrarem, adicionar spring-boot-starter-data-redis e spring-kafka e implementar as portas
-          em br.com.ticketflow.shared.port (hoje há implementações em memória).
-        -->
+        <!-- Parte 2: Redis (pub/sub do SSE, rate limit) e Kafka (outbox -> eventos de negócio) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
 
         <!-- Testes -->
         <dependency>
@@ -106,6 +110,11 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

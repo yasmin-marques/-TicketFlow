@@ -26,6 +26,14 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     Optional<Event> findVisibleBySlug(@Param("slug") String slug, @Param("now") Instant now);
 
     @Query("""
+            select e from Event e
+              join fetch e.category join fetch e.venue join fetch e.organization
+            where e.id = :id and e.status = br.com.ticketflow.catalog.domain.EventStatus.PUBLISHED
+              and e.publishedAt <= :now and coalesce(e.endsAt, e.startsAt) >= :now
+            """)
+    Optional<Event> findVisibleById(@Param("id") UUID id, @Param("now") Instant now);
+
+    @Query("""
             select e from Event e join fetch e.category join fetch e.venue
             where e.featured = true and e.status = br.com.ticketflow.catalog.domain.EventStatus.PUBLISHED
               and e.publishedAt <= :now and coalesce(e.endsAt, e.startsAt) >= :now
