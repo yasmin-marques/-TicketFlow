@@ -1,197 +1,222 @@
+
 # TicketFlow — Backend
 
-API REST do TicketFlow (Java 21 · Spring Boot 3.5 · PostgreSQL 16 · Redis 7 · Kafka 3.8 · Flyway). Estado: **Partes 1, 2 e 3 de 3**
-— autenticação e catálogo público, núcleo transacional (reservas, concorrência, idempotência, pedidos, pagamentos, ingressos, tempo
-real) e o **painel do organizador** (eventos, lotes, mapa de assentos, pedidos, reembolsos, participantes, check-in, dashboard,
-relatórios, equipe, webhooks, avisos, busca), com autorização por organização, auditoria e controles de produção.
+API REST do TicketFlow, responsável pelas regras de negócio, autenticação, catálogo de eventos, reservas, pedidos, ingressos digitais e ferramentas de gerenciamento para organizadores.
 
-Contratos completos (o que o frontend consome e onde o backend real difere dos mocks): [`docs/API-CONTRACTS.md`](../docs/API-CONTRACTS.md)
-§10 (Parte 1), §11 (Parte 2) e **§12 (Parte 3)**.
+## Tecnologias
 
-## Executar localmente
+- Java 21 e Spring Boot 3.5
+- PostgreSQL 16 e Flyway
+- Redis 7
+- Apache Kafka 3.8
+- Maven Wrapper
+- Docker e Docker Compose
+- OpenAPI / Swagger UI
 
-Pré-requisitos: **JDK 21** e **Docker** (PostgreSQL/Redis/Kafka e testes de integração). Node 18+ para o frontend.
+## Funcionalidades
+
+- Cadastro, autenticação e autorização de usuários.
+- Catálogo público de eventos e lotes.
+- Criação, edição e publicação de eventos.
+- Gerenciamento de lotes e mapas de assentos.
+- Reservas com expiração, controle de concorrência e idempotência.
+- Pedidos, fluxo de checkout e integração abstrata com pagamentos.
+- Ingressos digitais com QR Code assinado.
+- Atualizações de disponibilidade em tempo real via Server-Sent Events (SSE).
+- Painel do organizador com pedidos, participantes, check-in, relatórios, equipe e configurações.
+- Controle de acesso por organização e registro de ações administrativas.
+
+## Requisitos
+
+Para executar a aplicação completa em contêineres, instale o Docker Desktop com Docker Compose.
+
+Para executar a API diretamente na máquina, também é necessário o JDK 21.
+
+## Executar com Docker
+
+Os comandos a seguir devem ser executados na raiz do repositório, onde está o `docker-compose.yml`.
+
+### 1. Configurar o ambiente
+
+Crie o arquivo `.env` a partir do exemplo.
+
+No Windows PowerShell:
+
+```powershell
+Copy-Item backend/.env.example .env
+```
+
+Edite o `.env` e preencha as variáveis obrigatórias, principalmente:
+
+- `TF_DB_PASSWORD`: senha do PostgreSQL.
+- `TF_JWT_SECRET`: segredo de assinatura dos tokens JWT.
+- `TF_QR_SECRET`: segredo usado para assinar os QR Codes.
+
+Use segredos fortes e distintos, com pelo menos 32 bytes para `TF_JWT_SECRET` e `TF_QR_SECRET`. Não compartilhe nem versione o arquivo `.env`.
+
+### 2. Iniciar os serviços
 
 ```bash
-# 1. variáveis (nenhum segredo é versionado) — na raiz do repositório
-cp backend/.env.example .env
-#    preencha TF_DB_PASSWORD, TF_JWT_SECRET e TF_QR_SECRET (>= 32 caracteres cada: openssl rand -base64 48)
+docker compose up --build -d
+```
 
-# 2a. tudo em contêineres (PostgreSQL + Redis + Kafka + API), perfil dev
-docker compose up --build
-#     porta ocupada? TF_DB_PORT=55432, TF_REDIS_PORT, TF_KAFKA_PORT, TF_API_PORT no .env
+Verifique o estado dos contêineres:
 
-# 2b. ou só a infraestrutura em contêiner e a API na máquina
+```bash
+docker compose ps
+```
+
+Para acompanhar os logs da API:
+
+```bash
+docker compose logs -f backend
+```
+
+Para encerrar os serviços sem apagar os dados persistidos:
+
+```bash
+docker compose down
+```
+
+Evite `docker compose down -v` quando quiser preservar os dados do banco.
+
+### Portas padrão
+
+| Serviço | Porta no host |
+|---|---:|
+| API Spring Boot | `8080` |
+| PostgreSQL | `5432` |
+| Redis | `6379` |
+| Kafka | `29092` |
+
+Se uma porta estiver ocupada, consulte as variáveis de porta definidas no `.env.example` e ajuste a configuração correspondente. Quando a API está em um contêiner, ela deve acessar os serviços pelos nomes de serviço do Docker Compose e pelas portas internas da rede Docker.
+
+## Executar a API fora do Docker
+
+É possível executar PostgreSQL, Redis e Kafka em contêineres e iniciar a API localmente.
+
+Primeiro, configure o `.env` na raiz e suba a infraestrutura:
+
+```bash
 docker compose up -d postgres redis kafka
-cd backend
-export $(grep -v '^#' ../.env | xargs)          # PowerShell: defina as variáveis TF_* manualmente
-export TF_DB_URL=jdbc:postgresql://localhost:5432/ticketflow TF_KAFKA_BOOTSTRAP=localhost:29092
-SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
-
-# 3. frontend apontando para a API real (outro terminal, raiz do repositório)
-#    .env.local:  VITE_USE_MOCKS=false   VITE_API_URL=http://localhost:8080/api
-npm install && npm run dev                     # http://localhost:5173
 ```
 
-* API: <http://localhost:8080/api> · Swagger UI: <http://localhost:8080/api/swagger-ui.html> · OpenAPI: `/api/docs`
-* Saúde: `GET /actuator/health` · prontidão (banco + Redis): `/actuator/health/readiness` · vivacidade: `/actuator/health/liveness`
-* **Perfil `dev`:** catálogo de demonstração (26 eventos, lotes, mapas), **provedor de pagamento sandbox** (não cobra nada), o endpoint
-  `POST /api/dev/orders/{id}/simulate-payment` e **contas de demonstração** (senha = `TF_DEMO_PASSWORD`, padrão `Demo12345`):
+No PowerShell, configure no terminal as variáveis de ambiente necessárias para o backend, incluindo a conexão JDBC local, o Redis e o endereço do Kafka. Depois, na pasta `backend/`, execute:
 
-| Conta | Papel | Para testar |
-|---|---|---|
-| `organizador@ticketflow.dev` | ORGANIZER · OWNER da "Pulse Produções" (dona do Neon Horizon Festival e de outros eventos do catálogo) | painel inteiro |
-| `portaria@ticketflow.dev` | ORGANIZER · CHECKIN da mesma organização | só participantes e check-in |
-| `comprador@ticketflow.dev` | USER | compra, ingressos, QR |
-
-* Sandbox: no frontend use o cartão `4242 4242 4242 4242` (vira o token `tok_4242`, aprovado) ou final `0002` (recusado). Pix/boleto
-  ficam pendentes; "Simular pagamento" na tela do pedido confirma (só dev).
-* Qualquer outro usuário que se cadastrar é `USER`. Para promover alguém a organizador (não há endpoint de administração):
-
-```sql
-insert into user_roles (user_id, role_id)
-select u.id, r.id from users u, roles r where lower(u.email) = 'voce@exemplo.com' and r.name = 'ORGANIZER';
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
-  No primeiro acesso ao painel essa pessoa recebe uma organização própria (como OWNER) e pode adicionar a equipe.
 
-## Testes e build
+Em Linux ou macOS:
 
 ```bash
-cd backend
-./mvnw verify          # compila, roda TODOS os testes e empacota target/ticketflow-backend.jar
-./mvnw test -Dtest='Org*Test,CheckinIntegrationTest'   # só o painel
+./mvnw spring-boot:run
 ```
 
-Os testes de integração sobem **PostgreSQL 16, Redis 7 e Kafka reais** (Testcontainers) e exigem Docker. Última execução local:
-**160 testes, 0 falhas** (`./mvnw verify`, 18/10/2026). O que cada requisito prova:
+## Endpoints úteis
 
-| Requisito | Onde é provado |
-|---|---|
-| CRUD de eventos, rascunho → publicação → catálogo público | `OrgEventsIntegrationTest.draftIsCreatedEditedAndOnlyAppearsInTheCatalogAfterPublishing` |
-| Requisitos de publicação (`PUBLISH_BLOCKED` com a lista) | idem + `…seatMapIsSavedLinkedToLotsAndProtectsSoldSeats` |
-| Slug único global, reservado, `exceptId` de outra organização | `…slugsAreGloballyUniqueAndValidated` |
-| Despublicar/excluir/editar respeitando vendas; gestão de lotes | `…unpublishDeleteAndEditingRulesRespectSales`, `OrgOrdersAndReportsIntegrationTest.lotPriceChangesOnlyAffectNewReservations` |
-| Cancelamento do evento reembolsa pagos, libera reservas e estoque | `…cancellingAnEventRefundsPaidOrdersAndRemovesItFromTheCatalog` |
-| Mapa: vãos/bloqueios indisponíveis ao comprador, `409 SEAT_SOLD` | `…seatMapIsSavedLinkedToLotsAndProtectsSoldSeats` |
-| Permissões (401/403), papel de membro, papel revogado vale na hora | `OrgAuthorizationIntegrationTest` (todos) |
-| **Isolamento entre organizações** (leitura e escrita → 404, filtros não vazam) | `…organizersCannotReachAnotherOrganizationsData` |
-| Pedidos: filtros, paginação, reembolso, `409` com ingresso usado | `OrgOrdersAndReportsIntegrationTest.ordersAreFilteredPaginatedAndRefundable` |
-| **Relatórios = banco** (receita, vendidos, ocupação, funil, por lote, por dia) | `…dashboardAndReportNumbersMatchTheDatabase` |
-| **Check-in concorrente** (12 leituras simultâneas → 1 `valid`) | `CheckinIntegrationTest.concurrentScansOfTheSameTicketProduceExactlyOneValidEntry`, `…manualCheckinAndScannerRacingStillAdmitOnlyOnce` |
-| QR adulterado, QR/código anteriores à transferência, outro evento, cancelado | `…forgedReplacedForeignAndCancelledTicketsAreInvalid` |
-| Check-in manual, reversão auditada, evento inativo `409` | `…checkinRequiresAnActiveEventAndCanBeUndoneByAManager` |
-| Migrações aplicadas, restrições e índices | `MigrationsAndContractIntegrationTest.allMigrationsAreAppliedAndKeyConstraintsExist` |
-| Contrato JSON = tipos do frontend; OpenAPI documenta o painel | `…organizerResponsesMatchTheFrontendTypes` |
-| Limite de requisições, checagem de produção, regras de permissão e webhook | `RateLimitFilterTest`, `ProductionSafetyCheckTest`, `OrgRulesTest` |
-| Partes 1 e 2 (venda sem duplicidade, idempotência, webhooks de pagamento, SSE, outbox) | `ReservationsIntegrationTest`, `OrdersIntegrationTest`, `TicketsIntegrationTest`, `SeatStreamIntegrationTest`, `OutboxKafkaIntegrationTest`, `Auth*`, `Catalog*` |
+Com a API em execução local:
+
+- API base: `http://localhost:8080/api`
+- Swagger UI: `http://localhost:8080/api/swagger-ui.html`
+- OpenAPI: `http://localhost:8080/api/docs`
+- Saúde: `http://localhost:8080/actuator/health`
+- Prontidão: `http://localhost:8080/actuator/health/readiness`
+- Vivacidade: `http://localhost:8080/actuator/health/liveness`
+
+## Ambiente de desenvolvimento
+
+O perfil `dev` disponibiliza dados e contas de demonstração e utiliza um provedor de pagamento sandbox. Esse modo é destinado a desenvolvimento e testes; ele não realiza cobranças reais.
+
+A senha das contas de demonstração é definida por `TF_DEMO_PASSWORD` (padrão de desenvolvimento: `Demo12345`).
+
+| E-mail | Papel | Uso |
+|---|---|---|
+| `organizador@ticketflow.dev` | Organizador / proprietário | Gerenciar eventos e acessar o painel |
+| `portaria@ticketflow.dev` | Organizador / check-in | Consultar participantes e validar ingressos |
+| `comprador@ticketflow.dev` | Comprador | Simular compras e consultar ingressos |
+
+No fluxo de pagamento de desenvolvimento, o cartão de teste `4242 4242 4242 4242` simula aprovação e o cartão `4000 0000 0000 0002` simula recusa. Pix e boleto podem permanecer pendentes até a simulação de pagamento disponibilizada no ambiente de desenvolvimento.
+
+Não use contas, senhas ou mecanismos de sandbox em produção.
 
 ## Variáveis de ambiente
 
-| Variável | Padrão | Descrição |
-|---|---|---|
-| `SPRING_PROFILES_ACTIVE` | — | `dev` (local, demonstração, sandbox) · `prod` (produção) · `test` (testes) |
-| `TF_DB_URL` / `TF_DB_USER` / `TF_DB_PASSWORD` | — | Conexão JDBC com o PostgreSQL. `TF_DB_POOL_SIZE` (prod, padrão 20) |
-| `TF_REDIS_HOST` / `TF_REDIS_PORT` / `TF_REDIS_PASSWORD` | `localhost` / `6379` / — | Pub/sub do SSE, limitador de login e de requisições |
-| `TF_KAFKA_BOOTSTRAP` | `localhost:9092` | Brokers Kafka (outbox → eventos de negócio) |
-| `TF_JWT_SECRET` | *(vazio)* | HS256, **≥ 32 bytes**. Vazio = chave efêmera (só dev; `prod` recusa subir) |
-| `TF_QR_SECRET` | *(vazio)* | HMAC dos QR Codes, **≥ 32 bytes**. Trocar invalida os QR emitidos |
-| `TF_WEBHOOK_SECRET` | *(vazio)* | HMAC dos webhooks do gateway. Vazio = todos recusados |
-| `TF_COOKIE_SECURE` | `true` | `Secure` no cookie do refresh. `false` só em `http://localhost` |
-| `TF_CORS_ORIGINS` / `TF_APP_URL` | `http://localhost:5173` | Origens do frontend (lista separada por vírgula) / base dos links de e-mail |
-| `TF_SWAGGER_ENABLED` | `true` (dev) · `false` (prod) | Swagger UI e `/api/docs` |
-| `TF_RATE_LIMIT_ENABLED` | `true` | Limite por IP/min. Ajustes: `TF_RATE_LIMIT_GENERAL` (300), `_AUTH` (30), `_CHECKIN` (240), `_WEBHOOK` (600) |
-| `TF_TRUSTED_PROXIES` | faixas privadas | `prod`: regex dos proxies cujo `X-Forwarded-For` é confiável |
-| `TF_DEMO_PASSWORD` | `Demo12345` (dev) | Senha das contas de demonstração; vazio = não cria |
-| `PORT` | `8080` | Porta HTTP |
-| `TF_DB_PORT`, `TF_REDIS_PORT`, `TF_KAFKA_PORT`, `TF_API_PORT` | 5432, 6379, 29092, 8080 | Só docker-compose: portas no host |
+Consulte `backend/.env.example` para a lista completa. As principais variáveis incluem:
 
-Ajustes finos em `application.yml` (`tf.sales.*`, `tf.jobs.*`, `tf.redis.enabled`, `tf.kafka.enabled`).
+| Variável | Finalidade |
+|---|---|
+| `SPRING_PROFILES_ACTIVE` | Perfil da aplicação (`dev`, `test` ou `prod`) |
+| `TF_DB_URL` | URL JDBC do PostgreSQL |
+| `TF_DB_USER` / `TF_DB_PASSWORD` | Credenciais do banco |
+| `TF_REDIS_HOST` / `TF_REDIS_PORT` | Conexão com Redis |
+| `TF_KAFKA_BOOTSTRAP` | Endereço dos brokers Kafka |
+| `TF_JWT_SECRET` | Segredo de assinatura JWT |
+| `TF_QR_SECRET` | Segredo de assinatura dos QR Codes |
+| `TF_CORS_ORIGINS` | Origens permitidas para o frontend |
+| `TF_APP_URL` | URL base da aplicação frontend |
+| `TF_SWAGGER_ENABLED` | Habilita ou desabilita a documentação Swagger |
+| `TF_DEMO_PASSWORD` | Senha das contas de demonstração no perfil `dev` |
 
-## Produção (`SPRING_PROFILES_ACTIVE=prod`)
+Em produção, configure segredos por meio do ambiente seguro de implantação, utilize HTTPS e não habilite perfis ou endpoints de desenvolvimento.
 
-`ProductionSafetyCheck` **recusa subir** se: perfis `dev`/`test` ativos junto (habilitariam o sandbox e `/api/dev/**`), segredos JWT/QR
-com menos de 32 bytes, cookie sem `Secure`, tokens expostos no corpo, semente de demonstração ligada, `TF_CORS_ORIGINS` com `*`,
-`http://` ou `localhost`, senha do banco vazia ou limitador desligado. Além disso o perfil:
-* logs em **JSON (ECS)** com `requestId` em cada linha; Swagger desligado; desligamento gracioso;
-* `server.forward-headers-strategy=native` — só confia em `X-Forwarded-*` de proxies internos (IP real para limitador e auditoria);
-* sem gateway real, pagamentos respondem `503 PAYMENT_PROVIDER_UNAVAILABLE` (nunca finge cobrar).
+## Testes
 
-## Arquitetura do painel (Parte 3)
+Na pasta `backend/`, execute:
 
-```
-org/access    OrgContext (organização + papel, resolvidos no BANCO a cada requisição), OrgPermission, auditoria, avisos
-org/events    eventos (rascunho → publicação → catálogo), lotes, mapa do editor ↔ assentos de venda, cancelamento
-org/orders    pedidos (filtros/paginação em SQL), reembolso pelo organizador
-org/checkin   portaria (UPDATE atômico condicional), participantes
-org/reports   dashboard e relatórios (agregações no PostgreSQL)
-org/settings  organização, equipe, webhooks, avisos, busca
-org/web       controllers finos + DTOs (= src/types/organizer.ts)
-security      RateLimitFilter, RequestLoggingFilter (X-Request-Id), cabeçalhos/CSP, CORS
+```bash
+./mvnw verify
 ```
 
-* **Isolamento:** todo serviço recebe `OrgContext` e toda consulta tem `organization_id = :org` (JPQL ou SQL). Recurso de outra
-  organização = `404`. O `X-Organization-Id` do cliente só escolhe entre organizações das quais a pessoa é membro.
-* **Check-in atômico:** `UPDATE tickets SET status='USED' … WHERE id=? AND status='VALID' AND qr_version=?` — a linha do ingresso
-  serializa leituras simultâneas; 1 linha alterada = `valid`, 0 = relê e responde `used`/`invalid`. `ck_tickets_used` garante que
-  `USED` sempre tem horário.
-* **Mapa com vendas:** evento + todos os assentos travados (ordem de id, a mesma dos compradores — sem deadlock); assento vendido
-  ou com reserva ativa não muda (`409 SEAT_SOLD`); `ck_seats_blocked` impede bloqueio de assento reservado/vendido.
-* **Despublicar/cancelar:** os lotes saem de venda com um `UPDATE` que espera reservas em andamento; depois as reservas ativas são
-  liberadas e os pedidos pendentes/pagos expirados/reembolsados, tudo na mesma transação.
-* **Relatórios:** só agregações sobre pedidos, ingressos, reservas e lotes reais. Funil sem "visitas" (não há analytics).
+No Windows PowerShell:
 
-As garantias das Partes 1 e 2 (PostgreSQL como fonte da verdade, `SELECT … FOR UPDATE` ordenado nos assentos, estoque por `UPDATE`
-condicional, idempotência persistente, outbox → Kafka, SSE pós-commit via Redis, webhooks HMAC com anti-replay) continuam valendo —
-detalhes em `docs/API-CONTRACTS.md` §11.
+```powershell
+.\mvnw.cmd verify
+```
+
+A verificação compila a aplicação e executa os testes. Os testes de integração que utilizam Testcontainers precisam de Docker disponível.
+
+## Integração com o frontend
+
+O frontend está na raiz do repositório. Para que ele consuma esta API, configure o arquivo `.env.local` do frontend:
+
+```dotenv
+VITE_USE_MOCKS=false
+VITE_API_URL=http://localhost:8080/api
+```
+
+Inicie o frontend em outro terminal com:
+
+```bash
+npm install
+npm run dev
+```
+
+Os contratos consumidos pela interface estão documentados em [`docs/API-CONTRACTS.md`](../docs/API-CONTRACTS.md).
 
 ## Segurança
 
-* Autenticação: JWT HS256 (15 min) + refresh token rotativo em cookie `HttpOnly`/`SameSite=Lax`/`Path=/api/auth` (hash no banco,
-  reuso derruba a família); BCrypt(12); bloqueio após 5 falhas de login; recuperação de senha de uso único.
-* Autorização: papel no filtro + vínculo e papel de membro no serviço (§12.1 do contrato); papel revogado vale na hora.
-* Cartão: o servidor **não recebe** número/CVV (422 antes de qualquer gravação). Pagamentos/estornos com chave de idempotência.
-* QR: HMAC-SHA256 + versão; na transferência a versão **e o código digitável** mudam.
-* Limite de requisições por IP (Redis), CORS restrito, CSP/HSTS/X-Frame-Options, `X-Request-Id`, log de acesso sem query string,
-  auditoria das ações administrativas, mensagens de erro sem detalhes internos (`ref` para correlação).
-* Webhooks de organização: só HTTPS público (proteção básica contra SSRF no cadastro); segredo gerado e nunca devolvido.
+- Não versione `.env`, senhas, tokens ou segredos.
+- Use segredos fortes e distintos para JWT e QR Codes.
+- Restrinja CORS às origens necessárias.
+- Não exponha endpoints de desenvolvimento em produção.
+- Não utilize credenciais de demonstração em ambientes públicos.
+- Revise autorização, configuração de cookies, HTTPS, backups e observabilidade antes de publicar a aplicação.
 
-## Integrações externas pendentes
+## Integrações e limitações
 
-| Integração | Situação | O que falta |
-|---|---|---|
-| Gateway de pagamento (cartão, Pix, boleto, estorno) | Só **sandbox** (dev/test) | Implementar `PaymentProvider` real, SDK de tokenização no frontend, segredo/URL de webhook |
-| Cofre de cartões (`/me/cards`) | `503 CARD_VAULT_UNAVAILABLE` | Vault do gateway |
-| E-mail (recuperação de senha, notificações ao comprador) | Só log (`LoggingNotificationSender`) | Provedor SMTP/SES |
-| Entrega de webhooks da organização | Cadastro pronto; **não envia** | Consumidor Kafka → HTTP assinado (HMAC com o segredo gerado), revalidar IP resolvido (SSRF), retentativas |
-| Upload de capa | Só o nome do arquivo (`coverName`) | URL pré-assinada + CDN; `coverUrl` segue `null` |
-| Analytics de visitas | Não existe | Funil visita → compra |
+O backend inclui abstrações e fluxos de desenvolvimento para integrações externas. Antes de utilizar o sistema em produção, verifique a configuração e implementação efetiva de:
 
-## Pendências para produção
+- Gateway de pagamento e tokenização real de cartões.
+- Envio de e-mails e notificações.
+- Armazenamento e entrega de imagens de capa.
+- Entrega de webhooks de organizações.
+- Monitoramento, backups e infraestrutura gerenciada para Redis e Kafka.
 
-* Gateway real e o SDK de tokenização no frontend (hoje o frontend gera o token **sandbox** `tok_<final>` — só funciona em dev/test).
-* Reembolsos em massa (cancelamento de evento) chamam o gateway dentro da transação: com um gateway real, mover para processamento
-  assíncrono (fila) com retentativas — hoje uma falha do gateway desfaz o cancelamento inteiro (seguro, mas não escala).
-* Verificação de e-mail no cadastro (pré-requisito para convites de equipe por e-mail e transferências a quem não tem conta).
-* Access token em memória no frontend (hoje em `localStorage`, como nos mocks) e CSP no frontend.
-* `perCustomerLimit` do lote entre pedidos; janela de horário do check-in; reconciliação periódica com o gateway.
-* Observabilidade: métricas (Micrometer/Prometheus), tracing, alertas; health de Kafka (o relay do outbox tolera Kafka fora do ar).
-* Redis/Kafka gerenciados com TLS e autenticação; backups e política de retenção de `audit_log`/`checkin_scans`.
+No perfil de desenvolvimento, pagamentos são simulados. Não considere o projeto pronto para processar pagamentos reais até que um provedor de pagamento seja integrado e validado.
 
-## Limitações conhecidas
+## Documentação relacionada
 
-* A jornada de compra desenha o mapa como grade retangular: vãos e bloqueios aparecem como indisponíveis; numeração fora da posição
-  ou fileiras com setores misturados são exibidas de forma aproximada (§12.3).
-* Eventos de demonstração têm vendas iniciais nos lotes sem pedidos (afeta `byLot` desses eventos, não os criados pelo painel).
-* Sem MFA; sem endpoint de administração da plataforma (`/api/admin/**` é só protegido).
-* Pedido pendente (Pix 30 min, boleto 3 dias) mantém assentos/estoque segurados até o prazo.
-
-## Estrutura
-
-```
-backend/src/main/java/br/com/ticketflow
-├── auth/  catalog/  sales/  orders/  tickets/  payment/  idempotency/  outbox/  realtime/   (Partes 1 e 2)
-├── org/           painel do organizador (Parte 3) — ver "Arquitetura do painel"
-├── organization/  organizações e membros · user/ perfil (GET/PATCH /me) · security/ · config/ · shared/port/ · common/
-backend/src/main/resources/db/migration
-   V1 identidade · V2 catálogo · V3 dados de referência · V4 vendas/pedidos/ingressos/outbox · V5 painel do organizador
-```
+- [README principal](../README.md)
+- [Contratos da API](../docs/API-CONTRACTS.md)
+- [Documentação do frontend](../FRONTEND_STATUS.md)

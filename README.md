@@ -1,115 +1,169 @@
 # TicketFlow
 
-Plataforma de criação, gerenciamento, venda e reserva de ingressos para eventos, com reserva de assentos em tempo real,
-controle de concorrência, pagamentos e processamento assíncrono. Este repositório contém o **frontend** completo (três partes)
-e o **backend** completo em [`backend/`](backend/README.md) (Java 21 + Spring Boot + PostgreSQL + Redis + Kafka). Por padrão o
-frontend usa uma API simulada local; com `VITE_USE_MOCKS=false` ele fala com o backend real.
-
-> Status detalhado, endpoints pendentes e checklist de produção: [`FRONTEND_STATUS.md`](FRONTEND_STATUS.md) ·
-> contratos de API: [`docs/API-CONTRACTS.md`](docs/API-CONTRACTS.md).
-
-## Visão geral
-
-| Ambiente | O que faz |
-|---|---|
-| **Público** | Descoberta de eventos: home, busca com filtros, categorias, detalhe do evento |
-| **Comprador** | Cadastro/login, escolha de ingressos e lotes, mapa de assentos com reserva de 10 min, checkout (Pix, cartão, boleto), pedidos, ingresso digital com QR, conta |
-| **Organizador** | Dashboard, criação/edição de eventos em 5 etapas, lotes, editor de mapa de assentos, pedidos e reembolsos, participantes, check-in por QR (tablet/celular), relatórios, configurações |
-
-Design: sistema "Modernist" do protótipo — Archivo, accent `#EC3013`, fundo claro, bordas retas (raio 0), réguas de 2px, grades visíveis.
-
-## Tecnologias
-
-React 19 · TypeScript (estrito) · Vite · React Router 7 · Tailwind CSS 4 · TanStack Query 5 · Axios · Lucide ·
-react-hook-form + zod (formulários) · `qrcode` (QR real, gerado no navegador). Gráficos em SVG/CSS próprios.
-
-## Instalação e execução
-
-```bash
-npm install
-npm run dev        # http://localhost:5173
-npm run build      # tsc -b && vite build  → dist/
-npm run preview    # serve o build
-npm run typecheck
-```
-
-Requer Node 20+.
-
-### Contas de demonstração (mock)
-| Perfil | E-mail | Senha |
-|---|---|---|
-| Comprador | `camila@exemplo.com` | `ticketflow123` |
-| Organizador | `organizador@pulse.com` | `ticketflow123` |
-
-A tela de login tem botões que preenchem as credenciais. Cartões de teste: `4242 4242 4242 4242` aprova ·
-`4000 0000 0000 0002` recusa · Pix/boleto ficam pendentes.
-
-## Variáveis de ambiente
-
-Copie `.env.example` para `.env`.
-
-| Variável | Padrão | Descrição |
-|---|---|---|
-| `VITE_USE_MOCKS` | `true` | `true`: o axios é atendido por `src/mocks`. `false`: chamadas vão para a API real |
-| `VITE_API_URL` | `/api` | URL base da API Spring Boot (usada com `VITE_USE_MOCKS=false`) |
-
-## Estrutura de diretórios
-
-```
-src/
-├─ app/            Providers (Query, Auth, Toast), router (rotas lazy), queryClient
-├─ components/
-│  ├─ ui/          Button, Chip, Tabs, Modal, Drawer, DataTable, Stepper, TextField, QuantityStepper…
-│  ├─ domain/      EventCard, TicketCard, QrCode, StatusPanel, LoadError…
-│  └─ charts/      BarChart, LineChart, HBarList, StackedBar, ProgressBar
-├─ features/       Lógica por domínio: events, search, auth, purchase, reservation, seats,
-│                  checkout, orders, tickets, account, org (dashboard/lotes/mapa/wizard/check-in)
-├─ layouts/        PublicLayout, CheckoutLayout, AdminLayout (+ headers, tab bar, footer)
-├─ pages/          Telas (public, auth/, purchase/, orders/, tickets/, account/, org/)
-├─ services/
-│  ├─ api/         axios (`http.ts`), um serviço por domínio, `ApiError`, ponte de autenticação
-│  └─ realtime/    SSE de disponibilidade de assentos
-├─ mocks/          "Backend" local: adapter do axios, rotas por domínio, banco persistente, seed do organizador
-├─ hooks/ lib/ types/ styles/
-docs/API-CONTRACTS.md · FRONTEND_STATUS.md
-```
+Plataforma web para descoberta de eventos, venda e reserva de ingressos e gerenciamento de eventos. O TicketFlow oferece uma experiência integrada para compradores e organizadores, incluindo seleção de ingressos, reservas de assentos, pagamentos, ingressos digitais e controle de acesso.
 
 ## Funcionalidades
 
-Resumo; a lista completa de telas e rotas está em [`FRONTEND_STATUS.md`](FRONTEND_STATUS.md).
+### Descoberta de eventos
+- Página inicial com eventos em destaque.
+- Catálogo com busca, filtros e categorias.
+- Página de detalhes dos eventos.
+- Exibição de informações sobre datas, locais, lotes e disponibilidade.
 
-* **Descoberta:** filtros na querystring (compartilháveis), sugestões de busca, ordenação, paginação, favoritos locais.
-* **Compra:** reserva com prazo vindo do servidor (`expiresAt`), seleção de assentos serializada com `Idempotency-Key`, conflito `409` com sugestão, atualização ao vivo (SSE), pagamento com estados processando/recusado/aprovado/pendente.
-* **Cliente:** pedidos com cancelamento/reembolso, ingressos em abas, QR real, transferência, salvar ingresso (SVG), perfil e cartões.
-* **Organizador:** criação em 5 etapas com validação e rascunho automático, lotes, editor de mapa (setores, fileiras, bloqueio, numeração), publicação que reflete no catálogo, check-in com resultado em tela cheia, relatórios e exportação CSV/PDF.
+### Experiência do comprador
+- Cadastro e autenticação.
+- Seleção de ingressos e assentos.
+- Reservas com prazo de expiração.
+- Processo de checkout e acompanhamento de pedidos.
+- Ingressos digitais com QR Code.
+- Gerenciamento de conta e ingressos adquiridos.
 
-## Estratégia de mocks
+### Gerenciamento de eventos
+- Dashboard para organizadores.
+- Criação, edição e publicação de eventos.
+- Gerenciamento de lotes, ingressos e assentos.
+- Acompanhamento de pedidos e participantes.
+- Check-in por QR Code.
+- Relatórios e indicadores operacionais.
 
-Toda comunicação passa por **axios** (`src/services/api`). Com `VITE_USE_MOCKS=true`, `src/mocks/adapter.ts` implementa um
-roteador que responde às mesmas rotas, cabeçalhos e códigos de status do contrato (`Authorization`, `Idempotency-Key`,
-`409/402/410/403`). O banco do comprador persiste em `localStorage` (`tf:mock-db:v1`); a base do organizador é gerada de forma
-determinística e só as alterações persistem (`tf:mock-org:v1`).
+## Tecnologias
 
-Modos de simulação — acrescente à URL (persiste na aba até `?mock=off`):
-`?mock=erro` · `?mock=lento` · `?mock=vazio` · `?mock=conflito` (409 na 1ª escolha de assento) · `?mock=expira` (reserva de 45 s).
+**Frontend**
+- React 19
+- TypeScript
+- Vite
+- React Router
+- Tailwind CSS
+- TanStack Query
+- Axios
+- Lucide
+- React Hook Form e Zod
 
-> Os mocks **não** garantem concorrência, segurança nem processam pagamento real. Venda duplicada, locks, autorização, emissão
-> e validação de ingressos são responsabilidade do backend.
+**Backend**
+- Java 21
+- Spring Boot
+- Spring Security
+- PostgreSQL
+- Redis
+- Apache Kafka
+- Flyway
 
-## Como integrar com o backend
+**Infraestrutura e ferramentas**
+- Docker e Docker Compose
+- API REST
+- Server-Sent Events (SSE)
+- Git e GitHub
 
-> **Backend completo (Partes 1, 2 e 3) em [`backend/`](backend/README.md):** autenticação, catálogo, reservas com concorrência, pedidos,
-> pagamentos (gateway abstraído; sandbox em dev), ingressos com QR assinado, SSE de assentos e o **painel do organizador** (eventos,
-> lotes, mapa, pedidos, reembolsos, participantes, check-in atômico, dashboard, relatórios, equipe, webhooks), com isolamento por
-> organização. Os ajustes de integração do frontend já foram aplicados (`docs/API-CONTRACTS.md` §12.9).
+## Arquitetura
 
-1. Suba a stack: `cp backend/.env.example .env` (preencha os segredos) e `docker compose up --build` na raiz.
-2. Crie `.env.local` com `VITE_USE_MOCKS=false` e `VITE_API_URL=http://localhost:8080/api`; `npm run dev`.
-3. Entre com as contas de demonstração do perfil dev (`organizador@ticketflow.dev`, `portaria@ticketflow.dev`,
-   `comprador@ticketflow.dev`, senha `Demo12345`) — ver `backend/README.md`.
-4. **Autenticação:** refresh token em cookie `HttpOnly` (o axios usa `withCredentials`); access token de 15 min renovado uma vez em `401`.
-5. **Tempo real:** `GET /events/{id}/seats/stream` (SSE `seat.updated`, com `?access_token=`).
-6. **Pagamento:** com a API real o cartão vira um token (`services/payment/cardTokenizer.ts`). Hoje é o token **sandbox** do backend
-   (`tok_<final>`, só dev/test); em produção, substitua pelo SDK do gateway.
-7. **Produção:** remova o import de `@/mocks/*` de `services/api/http.ts` (ou carregue-o com `import()` somente em dev) para tirar o
-   código de mock do bundle. A rota `/api/dev/**` só existe nos perfis dev/test do backend.
+O projeto é organizado em duas partes principais:
+
+- **Frontend:** interface responsiva para compradores e organizadores, com componentes reutilizáveis, gerenciamento de estado e integração com a API.
+- **Backend:** serviços responsáveis pelas regras de negócio, autenticação, persistência, reservas, pedidos, pagamentos e gerenciamento de eventos.
+
+O frontend pode funcionar com dados simulados durante o desenvolvimento ou consumir a API real do backend.
+
+## Requisitos
+
+- Node.js 20 ou superior.
+- Docker Desktop com Docker Compose.
+- Git.
+
+Não é necessário instalar Java, Maven, PostgreSQL, Redis ou Kafka individualmente quando os serviços correspondentes são executados pelos contêineres Docker.
+
+## Como executar
+
+### 1. Clonar o repositório
+
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd TicketFlow
+```
+
+### 2. Configurar o ambiente
+
+Copie o arquivo de exemplo do backend para a raiz do projeto.
+
+No PowerShell:
+
+```powershell
+Copy-Item backend/.env.example .env
+```
+
+Configure as variáveis obrigatórias no `.env`, incluindo as credenciais do banco de dados e os segredos de autenticação. Consulte `backend/README.md` para obter as instruções completas.
+
+Crie também o arquivo `.env.local` na raiz do projeto:
+
+```dotenv
+VITE_USE_MOCKS=true
+VITE_API_URL=http://localhost:8080/api
+```
+
+Para utilizar o backend real, altere `VITE_USE_MOCKS` para `false`.
+
+### 3. Iniciar o backend e a infraestrutura
+
+Com o Docker Desktop em execução, execute:
+
+```bash
+docker compose up --build -d
+```
+
+Confira o estado dos serviços:
+
+```bash
+docker compose ps
+```
+
+O Compose inicia os serviços definidos na configuração do projeto.
+
+### 4. Iniciar o frontend
+
+Em outro terminal, na raiz do projeto:
+
+```bash
+npm install
+npm run dev
+```
+
+A aplicação estará disponível em:
+
+**http://localhost:5173**
+
+### 5. Encerrar os serviços
+
+Para parar os contêineres sem remover os dados persistidos:
+
+```bash
+docker compose down
+```
+
+## Scripts disponíveis
+
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Inicia o servidor de desenvolvimento. |
+| `npm run build` | Gera a versão de produção. |
+| `npm run preview` | Executa uma prévia do build. |
+| `npm run typecheck` | Verifica os tipos TypeScript. |
+
+## Desenvolvimento
+
+O projeto utiliza componentes reutilizáveis e organização por domínio para facilitar a manutenção e a evolução das funcionalidades.
+
+Durante o desenvolvimento, os mocks permitem explorar os fluxos da interface sem depender da API. Para testar a aplicação integrada, utilize `VITE_USE_MOCKS=false` e mantenha o backend disponível.
+
+A integração com serviços externos, como gateways de pagamento e envio de notificações, depende das configurações e implementações correspondentes no backend.
+
+## Documentação
+
+- [Documentação do backend](backend/README.md)
+- [Contratos da API](docs/API-CONTRACTS.md)
+- [Documentação do frontend](FRONTEND_STATUS.md)
+
+## Segurança
+
+- Não versione arquivos `.env` nem credenciais.
+- Utilize segredos fortes e exclusivos por ambiente.
+- Não utilize contas ou credenciais de demonstração em produção.
+- Antes de disponibilizar a aplicação publicamente, revise autenticação, autorização, pagamentos, configuração de CORS, HTTPS e armazenamento de dados.

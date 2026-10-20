@@ -1,141 +1,217 @@
-# TicketFlow — Status do frontend
 
-Estado em **16/10/2026**: as três partes do frontend estão implementadas e funcionam de ponta a ponta com um backend simulado
-(`src/mocks`). Este documento lista o que está pronto, os fluxos disponíveis, o que o backend Spring Boot precisa expor,
-as limitações atuais e o que falta antes de produção. Contratos detalhados: [`docs/API-CONTRACTS.md`](docs/API-CONTRACTS.md).
+# TicketFlow — Frontend
 
-## 1. Telas concluídas
+Frontend web do TicketFlow, uma plataforma de descoberta de eventos, compra de ingressos e gerenciamento de eventos. A aplicação oferece interfaces para visitantes, compradores e organizadores, com foco em responsividade, usabilidade e integração com o backend Spring Boot.
 
-### Parte 1 — Descoberta (público)
-| Tela | Rota |
+## Funcionalidades
+
+### Descoberta de eventos
+
+- Página inicial com carrossel automático de eventos em destaque.
+- Catálogo de eventos com busca, filtros, categorias e ordenação.
+- Detalhes dos eventos, programação, localização e informações sobre ingressos.
+- Navegação responsiva para desktop e dispositivos móveis.
+- Imagens de eventos com carregamento otimizado e fallbacks.
+
+### Compra de ingressos
+
+- Cadastro, login e recuperação de senha.
+- Seleção de tipos, lotes e quantidades de ingressos.
+- Mapa de assentos e reservas temporárias.
+- Checkout com dados do comprador e opções de pagamento.
+- Acompanhamento de pedidos e estados de pagamento.
+- Ingressos digitais com QR Code.
+- Consulta e gerenciamento dos ingressos adquiridos.
+- Perfil e configurações da conta.
+
+### Painel do organizador
+
+- Dashboard com indicadores e informações sobre vendas.
+- Criação, edição e publicação de eventos.
+- Gerenciamento de lotes e mapas de assentos.
+- Consulta e gerenciamento de pedidos.
+- Participantes e controle de acesso.
+- Check-in por QR Code ou código digitado.
+- Relatórios de vendas e ocupação.
+- Gerenciamento da organização, equipe e configurações.
+
+## Identidade visual
+
+O frontend utiliza um design system compartilhado, com componentes reutilizáveis e tokens de estilo para manter a consistência visual entre as áreas pública, de compra e administrativa.
+
+Principais características:
+
+- Interface clara e responsiva.
+- Componentes com cantos arredondados.
+- Sombras discretas e superfícies diferenciadas.
+- Tipografia e espaçamento consistentes.
+- Estados visuais de foco, carregamento, sucesso e erro.
+- Microinterações e transições suaves.
+- Suporte à preferência por movimento reduzido.
+
+A paleta de cores original foi preservada durante o refinamento visual.
+
+### Carrossel de eventos
+
+A página inicial possui um carrossel de eventos em destaque com:
+
+- Troca automática a cada cinco segundos.
+- Navegação por setas, indicadores e teclado.
+- Suporte a gestos de navegação em dispositivos móveis.
+- Pausa durante interação e quando a aba está oculta.
+- Respeito à preferência `prefers-reduced-motion`.
+
+### Imagens dos eventos
+
+O componente `EventImage` centraliza a exibição das capas. A aplicação tenta utilizar a imagem fornecida pela API, recorre aos assets SVG locais disponíveis e apresenta um fallback visual quando necessário.
+
+As imagens SVG locais são utilizadas como recursos temporários de desenvolvimento. O upload e o armazenamento definitivo das capas dependem da integração com um serviço de imagens.
+
+## Tecnologias
+
+- React 19
+- TypeScript
+- Vite
+- React Router
+- Tailwind CSS
+- TanStack Query
+- Axios
+- Lucide
+- React Hook Form
+- Zod
+- SVG e CSS para gráficos e elementos visuais
+
+## Arquitetura
+
+O frontend é organizado por responsabilidades e domínios, favorecendo a reutilização de componentes e a manutenção da aplicação.
+
+```text
+src/
+├── app/          # Providers, roteamento e configuração da aplicação
+├── components/   # Componentes de interface e domínio
+├── features/     # Funcionalidades organizadas por domínio
+├── layouts/      # Estruturas das áreas pública, compra e administração
+├── pages/        # Páginas e rotas
+├── services/     # Comunicação com a API e serviços auxiliares
+├── mocks/        # Adaptadores e dados simulados
+├── hooks/        # Hooks reutilizáveis
+├── lib/          # Utilitários compartilhados
+├── types/        # Tipos TypeScript
+└── styles/       # Tokens e estilos globais
+
+public/
+└── images/
+    └── events/   # Capas SVG locais para desenvolvimento
+
+docs/
+├── API-CONTRACTS.md
+└── brand/
+```
+
+## Requisitos
+
+- Node.js 20 ou superior.
+- npm.
+- Backend Spring Boot disponível para utilizar a API real.
+
+O Docker Desktop é necessário para executar a infraestrutura completa do projeto conforme a configuração do repositório.
+
+## Instalação e execução
+
+Na raiz do projeto, instale as dependências:
+
+```bash
+npm install
+```
+
+Crie o arquivo `.env.local` com a configuração desejada.
+
+### Utilizando dados simulados
+
+```dotenv
+VITE_USE_MOCKS=true
+VITE_API_URL=http://localhost:8080/api
+```
+
+Inicie o frontend:
+
+```bash
+npm run dev
+```
+
+A aplicação estará disponível em `http://localhost:5173`.
+
+### Utilizando o backend real
+
+Configure o `.env.local`:
+
+```dotenv
+VITE_USE_MOCKS=false
+VITE_API_URL=http://localhost:8080/api
+```
+
+Certifique-se de que o backend esteja em execução e acessível antes de iniciar ou validar a aplicação.
+
+## Scripts disponíveis
+
+| Comando | Descrição |
 |---|---|
-| Home (hero com carrossel, destaques, próximos de você, categorias) | `/` |
-| Explorar com busca, filtros, ordenação, paginação, drawer mobile | `/eventos` |
-| Categorias e categoria pré-filtrada | `/categorias`, `/categorias/:slug` |
-| Detalhe do evento (programação, local, política, painel de compra, relacionados) | `/eventos/:slug` |
-| 404 · 500 · estados de loading/vazio/erro | `*`, `RouteErrorPage` |
+| `npm run dev` | Inicia o servidor de desenvolvimento. |
+| `npm run build` | Verifica a compilação e gera os arquivos de produção. |
+| `npm run preview` | Disponibiliza uma prévia do build. |
+| `npm run typecheck` | Verifica os tipos TypeScript. |
 
-### Parte 2 — Compra e área do cliente
-| Tela | Rota |
-|---|---|
-| Login · cadastro · recuperar/redefinir senha | `/entrar`, `/cadastro`, `/recuperar-senha`, `/redefinir-senha` |
-| Tipos, lotes e quantidades | `/eventos/:slug/ingressos` |
-| Mapa de assentos com reserva temporária e contador | `/eventos/:slug/assentos` |
-| Checkout: dados do comprador e pagamento (Pix, cartão, boleto) | `/checkout/:reservaId`, `/checkout/:reservaId/pagamento` |
-| Confirmação / detalhe do pedido · histórico | `/pedidos/:id`, `/pedidos` |
-| Meus ingressos · ingresso digital com QR | `/meus-ingressos`, `/ingressos/:id` |
-| Conta: perfil, cartões, notificações | `/conta` |
-| Estados: reserva expirada, assento indisponível (409), pagamento recusado/pendente | modais e alertas no fluxo |
+## Integração com a API
 
-### Parte 3 — Painel do organizador (papel `ORGANIZER`)
-| Tela | Rota |
-|---|---|
-| Layout: sidebar numerada recolhível, topbar com busca ⌘K, avisos e menu da organização, drawer no mobile | `/org/**` |
-| Dashboard: KPIs com variação, vendas por período, por tipo, acumulado vs. meta, receita por evento, eventos ativos | `/org/dashboard` |
-| Eventos: abas por status com contagem, filtro, menu de ações (publicar, despublicar, cancelar, excluir) | `/org/eventos` |
-| Criar/editar evento em 5 etapas (informações, local, ingressos, assentos, publicação) com rascunho e pré-visualização | `/org/eventos/novo`, `/org/eventos/:id/editar` |
-| Detalhe administrativo: Resumo · Ingressos (lotes) · Assentos (editor de mapa) · Participantes | `/org/eventos/:id` |
-| Pedidos: busca, filtros, período, exportar CSV, detalhe e reembolso | `/org/pedidos` |
-| Participantes: busca, filtro, check-in manual e desfazer | `/org/participantes` |
-| Check-in: seleção de evento e scanner em tela cheia (câmera + código manual; válido · já utilizado · inválido) | `/org/checkin`, `/org/checkin/:eventoId` |
-| Relatórios: KPIs, receita diária, funil, vendas por lote, ocupação por setor; exportar CSV/PDF | `/org/relatorios` |
-| Configurações: organização, equipe, conta de repasse, webhooks | `/org/configuracoes` |
-| Para organizadores (porta de entrada) · acesso negado (403) | `/organizadores` |
+A comunicação HTTP é centralizada na camada de serviços, utilizando Axios. O frontend pode operar com dados simulados ou consumir a API Spring Boot, conforme a configuração de ambiente.
 
-## 2. Fluxos disponíveis (testados de ponta a ponta)
+A integração contempla os principais domínios da aplicação:
 
-1. **Comprar com assento:** evento → ingressos → mapa (reserva de 10 min) → dados → pagamento → confirmação → meus ingressos → QR.
-2. **Falhas e bordas:** conflito 409 com sugestão, aviso aos 02:00 e modal de expiração, cartão recusado (dados preservados), Pix pendente → aprovado, cancelamento com reembolso, transferência de ingresso.
-3. **Publicar um evento:** criar rascunho → configurar lotes e mapa → publicar → o evento aparece em Explorar.
-4. **Operar o evento:** acompanhar vendas, ajustar lotes, reembolsar pedido, consultar participantes.
-5. **Portaria:** ler/digitar código → resultado em tela cheia por 3 s → reinício automático. Um ingresso **comprado no fluxo do comprador** é validado na portaria e passa a "Utilizado" em *Meus ingressos*.
+- Autenticação e conta.
+- Catálogo e detalhes dos eventos.
+- Reservas, assentos e pedidos.
+- Checkout e pagamentos.
+- Ingressos e check-in.
+- Painel do organizador.
+- Relatórios e configurações.
 
-Todos os fluxos foram exercitados por roteiros automatizados no Edge (desktop 1360 px e mobile 390 px) sem erros de console, e todas as rotas foram abertas uma a uma.
+Os contratos e detalhes da integração estão documentados em [`docs/API-CONTRACTS.md`](docs/API-CONTRACTS.md).
 
-## 3. Endpoints que o backend precisa implementar
+### Dados simulados
 
-Resumo (detalhes de corpo/resposta em `docs/API-CONTRACTS.md`):
+O modo de mocks facilita o desenvolvimento e a validação da interface sem depender de todos os serviços externos.
 
-| Domínio | Endpoints |
-|---|---|
-| Catálogo | `GET /events`, `/events/featured`, `/events/upcoming`, `/events/suggest`, `/events/{slug}`, `/events/{slug}/related`, `/categories` |
-| Auth | `POST /auth/login`, `/auth/register`, `/auth/refresh`, `/auth/logout`, `/auth/forgot-password`, `/auth/reset-password` |
-| Venda | `GET /events/{slug}/sales`, `GET /events/{id}/seats`, **SSE** `GET /events/{id}/seats/stream`, `POST /events/{id}/ticket-types/{typeId}/waitlist` |
-| Reserva | `POST /reservations`, `GET/DELETE /reservations/{id}`, `PUT /reservations/{id}/items/{typeId}/seats` (todas com `Idempotency-Key` nas escritas; `409`/`410`) |
-| Pedidos | `POST /orders` (`201` pago/pendente · `402` recusado), `GET /orders`, `GET /orders/{id}`, `POST /orders/{id}/cancel`, webhook do gateway |
-| Ingressos | `GET /tickets`, `GET /tickets/{id}`, `POST /tickets/{id}/transfer` |
-| Conta | `GET/PATCH /me`, `GET/POST/DELETE /me/cards` |
-| Organizador | `GET /org/dashboard`, `/org/reports`; CRUD de eventos, `publish/unpublish/cancel`, `PUT .../seat-map`; lotes; pedidos e `refund`; participantes e check-in; `POST /org/events/{id}/checkin`; configurações, membros, webhooks; avisos e busca |
+Entretanto, os mocks não substituem as garantias do backend em relação à concorrência, autorização, persistência, pagamentos ou validação de ingressos.
 
-Somente-mock (não implementar): `POST /dev/orders/{id}/simulate-payment`, `POST /dev/org/reset`.
+## Validação
 
-### Status do backend (Partes 1, 2 e 3 — completo)
+O projeto passou por verificações de compilação, tipagem, comportamento do carrossel e navegação responsiva.
 
-**Parte 3 (18/10/2026):** o painel do organizador inteiro existe no backend (`/api/org/**`, contratos em `docs/API-CONTRACTS.md` §12),
-além de `PATCH /me`. Os três ajustes abaixo **foram aplicados** no frontend (lista em §12.9 do contrato), mais a tokenização sandbox
-do cartão e o rótulo do funil em Relatórios. Com `VITE_USE_MOCKS=false` + `VITE_API_URL=http://localhost:8080/api` o app inteiro fala
-com a API real; com mocks (padrão) nada mudou. Diferenças que o usuário percebe com a API real: cartões salvos indisponíveis
-(`503`), funil de relatórios medido de reserva → compra (sem visitas), membros da equipe precisam já ter conta, webhooks só cadastrados
-(sem entrega).
+A validação de integração com o backend real foi documentada para os principais fluxos de compra e gerenciamento, incluindo autenticação, reservas, pedidos, ingressos e check-in.
 
-#### Histórico (Partes 1 e 2)
+A cobertura efetiva deve ser conferida pelos testes disponíveis no repositório e pelos resultados da execução no ambiente atual.
 
-Já existem em `backend/` (ver `backend/README.md`): **Catálogo**, **Auth** (as seis rotas), `GET /me`, **Venda** (`/sales`, `/seats`, SSE, lista de
-espera), **Reservas**, **Pedidos** (cartão tokenizado, Pix/boleto com webhook), **Ingressos** (QR assinado, transferência) e o simulador de pagamento
-de dev. Para usá-los o frontend precisa de **três ajustes** (nada foi alterado ainda; os mocks continuam funcionando):
-1. cookie de refresh: `withCredentials` e `Session` sem `refreshToken` (`docs/API-CONTRACTS.md` §10.2);
-2. **cartão tokenizado**: enviar `payment.card = { token, installments }` em vez de número/CVV (o servidor recusa dados crus — §11.5);
-3. SSE: `?access_token=` no `EventSource` (§11.3).
-Cartões salvos, `PATCH /me` e o painel do organizador **seguem só nos mocks**.
+## Limitações conhecidas
 
-## 4. Contratos provisórios (resumo)
+- As capas locais são temporárias; o armazenamento e upload definitivos dependem de uma integração específica.
+- O gerenciamento de cartões salvos depende da disponibilidade do serviço correspondente no backend.
+- A entrega de webhooks e notificações externas depende das integrações implementadas no servidor.
+- Alguns indicadores de relatórios dependem dos dados disponibilizados pela API.
+- A leitura de QR Code pela câmera depende do suporte do navegador; a entrada manual permanece como alternativa.
+- A identidade visual definitiva da marca depende da escolha e aprovação de uma das propostas de logo.
 
-* **Erros:** `{ status, code, message, …extras }`. Códigos usados: `SEAT_UNAVAILABLE`, `INSUFFICIENT_STOCK`, `LOT_CLOSED`, `RESERVATION_EXPIRED`, `LIMIT_EXCEEDED`, `PAYMENT_DECLINED`, `REFUND_NOT_ALLOWED`, `PUBLISH_BLOCKED`, `SEAT_SOLD`, `SLUG_TAKEN`, `EVENT_NOT_ACTIVE`, `FORBIDDEN`, `VALIDATION_ERROR`.
-* **Reserva:** `expiresAt` do servidor é a única fonte do contador; seleção de assentos por substituição idempotente.
-* **Check-in:** resposta `200` com `result: valid | used | invalid`; decisão e atomicidade no servidor.
-* **Papéis:** `AuthUser.role = USER | ORGANIZER | ADMIN`; o frontend só esconde telas.
-* **Dinheiro** em reais (número) — recomenda-se migrar para centavos inteiros. **Datas** ISO 8601 com offset.
+## Próximos passos
 
-### Refinamento visual e validação com a API real (20/10/2026)
+- Finalizar e aprovar a identidade visual da marca.
+- Implementar armazenamento definitivo para as capas dos eventos.
+- Continuar ampliando os testes automatizados e de ponta a ponta.
+- Revisar acessibilidade e navegação por teclado.
+- Validar os fluxos com o backend real após alterações relevantes.
+- Preparar configurações específicas para implantação em produção.
 
-* **Design system:** os raios agora são tokens por papel (`rounded-control`, `-chip`, `-card`, `-panel`), há superfícies (`surface`, `field`, `callout`), sombras discretas e microinterações. A paleta não mudou. Detalhes em `src/styles/tokens.css` e `index.css`.
-* **Home:** carrossel automático de 5 s (`useCarousel`). Pausa no hover e no foco, para de vez quando a pessoa navega, aceita swipe e teclado, respeita `prefers-reduced-motion` e, com um destaque só, não mostra controles.
-* **Capas:** `EventImage` tenta, nesta ordem, a `coverUrl` da API, a capa temporária local da categoria (`public/images/events/*.svg`) e o fallback desenhado. Ver `docs/brand/README.md`.
-* **Marca:** a atual continua em uso. As três propostas estão em `docs/brand/preview.html`, aguardando escolha.
-* **Validado contra o Spring Boot real** (`VITE_USE_MOCKS=false`, API em `:8080`, perfil `dev`), em 1360 px e 390 px:
-  - Fluxos: Home e carrossel, capas, catálogo, detalhe, cadastro, login, ingressos, assentos (reserva via `POST /reservations`), dados, pagamento sandbox `4242` → pedido pago, pedidos, meus ingressos, todas as páginas do painel, abas do evento, check-in (válido → "já utilizado") e participantes.
-  - Resultado: nenhuma resposta ≥ 400, nenhum erro de console e nenhuma rolagem horizontal.
-  - Contrato: 25 endpoints conferidos campo a campo contra `src/types`, sem divergência. O único extra é `conversionBasis` em `/org/reports`, que já está documentado.
-* **Corrigido:** o "Neon Horizon Festival" aparecia duplicado **só nos mocks**. Em `mocks/org/catalog.ts`, os eventos semeados eram reconhecidos pelo prefixo `oevt_n`, que também casa com `oevt_neon`. Agora a checagem usa `SEEDED_EVENT_IDS`. A API real não tinha duplicação (25 eventos, slugs únicos).
-* **Contraste (WCAG AA):** `text-muted` subiu de 55% para 64% (era 3,7:1 e agora fica ≥ 4,6:1). O botão primário passou a usar `accent-600` com texto branco (de 3,8:1 para 4,7:1).
+## Documentação relacionada
 
-## 5. Limitações atuais
-
-* **Mocks não garantem nada de verdade:** sem concorrência real, sem locks, sem segurança (senhas em texto puro, tokens `mock.*` que não são JWT), pagamento fictício. Ver `docs/API-CONTRACTS.md` §8 e §9.
-* Sem upload real de imagens (capa do evento) e sem fotos definitivas: a API envia `coverUrl: null` e o frontend usa as capas temporárias por categoria.
-* Planta de assentos única na jornada do comprador; mapas personalizados do painel não chegam ao comprador.
-* Funil/conversão dos relatórios são estimados; não há tracking de visitas.
-* Leitura de QR pela câmera depende de `BarcodeDetector` (Chrome/Edge/Android); nos demais navegadores usa-se o código digitado.
-* Gráficos são SVG/CSS próprios (sem biblioteca): sem zoom, sem tooltip fixo.
-* Sem internacionalização (apenas pt-BR) e sem tema escuro (o protótipo é claro).
-* Não há testes automatizados no repositório (os roteiros de validação foram executados fora dele) nem ESLint configurado.
-
-## 6. Pendências antes da produção
-
-**Integração**
-- [ ] Implementar a API Spring Boot conforme os contratos e apontar `VITE_USE_MOCKS=false` / `VITE_API_URL`.
-- [ ] Autenticação JWT real: refresh token em cookie `HttpOnly`, access token em memória (`features/auth/sessionStore.ts` é o único ponto a trocar) e CSRF.
-- [ ] Autorização por papel **em todas** as rotas `/org/**` e propriedade dos recursos (pedidos, ingressos, reservas).
-- [ ] Gateway de pagamento real com tokenização (o cartão nunca passa pelo servidor da aplicação) e webhook para Pix/boleto.
-- [ ] SSE real de disponibilidade (`EventSource` não envia `Authorization`: definir cookie de sessão ou token curto na query).
-- [ ] Reserva com lock distribuído e transação no banco; idempotência persistente.
-- [ ] QR assinado (HMAC/JWT) e check-in atômico; janela de horário do check-in.
-- [ ] Upload de imagens (URL pré-assinada) e CDN; fotos reais nos cards.
-- [ ] Remover o código de mock do bundle de produção (carregar `mocks/` só em desenvolvimento) e a rota `/dev/**`.
-
-**Qualidade**
-- [ ] Testes: unitários (validações, máscaras, cálculo de totais), de componente e E2E (Playwright) no CI.
-- [ ] ESLint + Prettier e `tsc` no CI; auditoria de acessibilidade com leitor de tela e contraste (accent sobre fundo claro está no limite).
-- [ ] Observabilidade (Sentry/OpenTelemetry), `ErrorBoundary` com envio de `ref` ao suporte, política de CSP.
-- [ ] Revisar textos legais (termos, privacidade, política de reembolso) e páginas institucionais ("Ajuda", "Termos", "Privacidade" são placeholders).
-- [ ] SEO/Open Graph nas páginas públicas (pré-renderização ou SSR) e `sitemap.xml`.
+- [README principal](README.md)
+- [README do backend](backend/README.md)
+- [Contratos da API](docs/API-CONTRACTS.md)
+- [Identidade visual](docs/brand/README.md)
