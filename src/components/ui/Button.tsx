@@ -15,7 +15,8 @@ interface BaseProps {
 
 const variants: Record<Variant, string> = {
   primary:
-    'border-transparent bg-accent text-bg shadow-sm shadow-accent/20 hover:bg-accent-600 hover:shadow-md hover:shadow-accent/25 active:bg-accent-700',
+    // accent-600 + branco: 4,7:1 (o accent puro com texto claro fica em 3,8:1, abaixo do AA para 14–16px).
+    'border-transparent bg-accent-600 text-white shadow-sm shadow-accent/20 hover:bg-accent-700 hover:shadow-md hover:shadow-accent/25 active:bg-accent-800',
   secondary: 'border-divider bg-card hover:border-text/35 hover:bg-neutral-100 active:bg-neutral-200',
   ghost: 'border-transparent text-accent-700 px-2 hover:bg-accent/8 active:bg-accent/14',
 }

@@ -28,7 +28,7 @@ export function Stepper({ steps, current, completed }: StepperProps) {
             <span
               className={cn(
                 'tabular grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold',
-                active ? 'bg-accent text-bg' : done ? 'bg-success/12 text-success' : 'bg-neutral-200',
+                active ? 'bg-accent-600 text-white' : done ? 'bg-success/12 text-success' : 'bg-neutral-200',
               )}
             >
               {String(i + 1).padStart(2, '0')}

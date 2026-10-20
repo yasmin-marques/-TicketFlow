@@ -131,6 +131,12 @@ function seatMapFor(e: E): OrgSeatMap {
   return { sectors, rows, generalCapacity: e.key === 'neon' ? 640 : 0 }
 }
 
+/**
+ * Ids dos eventos semeados do painel. Todos já existem no catálogo público
+ * (mesmo slug), então o catálogo não deve republicá-los.
+ */
+export const SEEDED_EVENT_IDS: ReadonlySet<string> = new Set(EVENTS.map((e) => `oevt_${e.key}`))
+
 export function buildSeed(): Seed {
   const rnd = mulberry32(20261016)
   const pick = <T,>(arr: ReadonlyArray<T>): T => arr[Math.floor(rnd() * arr.length)]!

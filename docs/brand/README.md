@@ -16,7 +16,21 @@ A marca combina **ingresso** (picote, canhoto, furos), **movimento/fluxo** (incl
 | **B · Monograma contínuo** | [`concept-b.svg`](concept-b.svg) | Um traço só forma o "tf" | É o mais forte como ícone de app e funciona bem em monocromático | Não remete a ingresso, e monogramas são comuns |
 | **C · Passagem** | [`concept-c.svg`](concept-c.svg) | Três faixas passando pela "catraca" | Comunica bem movimento e velocidade | Perde detalhe em 16px e parece genérico sem o wordmark |
 
-Cada folha mostra o logo horizontal (fundo claro e escuro, com o selo "ORG" do painel), o ícone em 96/64/32/16 px, o ícone de app e as versões monocromáticas. Os arquivos `concept-*-mark.svg` trazem só o símbolo, num quadro de 64×64.
+**Para comparar: abra [`preview.html`](preview.html) no navegador.** A página mostra a marca atual e os três conceitos aplicados nas medidas reais.
+
+Arquivos de cada conceito (`X` = `a`, `b` ou `c`):
+
+| Arquivo | Conteúdo |
+|---|---|
+| `concept-X.svg` | Folha do conceito: horizontal claro/escuro, ícone em 96/64/32/16 px, ícone de app, monocromático |
+| `concept-X-horizontal.svg` · `-horizontal-dark.svg` | Logo horizontal para fundo claro e escuro |
+| `concept-X-mark.svg` | Só o símbolo, quadro 64×64 (vira o `LogoMark`) |
+| `concept-X-icon.svg` | Ícone reduzido de app, 512×512 |
+| `concept-X-favicon.svg` | Favicon 16×16, **simplificado** para o tamanho (no A, sem os rastros, que somem em 16 px) |
+| `concept-X-preview.svg` | Aplicação: aba do navegador, header desktop (64 px) e mobile (56 px), ícone, sidebar do painel e tela de acesso |
+| `current-preview.svg` | Mesma prévia com a marca atual, como referência |
+
+O wordmark usa a fonte Archivo como texto. Depois da escolha, ele deve ser convertido em curvas para não depender da fonte instalada.
 
 ## 3. Como aplicar o conceito escolhido
 
@@ -43,11 +57,11 @@ Os pontos de aplicação já usam esses componentes:
 
 - Proporções padronizadas: `card` 4:3, `wide` 16:9, `square` e `fill` (o pai define a altura: hero e banner do detalhe).
 - Skeleton enquanto a imagem carrega, depois fade-in. `object-fit: cover`, `loading="lazy"` e `decoding="async"`. Com `priority` (hero e capa do detalhe), a imagem carrega na hora com `fetchpriority="high"`.
-- **Fallback** quando `coverUrl` é `null` ou a imagem falha (404, rede): gradiente e ícone da categoria, montados só com cores da paleta (`categoryVisuals.ts`).
+- **Ordem de tentativa:** primeiro a `coverUrl` da API, depois a capa temporária local da categoria e, por fim, o fallback desenhado (gradiente e ícone da categoria, só com cores da paleta). Cada erro de carregamento (404, rede) avança um passo. Tudo isso fica em `categoryVisuals.ts`.
 - **Texto alternativo:** vazio nos cards, porque o título já está ao lado e o leitor de tela não deve repeti-lo. No hero e no detalhe é `Capa do evento <título>`, e o fallback recebe `role="img"` com o mesmo texto.
 - Aceita `srcSet`/`sizes` para quando o backend ou a CDN passarem a servir variantes.
 
-**Capas temporárias:** `public/images/events/<categoria>.svg` são composições abstratas locais (palco, circuito, campo, cortina, pratos, gráfico). Nos mocks, os destaques e um em cada três eventos usam essas capas, e os demais ficam sem capa para exercitar o fallback. Com a API real, `coverUrl` hoje vem `null`, então aparece o fallback.
+**Capas temporárias:** `public/images/events/<categoria>.svg` são composições abstratas locais (palco, circuito, campo, cortina, pratos, gráfico). A API real ainda envia `coverUrl: null` em todos os eventos, então o frontend usa a capa da categoria (`placeholderCover()` em `categoryVisuals.ts`). Assim as seis capas aparecem com o backend real sem alterar API nem banco. Quando houver capas definitivas, basta fazer `placeholderCover()` retornar `null`; eventos sem capa passam então a mostrar o fallback desenhado. Os mocks continuam enviando as mesmas URLs para parte dos eventos.
 
 **Especificação para as capas definitivas**
 

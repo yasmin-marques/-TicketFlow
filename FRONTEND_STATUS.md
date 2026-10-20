@@ -96,10 +96,23 @@ Cartões salvos, `PATCH /me` e o painel do organizador **seguem só nos mocks**.
 * **Papéis:** `AuthUser.role = USER | ORGANIZER | ADMIN`; o frontend só esconde telas.
 * **Dinheiro** em reais (número) — recomenda-se migrar para centavos inteiros. **Datas** ISO 8601 com offset.
 
+### Refinamento visual e validação com a API real (20/10/2026)
+
+* **Design system:** os raios agora são tokens por papel (`rounded-control`, `-chip`, `-card`, `-panel`), há superfícies (`surface`, `field`, `callout`), sombras discretas e microinterações. A paleta não mudou. Detalhes em `src/styles/tokens.css` e `index.css`.
+* **Home:** carrossel automático de 5 s (`useCarousel`). Pausa no hover e no foco, para de vez quando a pessoa navega, aceita swipe e teclado, respeita `prefers-reduced-motion` e, com um destaque só, não mostra controles.
+* **Capas:** `EventImage` tenta, nesta ordem, a `coverUrl` da API, a capa temporária local da categoria (`public/images/events/*.svg`) e o fallback desenhado. Ver `docs/brand/README.md`.
+* **Marca:** a atual continua em uso. As três propostas estão em `docs/brand/preview.html`, aguardando escolha.
+* **Validado contra o Spring Boot real** (`VITE_USE_MOCKS=false`, API em `:8080`, perfil `dev`), em 1360 px e 390 px:
+  - Fluxos: Home e carrossel, capas, catálogo, detalhe, cadastro, login, ingressos, assentos (reserva via `POST /reservations`), dados, pagamento sandbox `4242` → pedido pago, pedidos, meus ingressos, todas as páginas do painel, abas do evento, check-in (válido → "já utilizado") e participantes.
+  - Resultado: nenhuma resposta ≥ 400, nenhum erro de console e nenhuma rolagem horizontal.
+  - Contrato: 25 endpoints conferidos campo a campo contra `src/types`, sem divergência. O único extra é `conversionBasis` em `/org/reports`, que já está documentado.
+* **Corrigido:** o "Neon Horizon Festival" aparecia duplicado **só nos mocks**. Em `mocks/org/catalog.ts`, os eventos semeados eram reconhecidos pelo prefixo `oevt_n`, que também casa com `oevt_neon`. Agora a checagem usa `SEEDED_EVENT_IDS`. A API real não tinha duplicação (25 eventos, slugs únicos).
+* **Contraste (WCAG AA):** `text-muted` subiu de 55% para 64% (era 3,7:1 e agora fica ≥ 4,6:1). O botão primário passou a usar `accent-600` com texto branco (de 3,8:1 para 4,7:1).
+
 ## 5. Limitações atuais
 
 * **Mocks não garantem nada de verdade:** sem concorrência real, sem locks, sem segurança (senhas em texto puro, tokens `mock.*` que não são JWT), pagamento fictício. Ver `docs/API-CONTRACTS.md` §8 e §9.
-* Sem upload real de imagens (capa do evento) e sem fotos dos eventos (placeholders listrados).
+* Sem upload real de imagens (capa do evento) e sem fotos definitivas: a API envia `coverUrl: null` e o frontend usa as capas temporárias por categoria.
 * Planta de assentos única na jornada do comprador; mapas personalizados do painel não chegam ao comprador.
 * Funil/conversão dos relatórios são estimados; não há tracking de visitas.
 * Leitura de QR pela câmera depende de `BarcodeDetector` (Chrome/Edge/Android); nos demais navegadores usa-se o código digitado.

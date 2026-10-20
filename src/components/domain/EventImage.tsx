@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
-import { categoryVisual } from './categoryVisuals'
+import { categoryVisual, placeholderCover } from './categoryVisuals'
 
 /**
  * Proporções padronizadas das capas. `fill` não impõe proporção: a imagem
@@ -15,7 +15,7 @@ const RATIOS = {
 
 export type EventImageRatio = keyof typeof RATIOS
 
-type LoadState = 'loading' | 'loaded' | 'error'
+type LoadState = 'loading' | 'loaded'
 
 interface EventImageProps {
   /** `coverUrl` do evento (contrato da API). `null` = sem capa → fallback. */
@@ -61,18 +61,34 @@ export function EventImage({
   imgClassName,
   children,
 }: EventImageProps) {
+  /*
+   * Ordem de tentativa: capa da API → capa temporária local da categoria →
+   * fallback desenhado. Cada erro de carregamento avança para a próxima.
+   */
+  const placeholder = placeholderCover(category)
+  const candidates = [src, placeholder].filter((u, i, all): u is string => !!u && all.indexOf(u) === i)
+  const candidatesKey = candidates.join('|')
+  const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<LoadState>('loading')
   const imgRef = useRef<HTMLImageElement>(null)
+  const current = candidates[attempt]
 
-  // Nova URL → recomeça; imagem já em cache pode ter carregado antes do efeito.
+  // Novas URLs → recomeça da primeira.
+  useEffect(() => {
+    setAttempt(0)
+  }, [candidatesKey])
+
+  // Imagem já em cache pode ter terminado antes do efeito.
   useEffect(() => {
     const img = imgRef.current
-    if (!src) return
-    if (img?.complete) setState(img.naturalWidth > 0 ? 'loaded' : 'error')
-    else setState('loading')
-  }, [src])
+    if (!current) return
+    if (img?.complete) {
+      if (img.naturalWidth > 0) setState('loaded')
+      else setAttempt((a) => a + 1)
+    } else setState('loading')
+  }, [current])
 
-  const showFallback = !src || state === 'error'
+  const showFallback = !current
 
   return (
     <div className={cn('relative isolate overflow-hidden bg-neutral-200', RATIOS[ratio], className)}>
@@ -83,15 +99,16 @@ export function EventImage({
           {state === 'loading' && <div aria-hidden className="skeleton absolute inset-0 rounded-none" />}
           <img
             ref={imgRef}
-            src={src}
-            srcSet={srcSet}
-            sizes={sizes}
+            src={current}
+            // Variantes só existem para a capa da API.
+            srcSet={current === src ? srcSet : undefined}
+            sizes={current === src ? sizes : undefined}
             alt={alt}
             loading={priority ? 'eager' : 'lazy'}
             fetchPriority={priority ? 'high' : 'auto'}
             decoding="async"
             onLoad={() => setState('loaded')}
-            onError={() => setState('error')}
+            onError={() => setAttempt((a) => a + 1)}
             className={cn(
               'absolute inset-0 size-full object-cover transition-[opacity,transform] duration-500 ease-out',
               state === 'loaded' ? 'opacity-100' : 'opacity-0',

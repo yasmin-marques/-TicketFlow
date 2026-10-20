@@ -47,6 +47,24 @@ export const CATEGORY_VISUALS: Record<CategorySlug, CategoryVisual> = {
   },
 }
 
+/**
+ * Capas temporárias locais (public/images/events/<categoria>.svg), usadas
+ * enquanto a API não envia `coverUrl` (hoje vem `null` em todos os eventos).
+ * Para desligar quando houver capas definitivas: retorne `null`.
+ */
+const PLACEHOLDER_COVERS: Partial<Record<CategorySlug, string>> = {
+  musica: '/images/events/musica.svg',
+  tecnologia: '/images/events/tecnologia.svg',
+  esportes: '/images/events/esportes.svg',
+  cultura: '/images/events/cultura.svg',
+  gastronomia: '/images/events/gastronomia.svg',
+  negocios: '/images/events/negocios.svg',
+}
+
+export function placeholderCover(slug: string | undefined): string | null {
+  return PLACEHOLDER_COVERS[slug as CategorySlug] ?? null
+}
+
 /** Visual de uma categoria; categorias novas do backend caem no visual neutro. */
 export function categoryVisual(slug: string | undefined): CategoryVisual {
   return CATEGORY_VISUALS[slug as CategorySlug] ?? CATEGORY_VISUALS.negocios

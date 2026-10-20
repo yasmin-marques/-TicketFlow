@@ -62,7 +62,7 @@ export function EventCard({ event, size = 'md', showBadge = true, className }: E
         <div className="kicker flex justify-between gap-2 text-[10.5px]">
           <span className="text-accent-700">{event.category.name}</span>
           {/* Em cards estreitos o selo sobre a capa já mostra a data. */}
-          <span className={cn('tabular text-neutral-600', size === 'sm' && 'max-sm:hidden')}>{formatDateShort(event.startsAt)}</span>
+          <span className={cn('tabular text-neutral-700', size === 'sm' && 'max-sm:hidden')}>{formatDateShort(event.startsAt)}</span>
         </div>
         <h3
           className={cn(

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560">
+<title>Prévia de aplicação — Passagem</title>
+<rect width="1200" height="560" rx="24" fill="#d7d3d3"/>
+<text x="24" y="34" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="1" fill="#605d5d">ABA DO NAVEGADOR · FAVICON 16PX</text>
+<rect x="24" y="44" width="1152" height="44" rx="12" fill="#bab6b6"/>
+<path d="M36 88 V60 a10 10 0 0 1 10 -10 H316 a10 10 0 0 1 10 10 V88 Z" fill="#f3f2f2"/>
+<g transform="translate(50 61)"><g transform="skewX(-12) translate(2 0)"><rect x="1" y="3" width="6" height="10" rx="2" fill="#ec3013" opacity=".45"/><rect x="7" y="3" width="7" height="10" rx="2.2" fill="#ec3013"/></g></g>
+<text x="76" y="74" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#201e1d">TicketFlow — Ingressos</text>
+<path d="M336 82 V60 a10 10 0 0 1 10 -10 H560 a10 10 0 0 1 10 10 V82" fill="#cfcbcb"/>
+<g transform="translate(350 59)" opacity=".7"><g transform="skewX(-12) translate(2 0)"><rect x="1" y="3" width="6" height="10" rx="2" fill="#ec3013" opacity=".45"/><rect x="7" y="3" width="7" height="10" rx="2.2" fill="#ec3013"/></g></g>
+<text x="376" y="72" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#444141">Meus ingressos · TicketFlow</text>
+<text x="24" y="122" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="1" fill="#605d5d">HEADER DO SITE · DESKTOP (64PX)</text>
+<rect x="24" y="132" width="1152" height="64" rx="14" fill="#f3f2f2" stroke="#201e1d" stroke-opacity=".11"/>
+<g transform="translate(48 155) scale(0.28125)"><rect x="4" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".35" transform="skewX(-12) translate(8 0)"/>
+<rect x="20" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".65" transform="skewX(-12) translate(8 0)"/>
+<path d="M44 12 H52 a8 8 0 0 1 8 8 V27 a5 5 0 0 0 0 10 V44 a8 8 0 0 1 -8 8 H44 a8 8 0 0 1 -8 -8 V20 a8 8 0 0 1 8 -8 Z" fill="#ec3013" transform="skewX(-12) translate(8 0)"/></g>
+<text x="72" y="171" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="20" letter-spacing="-0.60" fill="#201e1d" >ticketflow</text>
+<rect x="196" y="149" width="80" height="30" rx="15" fill="#201e1d"/>
+<text x="236" y="169" text-anchor="middle" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#f3f2f2">Eventos</text>
+<text x="318" y="169" text-anchor="middle" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#605d5d">Categorias</text>
+<rect x="640" y="146" width="340" height="36" rx="18" fill="#fdfcfc" stroke="#201e1d" stroke-opacity=".22"/>
+<text x="676" y="169" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#7d7979">Buscar eventos, artistas, locais</text>
+<circle cx="660" cy="163" r="5.5" fill="none" stroke="#605d5d" stroke-width="1.6"/>
+<text x="1010" y="169" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#201e1d">Entrar</text>
+<rect x="1062" y="146" width="100" height="36" rx="10" fill="#dd2b0f"/>
+<text x="1112" y="169" text-anchor="middle" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">Criar conta</text>
+<text x="24" y="230" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="1" fill="#605d5d">HEADER MOBILE (56PX)</text>
+<rect x="24" y="240" width="390" height="56" rx="14" fill="#f3f2f2" stroke="#201e1d" stroke-opacity=".11"/>
+<g transform="translate(40 260) scale(0.25)"><rect x="4" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".35" transform="skewX(-12) translate(8 0)"/>
+<rect x="20" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".65" transform="skewX(-12) translate(8 0)"/>
+<path d="M44 12 H52 a8 8 0 0 1 8 8 V27 a5 5 0 0 0 0 10 V44 a8 8 0 0 1 -8 8 H44 a8 8 0 0 1 -8 -8 V20 a8 8 0 0 1 8 -8 Z" fill="#ec3013" transform="skewX(-12) translate(8 0)"/></g>
+<text x="62" y="274" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="18" letter-spacing="-0.54" fill="#201e1d" >ticketflow</text>
+<rect x="318" y="253" width="82" height="30" rx="15" fill="#fdfcfc" stroke="#201e1d" stroke-opacity=".22"/>
+<text x="350" y="273" text-anchor="middle" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="600" fill="#201e1d">Buscar</text>
+<text x="24" y="334" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="1" fill="#605d5d">ÍCONE DE APP</text>
+<rect x="24" y="344" width="96" height="96" rx="22" fill="#ec3013"/>
+<g transform="translate(44 364) scale(0.875)"><rect x="4" y="12" width="22" height="40" rx="8" fill="#fdfcfc" opacity=".35" transform="skewX(-12) translate(8 0)"/>
+<rect x="20" y="12" width="22" height="40" rx="8" fill="#fdfcfc" opacity=".65" transform="skewX(-12) translate(8 0)"/>
+<path d="M44 12 H52 a8 8 0 0 1 8 8 V27 a5 5 0 0 0 0 10 V44 a8 8 0 0 1 -8 8 H44 a8 8 0 0 1 -8 -8 V20 a8 8 0 0 1 8 -8 Z" fill="#fdfcfc" transform="skewX(-12) translate(8 0)"/></g>
+<rect x="136" y="368" width="48" height="48" rx="11" fill="#ec3013"/>
+<g transform="translate(146 378) scale(0.4375)"><rect x="4" y="12" width="22" height="40" rx="8" fill="#fdfcfc" opacity=".35" transform="skewX(-12) translate(8 0)"/>
+<rect x="20" y="12" width="22" height="40" rx="8" fill="#fdfcfc" opacity=".65" transform="skewX(-12) translate(8 0)"/>
+<path d="M44 12 H52 a8 8 0 0 1 8 8 V27 a5 5 0 0 0 0 10 V44 a8 8 0 0 1 -8 8 H44 a8 8 0 0 1 -8 -8 V20 a8 8 0 0 1 8 -8 Z" fill="#fdfcfc" transform="skewX(-12) translate(8 0)"/></g>
+<text x="460" y="230" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="1" fill="#605d5d">PAINEL · SIDEBAR ABERTA / RECOLHIDA</text>
+<rect x="460" y="240" width="208" height="296" rx="14" fill="#fdfcfc" stroke="#201e1d" stroke-opacity=".11"/>
+<g transform="translate(478 263) scale(0.21875)"><rect x="4" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".35" transform="skewX(-12) translate(8 0)"/>
+<rect x="20" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".65" transform="skewX(-12) translate(8 0)"/>
+<path d="M44 12 H52 a8 8 0 0 1 8 8 V27 a5 5 0 0 0 0 10 V44 a8 8 0 0 1 -8 8 H44 a8 8 0 0 1 -8 -8 V20 a8 8 0 0 1 8 -8 Z" fill="#ec3013" transform="skewX(-12) translate(8 0)"/></g>
+<text x="498" y="276" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="18" letter-spacing="-0.54" fill="#201e1d" >ticketflow</text>
+<rect x="596" y="262" width="34" height="18" rx="9" fill="#201e1d" fill-opacity=".07"/>
+<text x="613" y="275" text-anchor="middle" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" letter-spacing=".6" fill="#605d5d">ORG</text>
+<line x1="460" y1="304" x2="668" y2="304" stroke="#201e1d" stroke-opacity=".11"/>
+<rect x="472" y="318" width="184" height="36" rx="10" fill="#201e1d"/>
+<text x="488" y="341" font-family="ui-monospace,Consolas,monospace" font-size="11" fill="#bab6b6">01</text>
+<text x="516" y="341" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#f3f2f2">Dashboard</text>
+<text x="488" y="383" font-family="ui-monospace,Consolas,monospace" font-size="11" fill="#9b9797">02</text>
+<text x="516" y="383" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#201e1d">Eventos</text>
+<text x="488" y="425" font-family="ui-monospace,Consolas,monospace" font-size="11" fill="#9b9797">03</text>
+<text x="516" y="425" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#201e1d">Pedidos</text>
+<text x="488" y="467" font-family="ui-monospace,Consolas,monospace" font-size="11" fill="#9b9797">04</text>
+<text x="516" y="467" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#201e1d">Participantes</text>
+<text x="488" y="509" font-family="ui-monospace,Consolas,monospace" font-size="11" fill="#9b9797">05</text>
+<text x="516" y="509" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#201e1d">Check-in</text>
+<rect x="684" y="240" width="64" height="296" rx="14" fill="#fdfcfc" stroke="#201e1d" stroke-opacity=".11"/>
+<g transform="translate(704 258) scale(0.375)"><rect x="4" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".35" transform="skewX(-12) translate(8 0)"/>
+<rect x="20" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".65" transform="skewX(-12) translate(8 0)"/>
+<path d="M44 12 H52 a8 8 0 0 1 8 8 V27 a5 5 0 0 0 0 10 V44 a8 8 0 0 1 -8 8 H44 a8 8 0 0 1 -8 -8 V20 a8 8 0 0 1 8 -8 Z" fill="#ec3013" transform="skewX(-12) translate(8 0)"/></g>
+<line x1="684" y1="304" x2="748" y2="304" stroke="#201e1d" stroke-opacity=".11"/>
+<rect x="696" y="318" width="40" height="36" rx="10" fill="#201e1d"/>
+<text x="780" y="230" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="1" fill="#605d5d">TELA DE ACESSO · FUNDO ESCURO</text>
+<clipPath id="auth-c"><rect x="780" y="240" width="396" height="296" rx="22"/></clipPath>
+<rect x="780" y="240" width="396" height="296" rx="22" fill="#201e1d"/>
+<circle cx="1176" cy="240" r="200" fill="#ec3013" opacity=".18" clip-path="url(#auth-c)"/>
+<g transform="translate(808 266) scale(0.34375)"><rect x="4" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".35" transform="skewX(-12) translate(8 0)"/>
+<rect x="20" y="12" width="22" height="40" rx="8" fill="#ec3013" opacity=".65" transform="skewX(-12) translate(8 0)"/>
+<path d="M44 12 H52 a8 8 0 0 1 8 8 V27 a5 5 0 0 0 0 10 V44 a8 8 0 0 1 -8 8 H44 a8 8 0 0 1 -8 -8 V20 a8 8 0 0 1 8 -8 Z" fill="#ec3013" transform="skewX(-12) translate(8 0)"/></g>
+<text x="838" y="284" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="22" letter-spacing="-0.66" fill="#f3f2f2" >ticketflow</text>
+<text x="808" y="420" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="34" letter-spacing="-1.3" fill="#f3f2f2">Ingressos sem</text>
+<text x="808" y="458" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="34" letter-spacing="-1.3" fill="#f3f2f2">corrida por <tspan fill="#ff9783">assento.</tspan></text>
+</svg>

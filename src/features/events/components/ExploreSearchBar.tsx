@@ -45,7 +45,7 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
         e.preventDefault()
         onSubmit({ ...draft, q: draft.q.trim() })
       }}
-      className="surface grid rounded-panel shadow-md transition-shadow focus-within:shadow-lg lg:grid-cols-[2fr_1.2fr_1.2fr_auto] lg:p-1.5"
+      className="surface grid rounded-panel shadow-md transition-[box-shadow,border-color] focus-within:border-accent/50 focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_14%,transparent),var(--shadow-lg)] lg:grid-cols-[2fr_1.2fr_1.2fr_auto] lg:p-1.5"
     >
       <label className="block rounded-card px-5 py-2.5 transition-colors hover:bg-text/3 lg:border-r lg:border-line">
         <span className={label}>Busca</span>

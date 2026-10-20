@@ -115,7 +115,7 @@
     transition:
       border-color 160ms var(--ease-out),
       box-shadow 160ms var(--ease-out);
-    &::placeholder { color: var(--color-neutral-500); }
+    &::placeholder { color: var(--color-neutral-600); }
     &:hover:not(:disabled) { border-color: color-mix(in srgb, var(--color-text) 40%, transparent); }
     &:focus-visible {
       outline: none;
@@ -232,8 +232,9 @@
   text-transform: uppercase;
 }
 
+/* 64%: ≥ 4,6:1 sobre fundo, card e surface (55% ficava em 3,7:1). */
 @utility text-muted {
-  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  color: color-mix(in srgb, var(--color-text) 64%, transparent);
 }
 
 @utility tabular {

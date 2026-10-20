@@ -90,7 +90,7 @@ export function HeroCarousel({ events }: { events: EventSummary[] }) {
             >
               <div className="kicker flex items-center gap-2 text-[10.5px] lg:text-[11px]">
                 <span className="rounded-chip bg-accent-100 px-2.5 py-1 text-accent-700">Em destaque</span>
-                <span className="text-neutral-600">{event.category.name}</span>
+                <span className="text-neutral-700">{event.category.name}</span>
               </div>
 
               <h2 className="mt-3 mb-2 text-[30px] leading-[1.02] tracking-[-0.035em] break-words sm:text-[38px] lg:mt-6 lg:mb-6 lg:text-[60px] lg:leading-[0.96]">

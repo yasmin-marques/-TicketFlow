@@ -2,6 +2,7 @@ import { addHours } from '../data/dates'
 import { EVENTS, slugify } from '../data/events'
 import type { EventDetail } from '@/types/event'
 import { CATEGORY_DEFS } from '../data/categories'
+import { SEEDED_EVENT_IDS } from './seed'
 import { lotsOf, type OrgState, type StoredEvent } from './store'
 
 /**
@@ -13,7 +14,8 @@ import { lotsOf, type OrgState, type StoredEvent } from './store'
 const published = new Set<string>()
 
 export function publishToCatalog(s: OrgState, ev: StoredEvent): void {
-  if (!ev.id.startsWith('oevt_n')) return // semeados já estão no catálogo
+  // Semeados já estão no catálogo. (Não usar prefixo: `oevt_neon` também começa com `oevt_n`, como os ids novos.)
+  if (SEEDED_EVENT_IDS.has(ev.id)) return
   const lots = lotsOf(s, ev.id)
   const minPrice = lots.length ? Math.min(...lots.map((l) => l.price)) : null
   const category = CATEGORY_DEFS.find((c) => c.slug === ev.category) ?? CATEGORY_DEFS[0]!
