@@ -12,17 +12,18 @@ interface AuthLayoutProps {
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.2fr_1fr]">
-      <aside className="hidden flex-col justify-between border-r-2 border-divider p-12 lg:flex">
-        <Logo />
-        <div>
-          <h2 className="max-w-[560px] text-[84px] leading-[0.95] tracking-[-0.04em]">
-            Ingressos sem corrida por assento.
+      <aside className="relative m-4 hidden flex-col justify-between overflow-hidden rounded-panel bg-text p-12 text-bg lg:flex">
+        <div aria-hidden className="auth-flow pointer-events-none absolute inset-0" />
+        <Logo tone="inverse" className="relative" />
+        <div className="relative">
+          <h2 className="max-w-[560px] text-[76px] leading-[0.95] tracking-[-0.04em] xl:text-[84px]">
+            Ingressos sem corrida por <span className="text-accent-400">assento.</span>
           </h2>
-          <p className="mt-5 max-w-[460px] text-lg text-neutral-800">
+          <p className="mt-5 max-w-[460px] text-lg text-neutral-300">
             Escolha seu lugar, a reserva fica guardada por 10 minutos e o ingresso chega no seu celular.
           </p>
         </div>
-        <span className="text-muted text-[13px]">© {new Date().getFullYear()} TicketFlow</span>
+        <span className="relative text-[13px] text-neutral-400">© {new Date().getFullYear()} TicketFlow</span>
       </aside>
 
       <main className="flex flex-col px-4 py-6 lg:px-14 lg:py-12">
@@ -31,7 +32,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
           <h1 className="mb-1.5 text-[32px] lg:text-[42px]">{title}</h1>
           {subtitle && <p className="text-muted mb-6 text-sm">{subtitle}</p>}
           {children}
-          {footer && <div className="mt-6 border-t-2 border-divider pt-4 text-sm">{footer}</div>}
+          {footer && <div className="mt-6 border-t border-line pt-4 text-sm">{footer}</div>}
         </div>
       </main>
     </div>

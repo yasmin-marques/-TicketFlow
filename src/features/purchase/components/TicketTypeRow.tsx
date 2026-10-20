@@ -29,8 +29,8 @@ export function TicketTypeRow({ type, feePct, quantity, max, onChange, notified,
   return (
     <div
       className={cn(
-        'grid items-center gap-x-5 gap-y-3 border-b border-neutral-400 py-5 sm:grid-cols-[1fr_110px_130px] lg:grid-cols-[1fr_150px_110px_130px]',
-        quantity > 0 && 'bg-surface -mx-4 px-4',
+        'grid items-center gap-x-5 gap-y-3 border-b border-line py-5 sm:grid-cols-[1fr_110px_130px] lg:grid-cols-[1fr_150px_110px_130px]',
+        quantity > 0 && '-mx-4 rounded-card bg-accent-100/60 px-4',
         closed && 'opacity-55',
       )}
     >
@@ -58,8 +58,8 @@ export function TicketTypeRow({ type, feePct, quantity, max, onChange, notified,
         </div>
       </div>
 
-      <div aria-hidden className="hidden h-1.5 bg-neutral-300 lg:block">
-        {!closed && <div className={cn('h-full', low ? 'bg-accent' : 'bg-text')} style={{ width: `${soldPct}%` }} />}
+      <div aria-hidden className="hidden h-1.5 overflow-hidden rounded-full bg-neutral-300 lg:block">
+        {!closed && <div className={cn('h-full rounded-full', low ? 'bg-accent' : 'bg-text')} style={{ width: `${soldPct}%` }} />}
       </div>
 
       <div className="text-right max-sm:order-3 max-sm:text-left">
@@ -84,7 +84,7 @@ export function TicketTypeRow({ type, feePct, quantity, max, onChange, notified,
 export function PurchaseEventHeader({ title, meta, coverUrl }: { title: string; meta: string; coverUrl: string | null }) {
   return (
     <div className="mb-6 flex items-center gap-4">
-      <EventImage src={coverUrl} className="size-[72px] shrink-0" />
+      <EventImage src={coverUrl} ratio="square" fallbackSize="sm" className="w-[72px] shrink-0 rounded-card" />
       <div className="min-w-0">
         <div className="text-2xl leading-tight font-extrabold">{title}</div>
         <div className="text-muted text-sm">{meta}</div>

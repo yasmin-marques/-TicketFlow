@@ -13,12 +13,12 @@ interface DateRangeFieldProps {
 /** Botão "1–15 out ▾" com painel de duas datas (De/Até). */
 export function DateRangeField({ from, to, onChange, label = 'Período' }: DateRangeFieldProps) {
   const text = formatDateRange(from, to)
-  const input = 'mt-1 block w-full border border-divider bg-surface px-2.5 py-1.5 text-sm text-text'
+  const input = 'field mt-1 block'
   return (
     <Popover
       panelClassName="w-72"
       renderTrigger={(props) => (
-        <button type="button" {...props} aria-label={`${label}: ${text || 'qualquer data'}`} className="inline-flex items-center gap-2 border border-divider px-3 py-1.5 text-sm hover:border-text/45">
+        <button type="button" {...props} aria-label={`${label}: ${text || 'qualquer data'}`} className="transition-control inline-flex min-h-9 items-center gap-2 rounded-control border border-divider bg-card px-3 py-1.5 text-sm shadow-xs hover:border-text/40">
           <CalendarDays size={14} aria-hidden />
           {text || <span className="text-muted">Qualquer data</span>}
         </button>

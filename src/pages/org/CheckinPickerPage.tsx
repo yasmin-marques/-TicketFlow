@@ -27,7 +27,7 @@ export function CheckinPickerPage() {
       ) : (
         <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 xl:grid-cols-3">
           {data.items.map((e) => (
-            <li key={e.id} className="flex flex-col border-2 border-text p-5">
+            <li key={e.id} className="flex flex-col surface p-5">
               <b className="text-xl leading-tight">{e.title}</b>
               <div className="text-muted mb-3 text-[13px]">{formatDateWithTime(e.startsAt)} · {e.venueLabel}</div>
               <div className="tabular text-sm">{e.sold.toLocaleString('pt-BR')} ingressos vendidos</div>

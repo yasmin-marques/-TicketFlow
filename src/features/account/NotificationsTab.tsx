@@ -31,9 +31,9 @@ export function NotificationsTab({ profile }: { profile: UserProfile }) {
   })
 
   return (
-    <ul className="m-0 list-none border-t-2 border-text p-0">
+    <ul className="m-0 list-none border-t border-divider p-0">
       {OPTIONS.map((o) => (
-        <li key={o.key} className="flex items-start justify-between gap-4 border-b border-neutral-400 py-4">
+        <li key={o.key} className="flex items-start justify-between gap-4 border-b border-line py-4">
           <div>
             <div className="font-extrabold">{o.title}</div>
             <div className="text-muted text-sm">{o.description}</div>

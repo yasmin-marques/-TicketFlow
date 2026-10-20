@@ -1,5 +1,7 @@
 /*
- * Design tokens — Modernist (fonte: styles.css do protótipo).
+ * Design tokens — Modernist suavizado (fonte original: styles.css do protótipo).
+ * Paleta preservada; raios, superfícies e elevação evoluídos para uma linguagem
+ * mais amigável. Nenhum componente usa raio arbitrário: só os tokens abaixo.
  * Declarados em @theme para virarem utilitários Tailwind
  * (bg-bg, text-text, bg-accent, border-divider, text-accent-700, …).
  */
@@ -7,10 +9,14 @@
   /* Núcleo */
   --color-bg: #f3f2f2;
   --color-surface: #eae9e9;
+  /* Superfície elevada (cards, painéis, campos, overlays). */
+  --color-card: #fdfcfc;
   --color-text: #201e1d;
   --color-accent: #ec3013;
   --color-accent-2: #e15b47;
-  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+  --color-divider: color-mix(in srgb, #201e1d 22%, transparent);
+  /* Borda de superfícies elevadas: mais leve que o divisor. */
+  --color-line: color-mix(in srgb, #201e1d 11%, transparent);
 
   /* Neutros */
   --color-neutral-100: #f8f4f4;
@@ -56,19 +62,28 @@
   --font-sans: 'Archivo', system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Raio zero em tudo */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
+  /* Raios: escala + papéis semânticos (rounded-control, rounded-card…). */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-control: 10px; /* botões, campos, selects, steppers */
+  --radius-chip: 999px; /* chips, badges, pílulas */
+  --radius-card: 16px; /* cards, painéis, imagens de card */
+  --radius-panel: 22px; /* hero, blocos grandes, modais */
 
-  /* Elevação: só em overlays */
-  --shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
-  --shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
-  --shadow-lg: 0 12px 32px color-mix(in srgb, #2d2b2b 22%, transparent);
+  /* Elevação discreta: superfícies (xs/sm), hover (md), overlays (lg). */
+  --shadow-xs: 0 1px 2px color-mix(in srgb, #2d2b2b 6%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 6%, transparent), 0 2px 8px color-mix(in srgb, #2d2b2b 5%, transparent);
+  --shadow-md: 0 2px 4px color-mix(in srgb, #2d2b2b 6%, transparent), 0 10px 24px color-mix(in srgb, #2d2b2b 9%, transparent);
+  --shadow-lg: 0 4px 8px color-mix(in srgb, #2d2b2b 8%, transparent), 0 24px 56px color-mix(in srgb, #2d2b2b 18%, transparent);
+
+  /* Movimento */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
   /* Breakpoints do protótipo: 640 / 1024 / 1280 */
   --breakpoint-sm: 640px;

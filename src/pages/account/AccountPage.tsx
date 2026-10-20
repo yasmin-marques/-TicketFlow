@@ -64,7 +64,7 @@ export function AccountPage() {
         )}
       </div>
 
-      <div className="mt-10 max-w-[700px] border-t-2 border-divider pt-4">
+      <div className="mt-10 max-w-[700px] border-t border-divider pt-4">
         <Button
           variant="secondary"
           onClick={async () => {

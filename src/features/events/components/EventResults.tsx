@@ -8,7 +8,7 @@ import { formatDateRange } from '@/lib/format'
 import { EVENTS_PAGE_SIZE } from '@/services/api/events.service'
 import type { EventFilters, EventSummary, Paginated } from '@/types/event'
 
-const gridClass = 'grid gap-x-6 gap-y-7 sm:grid-cols-2 xl:grid-cols-3'
+const gridClass = 'grid gap-4 sm:grid-cols-2 lg:gap-5 xl:grid-cols-3'
 
 interface EventResultsProps {
   data: Paginated<EventSummary> | undefined

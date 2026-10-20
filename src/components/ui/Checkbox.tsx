@@ -11,7 +11,7 @@ interface CheckboxProps {
   className?: string
 }
 
-/** Checkbox quadrado do protótipo (preenchido em `text` quando marcado). */
+/** Checkbox de cantos suaves (preenchido em `text` quando marcado). */
 export function Checkbox({ checked, onChange, children, aside, className }: CheckboxProps) {
   return (
     <label className={cn('flex cursor-pointer items-center gap-2.5', className)}>
@@ -24,8 +24,8 @@ export function Checkbox({ checked, onChange, children, aside, className }: Chec
       <span
         aria-hidden
         className={cn(
-          'grid size-4 shrink-0 place-items-center border-2 border-text transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent',
-          checked && 'bg-text text-bg',
+          'transition-control grid size-[18px] shrink-0 place-items-center rounded-xs border-2 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent',
+          checked ? 'border-text bg-text text-bg' : 'border-neutral-500 bg-card',
         )}
       >
         {checked && <Check size={11} strokeWidth={4} />}

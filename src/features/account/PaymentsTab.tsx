@@ -59,9 +59,9 @@ export function PaymentsTab() {
       {cards.data.length === 0 ? (
         <EmptyState title="Nenhum cartão salvo" description="Adicione um cartão para pagar mais rápido nas próximas compras." />
       ) : (
-        <ul className="m-0 list-none border-t-2 border-text p-0">
+        <ul className="m-0 list-none border-t border-divider p-0">
           {cards.data.map((c) => (
-            <li key={c.id} className="flex items-center justify-between gap-3 border-b border-neutral-400 py-3.5">
+            <li key={c.id} className="flex items-center justify-between gap-3 border-b border-line py-3.5">
               <div>
                 <div className="font-extrabold">
                   {c.brand} •• {c.last4}
@@ -79,7 +79,7 @@ export function PaymentsTab() {
       )}
 
       {adding ? (
-        <form noValidate onSubmit={handleSubmit((v) => add.mutate(v))} className="mt-6 grid gap-5 border-2 border-text p-5 sm:grid-cols-2">
+        <form noValidate onSubmit={handleSubmit((v) => add.mutate(v))} className="mt-6 grid gap-5 surface p-5 sm:grid-cols-2">
           <TextField wrapperClassName="sm:col-span-2" label="Número do cartão" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" error={errors.number?.message} {...masked('number', maskCardNumber)} />
           <TextField label="Nome impresso" autoComplete="cc-name" error={errors.holderName?.message} {...register('holderName')} />
           <TextField label="Validade" inputMode="numeric" autoComplete="cc-exp" placeholder="MM/AA" error={errors.expiry?.message} {...masked('expiry', maskExpiry)} />

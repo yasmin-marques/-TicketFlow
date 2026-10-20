@@ -91,6 +91,15 @@ function defaultSchedule(startsAt: string): ScheduleItem[] {
   ]
 }
 
+/**
+ * Capas temporárias locais (public/images/events/<categoria>.svg) para os
+ * destaques e parte do catálogo. Os demais ficam sem capa de propósito, para
+ * exercitar o fallback de `EventImage`.
+ */
+function placeholderCover(row: Row, index: number): string | null {
+  return row.featured || index % 3 === 0 ? `/images/events/${row.cat}.svg` : null
+}
+
 function build(row: Row, index: number): EventDetail {
   const isNeon = index === 0
   const isSparse = row.desc === undefined
@@ -114,7 +123,7 @@ function build(row: Row, index: number): EventDetail {
       notes: isNeon ? 'Estacionamento no local · Metrô Berrini (700 m) · Acessível' : undefined,
     },
     minPrice: row.price,
-    coverUrl: null,
+    coverUrl: placeholderCover(row, index),
     badges: row.badges ?? [],
     hasSeatMap: row.seats ?? false,
     subtitle: row.sub,

@@ -18,7 +18,7 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ label, tone, className }: StatusBadgeProps) {
-  return <span className={cn('inline-block px-2 py-0.5 text-xs font-semibold', TONES[tone], className)}>{label}</span>
+  return <span className={cn('inline-flex items-center gap-1.5 rounded-chip px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap before:size-1.5 before:rounded-full before:bg-current before:opacity-70 before:content-[""]', TONES[tone], className)}>{label}</span>
 }
 
 export const ORDER_STATUS: Record<string, { label: string; tone: StatusTone }> = {

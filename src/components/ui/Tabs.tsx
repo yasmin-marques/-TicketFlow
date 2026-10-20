@@ -19,7 +19,7 @@ interface TabsProps<T extends string> {
   className?: string
 }
 
-/** Abas com régua de 2px e indicador de 4px em accent (Meus ingressos, Conta, Evento…). Setas ←/→ navegam. */
+/** Abas com régua fina e indicador de 3px em accent (Meus ingressos, Conta, Evento…). Setas ←/→ navegam. */
 export function Tabs<T extends string>({ tabs, active, onChange, label, idPrefix, className }: TabsProps<T>) {
   const move = (e: KeyboardEvent, i: number) => {
     const next = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null
@@ -32,7 +32,7 @@ export function Tabs<T extends string>({ tabs, active, onChange, label, idPrefix
   }
 
   return (
-    <div role="tablist" aria-label={label} className={cn('flex gap-7 overflow-x-auto border-b-2 border-divider', className)}>
+    <div role="tablist" aria-label={label} className={cn('flex gap-7 overflow-x-auto border-b border-divider', className)}>
       {tabs.map((t, i) => {
         const selected = t.key === active
         return (
@@ -48,8 +48,8 @@ export function Tabs<T extends string>({ tabs, active, onChange, label, idPrefix
             onClick={() => onChange(t.key)}
             onKeyDown={(e) => move(e, i)}
             className={cn(
-              '-mb-0.5 py-2.5 text-[15px] whitespace-nowrap transition-colors',
-              selected ? 'border-b-4 border-accent font-extrabold' : 'text-muted font-semibold hover:text-text',
+              'transition-control relative py-3 text-[15px] whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:rounded-t-full after:transition-colors after:content-[""]',
+              selected ? 'font-bold after:bg-accent' : 'text-muted font-semibold after:bg-transparent hover:text-text hover:after:bg-text/15',
             )}
           >
             {t.label}

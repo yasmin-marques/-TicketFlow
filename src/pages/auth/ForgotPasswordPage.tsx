@@ -41,11 +41,11 @@ export function ForgotPasswordPage() {
   if (sentTo) {
     return (
       <AuthLayout title="Verifique seu e-mail" footer={<Link to="/entrar">← Voltar para entrar</Link>}>
-        <div role="status" className="border-2 border-text p-4 text-sm">
+        <div role="status" className="surface p-4 text-sm">
           Se existir uma conta para <b>{sentTo}</b>, enviamos um link para redefinir a senha. Ele vale por 1 hora.
         </div>
         {USE_MOCKS && (
-          <div className="mt-4 border-2 border-dashed border-neutral-500 p-4 text-[13px]">
+          <div className="mt-4 callout p-4 text-[13px]">
             <b>Ambiente de simulação:</b> nenhum e-mail é enviado.
             {resetToken ? (
               <div className="mt-2">

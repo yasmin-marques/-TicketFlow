@@ -11,7 +11,7 @@ export function RelatedEvents({ event }: { event: EventDetail }) {
   if (isError || (!isPending && data?.length === 0)) return null
 
   return (
-    <section aria-labelledby="relacionados" className="border-t-2 border-text py-9">
+    <section aria-labelledby="relacionados" className="py-9 lg:py-12">
       <Container>
         <div className="mb-4 flex items-baseline justify-between">
           <h3 id="relacionados" className="m-0 text-xl lg:text-[25px]">
@@ -21,9 +21,9 @@ export function RelatedEvents({ event }: { event: EventDetail }) {
             Ver mais {event.category.name} →
           </Button>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {isPending
-            ? Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-[110px]" />)
+            ? Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-[118px] rounded-card" />)
             : data.map((e) => <EventCardCompact key={e.id} event={e} />)}
         </div>
       </Container>

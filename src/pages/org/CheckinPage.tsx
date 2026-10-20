@@ -93,7 +93,7 @@ export function CheckinPage() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-[834px] flex-col bg-bg">
-      <header className="flex flex-none items-center justify-between gap-3 border-b-2 border-divider px-4 py-3 sm:px-6">
+      <header className="glass-bar sticky top-0 z-10 flex flex-none items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div className="min-w-0">
           <Link to="/org/checkin" className="text-muted text-xs font-semibold no-underline hover:text-text">← Painel</Link>
           <h1 className="m-0 text-lg leading-tight font-extrabold tracking-normal">Check-in</h1>
@@ -116,8 +116,8 @@ export function CheckinPage() {
           <div className="text-muted text-xs">{pct}% · {stats?.perMinute.toLocaleString('pt-BR') ?? 0} / min</div>
         </div>
       </header>
-      <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Check-ins realizados" className="h-1.5 flex-none bg-neutral-300">
-        <div className="h-full bg-text transition-[width]" style={{ width: `${pct}%` }} />
+      <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Check-ins realizados" className="mx-4 mt-2 h-1.5 flex-none overflow-hidden rounded-full bg-neutral-300 sm:mx-6">
+        <div className="h-full rounded-full bg-text transition-[width]" style={{ width: `${pct}%` }} />
       </div>
 
       {error && !stats ? (
@@ -126,20 +126,20 @@ export function CheckinPage() {
         </div>
       ) : isPending ? (
         <div className="space-y-3 p-4">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-12" />
+          <Skeleton className="h-64 rounded-panel" />
+          <Skeleton className="h-12 rounded-control" />
         </div>
       ) : (
         <main className="flex flex-1 flex-col gap-3 px-4 py-4 sm:px-6">
           {/* Visor da câmera */}
           <div
-            className="relative grid h-[min(380px,42dvh)] flex-none place-items-center overflow-hidden"
+            className="relative grid h-[min(380px,42dvh)] flex-none place-items-center overflow-hidden rounded-panel shadow-md"
             style={{ background: 'repeating-linear-gradient(135deg,#3a3736 0 14px,#2d2b2b 14px 28px)' }}
           >
             <video ref={videoRef} muted playsInline aria-label="Câmera" className={cn('absolute inset-0 size-full object-cover', scanner.state !== 'on' && scanner.state !== 'no-detector' && 'hidden')} />
             <div aria-hidden className="relative size-[min(240px,60%)] aspect-square">
               {['left-0 top-0 border-l-[5px] border-t-[5px]', 'right-0 top-0 border-r-[5px] border-t-[5px]', 'left-0 bottom-0 border-l-[5px] border-b-[5px]', 'right-0 bottom-0 border-r-[5px] border-b-[5px]'].map((c) => (
-                <i key={c} className={cn('absolute size-11 border-accent', c)} />
+                <i key={c} className={cn('absolute size-11 rounded-xs border-accent', c)} />
               ))}
             </div>
             <span className="absolute inset-x-0 bottom-3 px-3 text-center text-[13px] font-semibold text-neutral-100">
@@ -147,14 +147,14 @@ export function CheckinPage() {
             </span>
             <div className="absolute top-3 right-3 flex gap-2">
               {scanner.torchAvailable && (
-                <button type="button" onClick={scanner.toggleTorch} aria-pressed={scanner.torch} className="inline-flex items-center gap-1.5 bg-bg px-3 py-1.5 text-xs font-semibold">
+                <button type="button" onClick={scanner.toggleTorch} aria-pressed={scanner.torch} className="transition-control inline-flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-sm hover:bg-card">
                   <Flashlight size={13} aria-hidden /> Lanterna
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => (scanner.state === 'on' || scanner.state === 'no-detector' ? scanner.stop() : void scanner.start())}
-                className="inline-flex items-center gap-1.5 bg-bg px-3 py-1.5 text-xs font-semibold"
+                className="transition-control inline-flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-sm hover:bg-card"
                 disabled={scanner.state === 'starting'}
               >
                 {scanner.state === 'on' || scanner.state === 'no-detector' ? <><CameraOff size={13} aria-hidden /> Desligar câmera</> : <><Camera size={13} aria-hidden /> {scanner.state === 'starting' ? 'Abrindo…' : 'Ligar câmera'}</>}
@@ -184,7 +184,7 @@ export function CheckinPage() {
               autoComplete="off"
               autoCapitalize="characters"
               spellCheck={false}
-              className="min-w-0 flex-1 border border-divider bg-surface px-3.5 py-3 font-mono text-sm"
+              className="field min-w-0 flex-1 py-3 font-mono"
             />
             <Button type="submit" variant="secondary" className="px-5" disabled={validate.isPending || !manual.trim()}>
               {validate.isPending ? 'Validando…' : 'Validar'}
@@ -195,7 +195,7 @@ export function CheckinPage() {
           <h2 className="mt-1 mb-0 text-[13px] tracking-[0.08em] uppercase">Resultados possíveis</h2>
           <ul className="m-0 grid list-none gap-2.5 p-0 sm:grid-rows-3">
             {(['valid', 'used', 'invalid'] as const).map((k) => (
-              <li key={k} className={cn('flex items-center gap-5 px-5 py-4 text-white', LOOK[k].bg)}>
+              <li key={k} className={cn('flex items-center gap-5 rounded-card px-5 py-4 text-white shadow-sm', LOOK[k].bg)}>
                 <span aria-hidden className="text-[40px] leading-none font-extrabold">{LOOK[k].icon}</span>
                 <div>
                   <div className="text-xl font-extrabold">{LOOK[k].title}</div>
@@ -208,11 +208,11 @@ export function CheckinPage() {
           {stats && stats.recent.length > 0 && (
             <section aria-label="Últimas leituras">
               <h2 className="mt-3 mb-1 text-[13px] tracking-[0.08em] uppercase">Últimas leituras</h2>
-              <ul className="m-0 list-none border-t-2 border-text p-0">
+              <ul className="surface m-0 list-none px-4 py-1">
                 {stats.recent.slice(0, 6).map((r) => (
-                  <li key={r.id} className="flex items-center justify-between gap-2 border-b border-neutral-300 py-2 text-sm">
+                  <li key={r.id} className="flex items-center justify-between gap-2 border-b border-line py-2 text-sm last:border-b-0">
                     <span className="min-w-0 truncate">
-                      <span aria-hidden className={cn('mr-2 inline-block size-2.5', r.result === 'valid' ? 'bg-success' : r.result === 'used' ? 'bg-warning' : 'bg-accent-700')} />
+                      <span aria-hidden className={cn('mr-2 inline-block size-2.5 rounded-full', r.result === 'valid' ? 'bg-success' : r.result === 'used' ? 'bg-warning' : 'bg-accent-700')} />
                       <span className="sr-only">{LOOK[r.result].title}: </span>
                       {r.holderName ?? 'Ingresso inválido'} <span className="text-muted font-mono text-xs">{r.code}</span>
                     </span>
@@ -242,7 +242,7 @@ export function CheckinPage() {
           {result.result === 'used' && <div className="text-lg">Check-in realizado às {result.checkedInAt ? formatTime(result.checkedInAt) : '—'}{result.gate ? ` · ${result.gate}` : ''}</div>}
           {result.result === 'invalid' && <div className="text-lg">{result.message}</div>}
           <div className="mt-4 font-mono text-sm opacity-80">{result.code}</div>
-          <div className="mt-2 h-1.5 w-56 bg-white/30"><div className="h-full bg-white" style={{ animation: `tf-shrink ${RESULT_MS}ms linear forwards` }} /></div>
+          <div className="mt-2 h-1.5 w-56 overflow-hidden rounded-full bg-white/30"><div className="h-full rounded-full bg-white" style={{ animation: `tf-shrink ${RESULT_MS}ms linear forwards` }} /></div>
           <div className="text-xs opacity-80">Toque para continuar</div>
         </div>
       )}
@@ -263,17 +263,17 @@ function TestCodes({ eventId, onPick }: { eventId: string; onPick: (code: string
     return () => { alive = false }
   }, [eventId])
   return (
-    <details className="border-2 border-dashed border-neutral-500 p-3 text-xs">
+    <details className="callout p-3 text-xs">
       <summary className="cursor-pointer font-semibold">Ambiente de simulação · códigos de teste</summary>
       <p className="text-muted my-2">Toque para simular a leitura. Ingressos comprados na jornada do comprador também valem para eventos do mesmo link.</p>
       <div className="flex flex-wrap gap-2">
         {codes.map((c) => (
-          <button key={c.code} type="button" onClick={() => onPick(c.code)} className="border border-divider px-2.5 py-1.5 text-left hover:bg-text/7">
+          <button key={c.code} type="button" onClick={() => onPick(c.code)} className="transition-control rounded-control border border-divider bg-card px-2.5 py-1.5 text-left hover:bg-neutral-100">
             <span className="font-mono">{c.code}</span>
             <span className="text-muted block">{c.name} · {c.used ? 'já utilizado' : 'válido'}</span>
           </button>
         ))}
-        <button type="button" onClick={() => onPick('TF-ZZZZ-0000')} className="border border-divider px-2.5 py-1.5 text-left hover:bg-text/7">
+        <button type="button" onClick={() => onPick('TF-ZZZZ-0000')} className="transition-control rounded-control border border-divider bg-card px-2.5 py-1.5 text-left hover:bg-neutral-100">
           <span className="font-mono">TF-ZZZZ-0000</span>
           <span className="text-muted block">inexistente · inválido</span>
         </button>

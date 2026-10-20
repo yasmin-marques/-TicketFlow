@@ -28,7 +28,7 @@ export function EventSection({ title, children, defaultOpen = false }: EventSect
     <Collapsible
       title={title}
       defaultOpen={defaultOpen}
-      titleClassName="border-t border-neutral-400 py-3 text-[17px] font-extrabold"
+      titleClassName="border-t border-line py-3 text-[17px] font-extrabold"
     >
       <div className="pb-4">{children}</div>
     </Collapsible>

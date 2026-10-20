@@ -98,7 +98,7 @@ export function OrgOrdersPage() {
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar por pedido, nome ou e-mail"
           aria-label="Buscar por pedido, nome ou e-mail"
-          className="w-full border border-divider bg-surface px-3 py-1.5 text-sm lg:w-72"
+          className="field lg:w-72"
         />
         <Select value={eventId} onChange={setEventId} prefix="Evento:" aria-label="Filtrar por evento" options={[{ value: '', label: 'Todos' }, ...(events.data?.items.map((e) => ({ value: e.id, label: e.title })) ?? [])]} className="max-w-60" />
         <Select<OrgPaymentMethod | ''> value={method} onChange={setMethod} prefix="Pagamento:" aria-label="Filtrar por pagamento" options={[{ value: '', label: 'Todos' }, { value: 'pix', label: 'Pix' }, { value: 'card', label: 'Cartão' }, { value: 'boleto', label: 'Boleto' }]} />
@@ -161,7 +161,7 @@ function OrderModal({ order, onClose, onChanged }: { order: OrgOrder | null; onC
         {order && (
           <>
             <StatusBadge {...ORG_ORDER_STATUS[order.status]!} />
-            <dl className="m-0 mt-3 grid grid-cols-[110px_1fr] border-t-2 border-text text-sm">
+            <dl className="m-0 mt-3 grid grid-cols-[110px_1fr] border-t border-divider text-sm">
               {[
                 ['Comprador', `${order.buyerName} · ${order.buyerEmail}`],
                 ['Evento', order.eventTitle],
@@ -173,8 +173,8 @@ function OrderModal({ order, onClose, onChanged }: { order: OrgOrder | null; onC
                 ['Data', formatDateShort(order.createdAt)],
               ].map(([k, v], i) => (
                 <div key={k} className="contents">
-                  <dt className={`text-muted py-2 ${i ? 'border-t border-neutral-400' : ''}`}>{k}</dt>
-                  <dd className={`m-0 py-2 font-semibold break-words ${i ? 'border-t border-neutral-400' : ''}`}>{v}</dd>
+                  <dt className={`text-muted py-2 ${i ? 'border-t border-line' : ''}`}>{k}</dt>
+                  <dd className={`m-0 py-2 font-semibold break-words ${i ? 'border-t border-line' : ''}`}>{v}</dd>
                 </div>
               ))}
             </dl>

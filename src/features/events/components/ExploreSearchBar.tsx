@@ -19,7 +19,7 @@ const label = 'text-muted block text-[10px] font-semibold tracking-[0.1em] upper
 
 /**
  * Barra de busca da exploração. Desktop: 4 células (busca, local, data, botão)
- * com borda de 2px. Mobile: só o campo de busca (local e data ficam no drawer).
+ * numa pílula elevada. Mobile: só o campo de busca (local e data ficam no drawer).
  */
 export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
   const [draft, setDraft] = useState<SearchValues>(values)
@@ -45,9 +45,9 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
         e.preventDefault()
         onSubmit({ ...draft, q: draft.q.trim() })
       }}
-      className="grid border-2 border-text lg:grid-cols-[2fr_1.2fr_1.2fr_auto]"
+      className="surface grid rounded-panel shadow-md transition-shadow focus-within:shadow-lg lg:grid-cols-[2fr_1.2fr_1.2fr_auto] lg:p-1.5"
     >
-      <label className="block px-4 py-2.5 lg:border-r lg:border-text">
+      <label className="block rounded-card px-5 py-2.5 transition-colors hover:bg-text/3 lg:border-r lg:border-line">
         <span className={label}>Busca</span>
         <input
           ref={inputRef}
@@ -59,7 +59,7 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
         />
       </label>
 
-      <label className="hidden px-4 py-2.5 lg:block lg:border-r lg:border-text">
+      <label className="rounded-sm hidden px-5 py-2.5 transition-colors hover:bg-text/3 lg:block lg:border-r lg:border-line">
         <span className={label}>Localização</span>
         <Select
           bare
@@ -70,7 +70,7 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
         />
       </label>
 
-      <div className="relative hidden lg:block lg:border-r lg:border-text">
+      <div className="relative hidden lg:block">
         <Popover
           align="left"
           className="h-full"
@@ -79,7 +79,7 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
             <button
               type="button"
               {...props}
-              className="block h-full w-full px-4 py-2.5 text-left hover:bg-text/4"
+              className="rounded-sm block h-full w-full px-5 py-2.5 text-left transition-colors hover:bg-text/3"
             >
               <span className={label}>Data</span>
               <span className="flex items-center justify-between text-[15px] font-semibold">
@@ -98,7 +98,7 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
                   value={draft.from}
                   max={draft.to || undefined}
                   onChange={(e) => setDraft((d) => ({ ...d, from: e.target.value }))}
-                  className="mt-1 block w-full border border-divider bg-surface px-2.5 py-1.5 text-sm text-text"
+                  className="field mt-1"
                 />
               </label>
               <label className="text-muted text-xs">
@@ -108,7 +108,7 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
                   value={draft.to}
                   min={draft.from || undefined}
                   onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}
-                  className="mt-1 block w-full border border-divider bg-surface px-2.5 py-1.5 text-sm text-text"
+                  className="field mt-1"
                 />
               </label>
               <div className="flex justify-between">
@@ -124,7 +124,7 @@ export function ExploreSearchBar({ values, onSubmit }: ExploreSearchBarProps) {
         </Popover>
       </div>
 
-      <Button type="submit" size="lg" className="hidden px-7 text-[15px] lg:inline-flex">
+      <Button type="submit" size="lg" className="hidden px-8 text-[15px] lg:inline-flex">
         Buscar
       </Button>
     </form>

@@ -132,7 +132,7 @@ export function CheckoutPage({ step }: { step: 'dados' | 'pagamento' }) {
           )
         )}
       </div>
-      <div className="border-divider pb-10 lg:border-l-2 lg:p-8">
+      <div className="pb-10 lg:p-8">
         <OrderSummary
           sticky
           timer={<Countdown expiresAt={reservation.expiresAt} icon />}

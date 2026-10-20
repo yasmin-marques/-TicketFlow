@@ -73,7 +73,7 @@ export function OrdersPage() {
             <thead>
               <tr>
                 {['Pedido', 'Evento', 'Qtd', 'Total', 'Pagamento', 'Data', 'Status'].map((h) => (
-                  <th key={h} scope="col" className="text-muted border-b-2 border-divider p-2 text-left text-[11px] tracking-[0.08em] uppercase">
+                  <th key={h} scope="col" className="text-muted border-b border-divider p-2 text-left text-[11px] tracking-[0.08em] uppercase">
                     {h}
                   </th>
                 ))}
@@ -123,7 +123,7 @@ function OrderRow({ order }: { order: Order }) {
 function OrderCard({ order }: { order: Order }) {
   const status = ORDER_STATUS[order.status]!
   return (
-    <li className="relative border-t-2 border-divider py-3.5 last:border-b-2">
+    <li className="relative border-t border-divider py-3.5 last:border-b">
       <div className="flex items-center justify-between gap-2">
         <Link to={`/pedidos/${order.id}`} className="tabular font-extrabold text-text no-underline after:absolute after:inset-0 after:content-['']">
           #{order.code}

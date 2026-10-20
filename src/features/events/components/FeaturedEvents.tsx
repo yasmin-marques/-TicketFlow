@@ -18,11 +18,11 @@ export function FeaturedEvents({ events, isLoading, error, onRetry }: FeaturedEv
 
   return (
     <section aria-labelledby="destaques" className="pt-12 pb-4">
-      <div className="mb-5 flex items-baseline justify-between">
-        <h2 id="destaques" className="m-0 text-[26px] lg:text-[32px]">
+      <div className="mb-5 flex items-baseline justify-between gap-3">
+        <h2 id="destaques" className="m-0 text-[24px] lg:text-[32px]">
           Eventos em destaque
         </h2>
-        <Button to="/eventos" variant="ghost">
+        <Button to="/eventos" variant="ghost" className="shrink-0 whitespace-nowrap">
           Ver todos →
         </Button>
       </div>
@@ -30,11 +30,9 @@ export function FeaturedEvents({ events, isLoading, error, onRetry }: FeaturedEv
       {error ? (
         <LoadError title="Não foi possível carregar os destaques." error={error} onRetry={onRetry} />
       ) : isLoading ? (
-        <div className="grid grid-cols-2 gap-6 border-t-2 border-text pt-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
           <div className="col-span-2 flex flex-col lg:row-span-2" aria-hidden>
-            <Skeleton className="min-h-[220px] flex-1 sm:min-h-[300px]" />
-            <Skeleton className="mt-3 h-4 w-1/2" />
-            <Skeleton className="mt-2 h-7" />
+            <Skeleton className="min-h-[260px] flex-1 rounded-card sm:min-h-[340px]" />
           </div>
           {Array.from({ length: 4 }, (_, i) => (
             <EventCardSkeleton key={i} />
@@ -51,7 +49,7 @@ export function FeaturedEvents({ events, isLoading, error, onRetry }: FeaturedEv
           }
         />
       ) : (
-        <div className="grid grid-cols-2 gap-6 border-t-2 border-text pt-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
           <EventCardFeature event={lead} className="col-span-2 lg:row-span-2" />
           {rest.slice(0, 4).map((e) => (
             <EventCard key={e.id} event={e} size="sm" showBadge={false} />

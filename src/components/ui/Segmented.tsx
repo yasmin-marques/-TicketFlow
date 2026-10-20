@@ -13,14 +13,13 @@ interface SegmentedProps<T extends string> {
 export function Segmented<T extends string>({ value, onChange, options, label, className }: SegmentedProps<T>) {
   const name = useId()
   return (
-    <div role="radiogroup" aria-label={label} className={cn('inline-flex w-fit border-2 border-text', className)}>
-      {options.map((o, i) => (
+    <div role="radiogroup" aria-label={label} className={cn('inline-flex w-fit max-w-full gap-1 rounded-control bg-surface p-1', className)}>
+      {options.map((o) => (
         <label
           key={o.value}
           className={cn(
-            'cursor-pointer px-[22px] py-[9px] text-sm font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent',
-            i > 0 && 'border-l-2 border-text',
-            value === o.value ? 'bg-text text-bg' : 'hover:bg-text/7',
+            'transition-control cursor-pointer rounded-sm px-5 py-2 text-sm font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-accent',
+            value === o.value ? 'bg-card text-text shadow-sm' : 'text-neutral-700 hover:text-text',
           )}
         >
           <input

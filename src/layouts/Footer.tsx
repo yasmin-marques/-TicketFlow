@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Container } from '@/components/ui/Container'
+import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/cn'
 
 const links = [
@@ -11,9 +12,12 @@ const links = [
 
 export function Footer({ className }: { className?: string }) {
   return (
-    <footer className={cn('border-t-2 border-text py-5', className)}>
-      <Container className="text-muted flex flex-col justify-between gap-2 text-[13px] sm:flex-row">
-        <span>© {new Date().getFullYear()} TicketFlow</span>
+    <footer className={cn('mt-6 border-t border-line bg-card/60 py-6', className)}>
+      <Container className="text-muted flex flex-col justify-between gap-3 text-[13px] sm:flex-row sm:items-center">
+        <span className="flex items-center gap-3">
+          <Logo size="sm" />
+          <span>© {new Date().getFullYear()} TicketFlow</span>
+        </span>
         <nav aria-label="Institucional" className="flex flex-wrap gap-x-3">
           {links.map((l, i) => (
             <span key={l.to}>

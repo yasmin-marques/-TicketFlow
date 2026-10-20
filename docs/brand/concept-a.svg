@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720">
+<title>TicketFlow · conceito A — Ingresso em movimento</title>
+<rect width="1200" height="720" rx="24" fill="#f3f2f2"/>
+<text x="48" y="64" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" letter-spacing="-1.6" font-size="15" letter-spacing="2" fill="#ec3013">CONCEITO A</text>
+<text x="48" y="104" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" letter-spacing="-1.6" font-size="36" fill="#201e1d">Ingresso em movimento</text>
+<text x="48" y="140" font-family="Archivo, Arial, sans-serif" font-size="16" fill="#605d5d">Evolução do quadrado vermelho atual: vira um ingresso de cantos suaves, com picote e canhoto,</text>
+<text x="48" y="164" font-family="Archivo, Arial, sans-serif" font-size="16" fill="#605d5d">inclinado para a frente e com rastro de movimento — o "flow".</text>
+<rect x="48" y="210" width="640" height="200" rx="20" fill="#fdfcfc" stroke="#201e1d" stroke-opacity=".1"/>
+<g transform="translate(96 278) scale(1.0)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#ec3013" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#ec3013"/>
+<circle cx="46" cy="13" r="5" fill="#fdfcfc"/><circle cx="46" cy="51" r="5" fill="#fdfcfc"/>
+<path d="M46 22 V42" stroke="#fdfcfc" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="180" y="328" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" letter-spacing="-1.6" font-size="56" fill="#201e1d">ticketflow</text>
+<text x="72" y="396" font-family="Archivo, Arial, sans-serif" font-size="13" fill="#7d7979">Logo horizontal · header e telas de acesso</text>
+<rect x="712" y="210" width="440" height="200" rx="20" fill="#201e1d"/>
+<g transform="translate(752 286) scale(0.75)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#ec3013" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#ec3013"/>
+<circle cx="46" cy="13" r="5" fill="#201e1d"/><circle cx="46" cy="51" r="5" fill="#201e1d"/>
+<path d="M46 22 V42" stroke="#201e1d" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="814" y="324" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-weight="800" letter-spacing="-1.6" font-size="40" fill="#f3f2f2">ticketflow</text>
+<text x="1016" y="324" font-family="Archivo, Arial, sans-serif" font-weight="600" font-size="11" letter-spacing="1" fill="#bab6b6">ORG</text>
+<text x="736" y="396" font-family="Archivo, Arial, sans-serif" font-size="13" fill="#9b9797">Fundo escuro · painel do organizador</text>
+<rect x="48" y="434" width="1104" height="238" rx="20" fill="#fdfcfc" stroke="#201e1d" stroke-opacity=".1"/>
+<g transform="translate(96 482.0) scale(1.5)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#ec3013" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#ec3013"/>
+<circle cx="46" cy="13" r="5" fill="#fdfcfc"/><circle cx="46" cy="51" r="5" fill="#fdfcfc"/>
+<path d="M46 22 V42" stroke="#fdfcfc" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="96" y="640" font-family="Archivo, Arial, sans-serif" font-size="12" fill="#7d7979">96px</text>
+<g transform="translate(248 498.0) scale(1.0)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#ec3013" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#ec3013"/>
+<circle cx="46" cy="13" r="5" fill="#fdfcfc"/><circle cx="46" cy="51" r="5" fill="#fdfcfc"/>
+<path d="M46 22 V42" stroke="#fdfcfc" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="248" y="640" font-family="Archivo, Arial, sans-serif" font-size="12" fill="#7d7979">64px</text>
+<g transform="translate(368 514.0) scale(0.5)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#ec3013" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#ec3013"/>
+<circle cx="46" cy="13" r="5" fill="#fdfcfc"/><circle cx="46" cy="51" r="5" fill="#fdfcfc"/>
+<path d="M46 22 V42" stroke="#fdfcfc" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="368" y="640" font-family="Archivo, Arial, sans-serif" font-size="12" fill="#7d7979">32px</text>
+<g transform="translate(456 522.0) scale(0.25)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#ec3013" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#ec3013"/>
+<circle cx="46" cy="13" r="5" fill="#fdfcfc"/><circle cx="46" cy="51" r="5" fill="#fdfcfc"/>
+<path d="M46 22 V42" stroke="#fdfcfc" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="456" y="640" font-family="Archivo, Arial, sans-serif" font-size="12" fill="#7d7979">16px</text>
+<rect x="640" y="474" width="112" height="112" rx="26" fill="#ec3013"/>
+<g transform="translate(664 498) scale(1.0)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#fdfcfc" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#fdfcfc"/>
+<circle cx="46" cy="13" r="5" fill="#ec3013"/><circle cx="46" cy="51" r="5" fill="#ec3013"/>
+<path d="M46 22 V42" stroke="#ec3013" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="640" y="640" font-family="Archivo, Arial, sans-serif" font-size="12" fill="#7d7979">Ícone de app</text>
+<rect x="800" y="474" width="112" height="112" rx="26" fill="#201e1d"/>
+<g transform="translate(824 498) scale(1.0)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#f3f2f2" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#f3f2f2"/>
+<circle cx="46" cy="13" r="5" fill="#201e1d"/><circle cx="46" cy="51" r="5" fill="#201e1d"/>
+<path d="M46 22 V42" stroke="#201e1d" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<g transform="translate(952 498) scale(1.0)"><g transform="rotate(-12 34 32)">
+<path d="M4 25 H13 M1 33 H11 M5 41 H13" fill="none" stroke="#201e1d" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+<rect x="16" y="13" width="44" height="38" rx="9" fill="#201e1d"/>
+<circle cx="46" cy="13" r="5" fill="#fdfcfc"/><circle cx="46" cy="51" r="5" fill="#fdfcfc"/>
+<path d="M46 22 V42" stroke="#fdfcfc" stroke-width="3" stroke-linecap="round" stroke-dasharray="2.5 4"/>
+</g></g>
+<text x="800" y="640" font-family="Archivo, Arial, sans-serif" font-size="12" fill="#7d7979">Monocromático (claro e escuro)</text>
+</svg>

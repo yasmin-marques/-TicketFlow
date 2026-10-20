@@ -1,33 +1,139 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
+import { categoryVisual } from './categoryVisuals'
+
+/**
+ * Proporções padronizadas das capas. `fill` não impõe proporção: a imagem
+ * ocupa o tamanho que o pai der (hero, banners com altura fixa).
+ */
+const RATIOS = {
+  card: 'aspect-[4/3]',
+  wide: 'aspect-[16/9]',
+  square: 'aspect-square',
+  fill: '',
+} as const
+
+export type EventImageRatio = keyof typeof RATIOS
+
+type LoadState = 'loading' | 'loaded' | 'error'
 
 interface EventImageProps {
+  /** `coverUrl` do evento (contrato da API). `null` = sem capa → fallback. */
   src: string | null
+  /**
+   * Texto alternativo. Vazio (padrão) quando o título do evento já acompanha a
+   * imagem — cards e listas — para o leitor de tela não repetir o título.
+   */
+  alt?: string
+  /** Slug da categoria: define o visual do fallback. */
+  category?: string
+  ratio?: EventImageRatio
+  /** Imagem acima da dobra (hero, capa do detalhe): carrega já e com prioridade. */
+  priority?: boolean
+  /** Atributo `sizes` para quando a API passar a enviar variantes (`srcSet`). */
+  sizes?: string
+  srcSet?: string
+  /** Tamanho do ícone do fallback. */
+  fallbackSize?: 'sm' | 'md' | 'lg'
   className?: string
-  /** Espessura das listras do placeholder (px). */
-  stripe?: number
-  /** Rótulo mono no canto inferior (placeholder de design). */
-  label?: string
+  imgClassName?: string
+  /** Sobreposições (badges, gradiente, botões). */
   children?: ReactNode
 }
 
+const ICON_SIZES = { sm: 18, md: 34, lg: 64 } as const
+
 /**
- * Foto do evento em preto e branco. Sem `src`, mostra o placeholder listrado
- * do protótipo. Decorativa: o título do evento sempre acompanha a imagem.
+ * Capa do evento com proporção fixa (sem salto de layout), skeleton enquanto
+ * carrega, fade-in ao concluir e fallback visual da categoria quando a capa
+ * não existe ou falha ao carregar.
  */
-export function EventImage({ src, className, stripe = 9, label, children }: EventImageProps) {
+export function EventImage({
+  src,
+  alt = '',
+  category,
+  ratio = 'fill',
+  priority = false,
+  sizes,
+  srcSet,
+  fallbackSize = 'md',
+  className,
+  imgClassName,
+  children,
+}: EventImageProps) {
+  const [state, setState] = useState<LoadState>('loading')
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  // Nova URL → recomeça; imagem já em cache pode ter carregado antes do efeito.
+  useEffect(() => {
+    const img = imgRef.current
+    if (!src) return
+    if (img?.complete) setState(img.naturalWidth > 0 ? 'loaded' : 'error')
+    else setState('loading')
+  }, [src])
+
+  const showFallback = !src || state === 'error'
+
   return (
-    <div
-      className={cn('relative overflow-hidden', !src && 'bg-stripes', className)}
-      style={!src ? ({ '--stripe': `${stripe}px` } as CSSProperties) : undefined}
-    >
-      {src && <img src={src} alt="" loading="lazy" className="grayscale-photo size-full object-cover" />}
-      {!src && label && (
-        <span className="absolute bottom-4 left-4 font-mono text-[11px] font-semibold text-neutral-700">
-          {label}
-        </span>
+    <div className={cn('relative isolate overflow-hidden bg-neutral-200', RATIOS[ratio], className)}>
+      {showFallback ? (
+        <EventCoverFallback category={category} alt={alt} size={fallbackSize} />
+      ) : (
+        <>
+          {state === 'loading' && <div aria-hidden className="skeleton absolute inset-0 rounded-none" />}
+          <img
+            ref={imgRef}
+            src={src}
+            srcSet={srcSet}
+            sizes={sizes}
+            alt={alt}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            decoding="async"
+            onLoad={() => setState('loaded')}
+            onError={() => setState('error')}
+            className={cn(
+              'absolute inset-0 size-full object-cover transition-[opacity,transform] duration-500 ease-out',
+              state === 'loaded' ? 'opacity-100' : 'opacity-0',
+              imgClassName,
+            )}
+          />
+        </>
       )}
       {children}
+    </div>
+  )
+}
+
+/**
+ * Capa de fallback: gradiente e ícone da categoria (só cores da paleta) com
+ * as linhas de "fluxo" da marca. Decorativa, a menos que receba `alt`.
+ */
+export function EventCoverFallback({
+  category,
+  alt = '',
+  size = 'md',
+  className,
+}: {
+  category?: string
+  alt?: string
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
+}) {
+  const { icon: Icon, gradient } = categoryVisual(category)
+  const a11y = alt ? { role: 'img', 'aria-label': alt } : { 'aria-hidden': true }
+  return (
+    <div
+      {...a11y}
+      className={cn('absolute inset-0 grid place-items-center overflow-hidden text-bg', className)}
+      style={{ background: gradient } as CSSProperties}
+    >
+      <svg aria-hidden className="absolute inset-0 size-full opacity-[0.16]" preserveAspectRatio="none" viewBox="0 0 400 300">
+        <path d="M-20 230 C 90 170, 170 300, 420 150" fill="none" stroke="currentColor" strokeWidth="26" strokeLinecap="round" />
+        <path d="M-20 290 C 110 230, 200 330, 420 220" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />
+        <path d="M-20 140 C 120 100, 210 200, 420 70" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      </svg>
+      <Icon aria-hidden size={ICON_SIZES[size]} strokeWidth={1.6} className="relative opacity-85 drop-shadow-sm" />
     </div>
   )
 }

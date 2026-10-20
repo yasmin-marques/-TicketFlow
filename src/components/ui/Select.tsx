@@ -32,7 +32,8 @@ export function Select<T extends string>({
     <span
       className={cn(
         'relative inline-flex items-center gap-1.5 text-sm',
-        !bare && 'border border-divider px-3 py-1.5 hover:border-text/45',
+        !bare &&
+          'transition-control min-h-9 rounded-control border border-divider bg-card px-3 py-1.5 shadow-xs hover:border-text/40 has-[:focus-visible]:border-accent',
         className,
       )}
     >

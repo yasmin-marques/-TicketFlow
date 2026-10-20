@@ -69,7 +69,7 @@ export function OrgEventsPage() {
     <>
       <OrgPageHeader title="Eventos" actions={<Button to="/org/eventos/novo">+ Criar evento</Button>} />
 
-      <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3 border-b-2 border-divider">
+      <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-divider">
         <Tabs
           label="Filtrar por status"
           idPrefix="evs"
@@ -84,7 +84,7 @@ export function OrgEventsPage() {
           onChange={(e) => setQ(e.target.value)}
           placeholder="Filtrar por nome…"
           aria-label="Filtrar eventos por nome"
-          className="mb-2 ml-auto w-full border border-divider bg-surface px-3 py-1.5 text-sm sm:w-64"
+          className="field mb-2 ml-auto sm:w-64"
         />
       </div>
 
@@ -134,13 +134,13 @@ export function OrgEventsPage() {
 function RowMenu({ event, ask }: { event: OrgEventSummary; ask: ReturnType<typeof useEventActions>['ask'] }) {
   const target = { id: event.id, title: event.title }
   const editable = event.status === 'draft' || event.status === 'published'
-  const item = 'block w-full px-3 py-2 text-left text-sm text-text no-underline hover:bg-text/7'
+  const item = 'rounded-sm block w-full px-3 py-2 text-left text-sm text-text no-underline hover:bg-text/7'
   return (
     <Popover
       align="right"
       panelClassName="w-48 p-1"
       renderTrigger={(props) => (
-        <button type="button" {...props} aria-label={`Ações de ${event.title}`} onClick={(e) => { e.stopPropagation(); props.onClick() }} className="grid size-8 place-items-center hover:bg-text/7">
+        <button type="button" {...props} aria-label={`Ações de ${event.title}`} onClick={(e) => { e.stopPropagation(); props.onClick() }} className="rounded-control grid size-8 place-items-center hover:bg-text/7">
           <MoreHorizontal size={18} aria-hidden />
         </button>
       )}

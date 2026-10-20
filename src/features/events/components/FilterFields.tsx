@@ -62,7 +62,7 @@ export function FilterFields({ values, onChange, categories, variant }: FilterFi
                   value={values.from}
                   max={values.to || undefined}
                   onChange={(e) => onChange({ from: e.target.value })}
-                  className="mt-1 block w-full border border-divider bg-transparent px-2 py-2 text-sm text-text"
+                  className="field mt-1"
                 />
               </label>
               <label className="text-muted text-xs">
@@ -72,7 +72,7 @@ export function FilterFields({ values, onChange, categories, variant }: FilterFi
                   value={values.to}
                   min={values.from || undefined}
                   onChange={(e) => onChange({ to: e.target.value })}
-                  className="mt-1 block w-full border border-divider bg-transparent px-2 py-2 text-sm text-text"
+                  className="field mt-1"
                 />
               </label>
             </div>

@@ -11,7 +11,7 @@ interface StepperProps {
 /** Stepper do checkout: 01 Ingressos · 02 Dados · 03 Pagamento · 04 Confirmação. */
 export function Stepper({ steps, current, completed }: StepperProps) {
   return (
-    <ol aria-label="Etapas da compra" className="m-0 flex list-none border-b-2 border-divider p-0">
+    <ol aria-label="Etapas da compra" className="m-0 flex list-none gap-1 rounded-card border border-line bg-card p-1 shadow-xs">
       {steps.map((label, i) => {
         const done = completed || i < current
         const active = !completed && i === current
@@ -20,12 +20,19 @@ export function Stepper({ steps, current, completed }: StepperProps) {
             key={label}
             aria-current={active ? 'step' : undefined}
             className={cn(
-              'flex flex-1 items-center gap-2.5 border-r border-neutral-400 px-3 py-3.5 text-[13px] font-semibold last:border-r-0 lg:px-10',
-              active ? 'bg-text text-bg' : done ? 'text-text' : 'text-neutral-700',
+              'transition-control flex flex-1 items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-semibold lg:px-6',
+              active ? 'bg-text text-bg shadow-sm' : done ? 'text-text' : 'text-neutral-600',
               !active && 'max-lg:justify-center',
             )}
           >
-            <span className="font-mono text-[11px]">{String(i + 1).padStart(2, '0')}</span>
+            <span
+              className={cn(
+                'tabular grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold',
+                active ? 'bg-accent text-bg' : done ? 'bg-success/12 text-success' : 'bg-neutral-200',
+              )}
+            >
+              {String(i + 1).padStart(2, '0')}
+            </span>
             <span className={cn(!active && 'max-sm:sr-only')}>
               {label}
               {done && <span aria-hidden> ✓</span>}

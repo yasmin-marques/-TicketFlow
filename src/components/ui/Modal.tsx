@@ -11,7 +11,7 @@ interface ModalProps {
   className?: string
 }
 
-/** Modal baseado em `<dialog>`: borda de 2px, sombra lg, foco preso, Esc fecha. */
+/** Modal baseado em `<dialog>`: cantos de painel, sombra lg, foco preso, Esc fecha. */
 export function Modal({ open, onClose, title, children, dismissible = true, className }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
 
@@ -34,9 +34,9 @@ export function Modal({ open, onClose, title, children, dismissible = true, clas
       onClick={(e) => {
         if (dismissible && e.target === ref.current) onClose()
       }}
-      className={cn('m-auto w-[min(440px,calc(100%-32px))] border-2 border-text bg-bg p-0 shadow-lg', className)}
+      className={cn('animate-pop-in m-auto w-[min(440px,calc(100%-32px))] rounded-panel border border-line bg-card p-0 shadow-lg', className)}
     >
-      <div className="p-[22px]">
+      <div className="p-6">
         <h2 id="modal-title" className="mb-1.5 text-[22px]">
           {title}
         </h2>

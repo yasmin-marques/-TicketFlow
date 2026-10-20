@@ -7,14 +7,14 @@ export function CancellationPolicy({ items }: { items: PolicyItem[] }) {
   if (items.length === 0) return null
   return (
     <EventSection title="Política de cancelamento">
-      <div className="border-t-2 border-divider">
+      <div className="surface px-4 lg:px-5">
         {items.map((item, i) => (
           <Collapsible
             key={item.title}
             title={item.title}
             indicator="plus"
             titleClassName="py-3 text-left font-semibold"
-            className={i === items.length - 1 ? 'border-b-2 border-divider' : 'border-b border-neutral-400'}
+            className={i === items.length - 1 ? undefined : 'border-b border-line'}
           >
             <p className="text-muted pb-3 text-sm">{item.body}</p>
           </Collapsible>

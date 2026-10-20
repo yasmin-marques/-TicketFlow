@@ -119,13 +119,13 @@ export function PaymentStep({ reservation, slots, draft, onBack, onPaid, onExpir
       <div role="status" aria-live="polite" className="max-w-[700px]">
         <h2 className="mb-6 text-[32px]">Pagamento</h2>
         {phase === 'processing' ? (
-          <div className="border-2 border-text p-9">
+          <div className="surface p-9">
             <Spinner className="mb-5" label="Processando pagamento" />
             <div className="text-2xl font-extrabold">Confirmando pagamento…</div>
             <p className="text-muted mt-1 text-sm">Não feche esta janela. Seus assentos seguem guardados.</p>
           </div>
         ) : (
-          <div className="border-2 border-text p-9">
+          <div className="surface p-9">
             <div className="mb-5 grid size-11 place-items-center bg-success text-2xl font-extrabold text-white" aria-hidden>
               ✓
             </div>
@@ -220,7 +220,7 @@ export function PaymentStep({ reservation, slots, draft, onBack, onPaid, onExpir
             </label>
             <select
               id="installments"
-              className="min-h-9 w-full border border-divider bg-surface px-2.5 py-1.5 text-sm hover:border-text/45"
+              className="field"
               {...register('card.installments', { valueAsNumber: true })}
             >
               {Array.from({ length: maxInstallments }, (_, i) => i + 1).map((n) => (
@@ -235,13 +235,13 @@ export function PaymentStep({ reservation, slots, draft, onBack, onPaid, onExpir
       )}
 
       {method === 'pix' && (
-        <div className="max-w-[700px] border-2 border-dashed border-neutral-500 p-4 text-sm">
+        <div className="max-w-[700px] callout p-4 text-sm">
           Na próxima tela você verá o QR Code e o código “copia e cola” do Pix. O pedido fica pendente por 30 minutos e os
           ingressos são emitidos quando o pagamento for confirmado.
         </div>
       )}
       {method === 'boleto' && (
-        <div className="max-w-[700px] border-2 border-dashed border-neutral-500 p-4 text-sm">
+        <div className="max-w-[700px] callout p-4 text-sm">
           O boleto vence em 3 dias. Os ingressos são emitidos após a compensação. Seus assentos ficam guardados até o
           vencimento.
         </div>

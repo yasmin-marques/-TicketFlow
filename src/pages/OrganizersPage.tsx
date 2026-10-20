@@ -28,9 +28,9 @@ export function OrganizersPage() {
         )}
         <Button to="/eventos" variant="secondary" size="lg">Ver eventos</Button>
       </div>
-      <ul className="m-0 mt-12 grid list-none gap-px border-2 border-text bg-text p-0 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="m-0 mt-12 grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
         {FEATURES.map(([t, d]) => (
-          <li key={t} className="bg-bg p-5">
+          <li key={t} className="surface p-5 lg:p-6">
             <h2 className="mb-1 text-xl">{t}</h2>
             <p className="text-muted m-0 text-sm">{d}</p>
           </li>

@@ -27,7 +27,7 @@ export function HomePage() {
         />
         <UpcomingEvents />
         <section aria-labelledby="categorias" className="pt-10 pb-12">
-          <h2 id="categorias" className="mb-4 text-[26px] lg:text-[32px]">
+          <h2 id="categorias" className="mb-4 text-[24px] lg:text-[32px]">
             Categorias
           </h2>
           <CategoryGrid />

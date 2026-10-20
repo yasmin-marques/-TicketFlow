@@ -16,28 +16,28 @@ export function EventFacts({ event }: { event: EventDetail }) {
   const place = `${event.venue.name}, ${event.venue.city}`
   return (
     <>
-      <dl className="m-0 my-7 hidden grid-cols-3 border-y-2 border-text lg:grid">
-        <div className="py-3.5">
+      <dl className="m-0 my-7 hidden grid-cols-3 gap-3 lg:grid">
+        <div className="surface px-4 py-3.5">
           <dt className="text-muted text-xs">Data</dt>
           <dd className="m-0 font-extrabold">{formatDateMedium(event.startsAt)}</dd>
         </div>
-        <div className="border-l border-neutral-400 py-3.5 pl-5">
+        <div className="surface px-4 py-3.5">
           <dt className="text-muted text-xs">Horário</dt>
           <dd className="tabular m-0 font-extrabold">{timeLabel(event)}</dd>
         </div>
-        <div className="border-l border-neutral-400 py-3.5 pl-5">
+        <div className="surface px-4 py-3.5">
           <dt className="text-muted text-xs">Classificação</dt>
           <dd className="m-0 font-extrabold">{ageLabel(event.ageRating)}</dd>
         </div>
       </dl>
 
-      <dl className="m-0 mt-3.5 grid grid-cols-[70px_1fr] border-t-2 border-text text-sm lg:hidden">
+      <dl className="surface m-0 mt-3.5 grid grid-cols-[70px_1fr] px-3.5 py-1 text-sm lg:hidden">
         <dt className="text-muted py-[9px]">Data</dt>
         <dd className="m-0 py-[9px] font-extrabold">{formatDateWithTime(event.startsAt)}</dd>
-        <dt className="text-muted border-t border-neutral-400 py-[9px]">Local</dt>
-        <dd className="m-0 border-t border-neutral-400 py-[9px] font-extrabold">{place}</dd>
-        <dt className="text-muted border-t border-neutral-400 py-[9px]">Idade</dt>
-        <dd className="m-0 border-t border-neutral-400 py-[9px] font-extrabold">{ageLabel(event.ageRating)}</dd>
+        <dt className="text-muted border-t border-line py-[9px]">Local</dt>
+        <dd className="m-0 border-t border-line py-[9px] font-extrabold">{place}</dd>
+        <dt className="text-muted border-t border-line py-[9px]">Idade</dt>
+        <dd className="m-0 border-t border-line py-[9px] font-extrabold">{ageLabel(event.ageRating)}</dd>
       </dl>
     </>
   )

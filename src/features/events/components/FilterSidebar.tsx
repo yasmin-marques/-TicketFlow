@@ -11,10 +11,10 @@ interface FilterSidebarProps {
 /** Coluna de filtros de 272px (desktop). Aplica na hora. */
 export function FilterSidebar({ values, onChange, onClear, categories }: FilterSidebarProps) {
   return (
-    <aside aria-label="Filtros" className="border-r-2 border-divider px-7 py-6">
+    <aside aria-label="Filtros" className="surface p-6">
       <div className="mb-[22px] flex items-baseline justify-between">
         <h2 className="m-0 text-[13px] tracking-[0.08em] uppercase">Filtros</h2>
-        <button type="button" onClick={onClear} className="text-[13px] text-accent underline underline-offset-[3px] hover:text-accent-700">
+        <button type="button" onClick={onClear} className="transition-control rounded-sm px-1.5 py-0.5 text-[13px] font-semibold text-accent-700 hover:bg-accent/8">
           Limpar
         </button>
       </div>

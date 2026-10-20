@@ -1,7 +1,7 @@
 import { Bell, Menu, X } from 'lucide-react'
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useMatches, useNavigate } from 'react-router-dom'
-import { Logo } from '@/components/ui/Logo'
+import { Logo, LogoMark } from '@/components/ui/Logo'
 import { Popover } from '@/components/ui/Popover'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { OrgNotices } from '@/features/org/components/OrgNotices'
@@ -39,7 +39,7 @@ export function useOrgTitle(title: string | null | undefined) {
 
 function SidebarNav({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
   return (
-    <nav aria-label="Painel do organizador" className="flex flex-col py-3">
+    <nav aria-label="Painel do organizador" className={cn('flex flex-col gap-0.5 py-3', collapsed ? 'px-2' : 'px-3')}>
       {NAV.map((item, i) => (
         <NavLink
           key={item.to}
@@ -48,9 +48,9 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
           title={collapsed ? item.label : undefined}
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-3 py-2.5 text-sm font-semibold no-underline transition-colors',
-              collapsed ? 'justify-center px-0' : 'px-5',
-              isActive ? 'bg-text text-bg' : 'text-text hover:bg-text/7',
+              'transition-control flex items-center gap-3 rounded-control py-2.5 text-sm font-semibold no-underline',
+              collapsed ? 'justify-center px-0' : 'px-3',
+              isActive ? 'bg-text text-bg shadow-sm' : 'text-text hover:bg-text/6',
             )
           }
         >
@@ -99,15 +99,21 @@ export function AdminLayout() {
         {/* Sidebar (desktop/tablet) */}
         <aside
           className={cn(
-            'sticky top-0 hidden h-dvh flex-none flex-col self-start border-r-2 border-divider bg-bg lg:flex',
+            'sticky top-0 hidden h-dvh flex-none flex-col self-start border-r border-line bg-card lg:flex',
             collapsed ? 'w-16' : 'w-52',
           )}
         >
-          <div className={cn('flex h-16 items-center gap-2 border-b-2 border-divider', collapsed ? 'justify-center' : 'px-5')}>
-            {collapsed ? <span aria-hidden className="size-3.5 bg-accent" /> : <Logo size="sm" />}
+          <div className={cn('flex h-16 items-center gap-2 border-b border-line', collapsed ? 'justify-center' : 'px-5')}>
+            {collapsed ? (
+              <Link to="/" aria-label="TicketFlow — página inicial" className="grid size-9 place-items-center rounded-control hover:bg-text/6">
+                <LogoMark size={18} />
+              </Link>
+            ) : (
+              <Logo size="sm" badge="Org" />
+            )}
           </div>
           <SidebarNav collapsed={collapsed} />
-          <div className={cn('mt-auto border-t-2 border-divider py-3.5 text-[13px]', collapsed ? 'px-2 text-center' : 'px-5')}>
+          <div className={cn('mt-auto border-t border-line py-3.5 text-[13px]', collapsed ? 'px-2 text-center' : 'px-5')}>
             {!collapsed && (
               <>
                 <div className="kicker text-[11px] tracking-[0.1em] text-neutral-700">Organização</div>
@@ -118,7 +124,7 @@ export function AdminLayout() {
               type="button"
               onClick={() => setPref(collapsed ? 'open' : 'collapsed')}
               aria-pressed={collapsed}
-              className={cn('text-neutral-700 hover:text-text', !collapsed && 'mt-2.5')}
+              className={cn('transition-control rounded-sm px-1.5 py-0.5 text-neutral-700 hover:bg-text/6 hover:text-text', !collapsed && '-ml-1.5 mt-2')}
             >
               {collapsed ? '›' : '‹ Recolher menu'}
               {collapsed && <span className="sr-only">Expandir menu</span>}
@@ -132,16 +138,16 @@ export function AdminLayout() {
           aria-label="Menu do painel"
           onClose={() => setDrawer(false)}
           onClick={(e) => e.target === drawerRef.current && setDrawer(false)}
-          className="m-0 h-dvh max-h-none w-64 max-w-[80vw] border-r-2 border-text bg-bg p-0"
+          className="m-0 h-dvh max-h-none w-64 max-w-[80vw] rounded-r-panel border-r border-line bg-card p-0 shadow-lg"
         >
-          <div className="flex h-14 items-center justify-between border-b-2 border-divider px-4">
-            <Logo size="sm" />
-            <button type="button" aria-label="Fechar menu" onClick={() => setDrawer(false)} className="grid size-9 place-items-center hover:bg-text/7">
+          <div className="flex h-14 items-center justify-between border-b border-line px-4">
+            <Logo size="sm" badge="Org" />
+            <button type="button" aria-label="Fechar menu" onClick={() => setDrawer(false)} className="grid size-9 place-items-center rounded-control hover:bg-text/7">
               <X size={18} aria-hidden />
             </button>
           </div>
           <SidebarNav collapsed={false} onNavigate={() => setDrawer(false)} />
-          <div className="mt-4 border-t-2 border-divider px-5 py-3.5 text-[13px]">
+          <div className="mt-4 border-t border-line px-5 py-3.5 text-[13px]">
             <div className="kicker text-[11px] text-neutral-700">Organização</div>
             <div className="font-semibold">Pulse Produções</div>
             <Link to="/" className="mt-3 block text-neutral-700 no-underline">
@@ -151,9 +157,9 @@ export function AdminLayout() {
         </dialog>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b-2 border-divider bg-bg px-4 lg:h-16 lg:gap-5 lg:px-8">
+          <header className="glass-bar sticky top-0 z-20 flex h-14 items-center gap-3 px-4 lg:h-16 lg:gap-5 lg:px-8">
             {mobile && (
-              <button type="button" aria-label="Abrir menu" onClick={() => setDrawer(true)} className="grid size-9 place-items-center hover:bg-text/7">
+              <button type="button" aria-label="Abrir menu" onClick={() => setDrawer(true)} className="grid size-9 place-items-center rounded-control hover:bg-text/7">
                 <Menu size={20} aria-hidden />
               </button>
             )}
@@ -172,9 +178,9 @@ export function AdminLayout() {
             <Popover
               align="right"
               panelClassName="w-56 p-2"
-              className="hidden border-l-2 border-divider pl-5 sm:block"
+              className="hidden border-l border-line pl-5 sm:block"
               renderTrigger={(props) => (
-                <button type="button" {...props} className="text-sm font-semibold hover:text-accent">
+                <button type="button" {...props} className="transition-control rounded-control px-2 py-1.5 text-sm font-semibold hover:bg-text/6">
                   Pulse Produções ▾
                 </button>
               )}
@@ -182,19 +188,19 @@ export function AdminLayout() {
               {(close) => (
                 <ul className="m-0 list-none p-0 text-sm">
                   <li>
-                    <Link to="/" onClick={close} className="block px-3 py-2 text-text no-underline hover:bg-text/7">
+                    <Link to="/" onClick={close} className="block rounded-sm px-3 py-2 text-text no-underline hover:bg-text/7">
                       Ver o site
                     </Link>
                   </li>
                   <li>
-                    <Link to="/conta" onClick={close} className="block px-3 py-2 text-text no-underline hover:bg-text/7">
+                    <Link to="/conta" onClick={close} className="block rounded-sm px-3 py-2 text-text no-underline hover:bg-text/7">
                       Minha conta
                     </Link>
                   </li>
                   <li>
                     <button
                       type="button"
-                      className="block w-full px-3 py-2 text-left hover:bg-text/7"
+                      className="block w-full rounded-sm px-3 py-2 text-left hover:bg-text/7"
                       onClick={async () => {
                         close()
                         await logout()
@@ -210,7 +216,7 @@ export function AdminLayout() {
             <Link
               to="/conta"
               aria-label={`Minha conta — ${user?.name ?? ''}`}
-              className="grid size-[34px] flex-none place-items-center bg-text text-[13px] font-extrabold text-bg no-underline hover:bg-neutral-800"
+              className="transition-control grid size-[34px] flex-none place-items-center rounded-full bg-text text-[13px] font-extrabold text-bg no-underline hover:bg-neutral-800 hover:shadow-md"
             >
               {initials(user?.name ?? '')}
             </Link>
@@ -228,9 +234,9 @@ function NoticeButton(props: Record<string, unknown>) {
   const { data } = useOrgNotices()
   const unread = data?.filter((n) => !n.read).length ?? 0
   return (
-    <button type="button" {...props} aria-label={unread ? `Avisos (${unread} não lidos)` : 'Avisos'} className="relative grid size-9 place-items-center hover:bg-text/7">
+    <button type="button" {...props} aria-label={unread ? `Avisos (${unread} não lidos)` : 'Avisos'} className="relative grid size-9 place-items-center rounded-control hover:bg-text/7">
       <Bell size={18} aria-hidden />
-      {unread > 0 && <span aria-hidden className="absolute top-1.5 right-1.5 size-[7px] bg-accent" />}
+      {unread > 0 && <span aria-hidden className="absolute top-1.5 right-1.5 size-2 rounded-full bg-accent ring-2 ring-bg" />}
     </button>
   )
 }

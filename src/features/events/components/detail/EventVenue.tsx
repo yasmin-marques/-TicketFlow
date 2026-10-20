@@ -12,9 +12,9 @@ export function EventVenue({ venue }: { venue: VenueDetail }) {
   return (
     <EventSection title="Local e como chegar">
       <div className="grid gap-6 sm:grid-cols-2">
-        <div role="img" aria-label={`Mapa de ${venue.name}`} className="bg-map-grid relative h-[180px]">
-          <span aria-hidden className="absolute top-1/2 left-1/2 -m-[9px] size-[18px] bg-accent" />
-          <span aria-hidden className="absolute bottom-1.5 left-2 font-mono text-[10px] font-semibold text-neutral-700">
+        <div role="img" aria-label={`Mapa de ${venue.name}`} className="bg-map-grid relative h-[180px] overflow-hidden rounded-card border border-line">
+          <span aria-hidden className="absolute top-1/2 left-1/2 -m-[11px] size-[22px] rounded-full bg-accent shadow-md ring-4 ring-accent/20" />
+          <span aria-hidden className="absolute bottom-2 left-2.5 rounded-xs bg-card/80 px-1.5 font-mono text-[10px] font-semibold text-neutral-700">
             MAPA
           </span>
         </div>

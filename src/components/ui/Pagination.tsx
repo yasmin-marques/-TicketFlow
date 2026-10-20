@@ -22,7 +22,7 @@ function pageList(page: number, totalPages: number): Array<number | 'gap'> {
   return out
 }
 
-const cell = 'flex h-[34px] min-w-[34px] items-center justify-center'
+const cell = 'transition-control flex h-9 min-w-9 items-center justify-center rounded-control'
 
 export function Pagination({ page, totalPages, total, pageSize, onChange, className }: PaginationProps) {
   if (total === 0) return null
@@ -33,7 +33,7 @@ export function Pagination({ page, totalPages, total, pageSize, onChange, classN
     <nav
       aria-label="Paginação"
       className={cn(
-        'mt-8 flex flex-wrap items-center justify-between gap-3 border-t-2 border-divider pt-4 text-sm font-semibold',
+        'mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-divider pt-4 text-sm font-semibold',
         className,
       )}
     >
@@ -57,7 +57,7 @@ export function Pagination({ page, totalPages, total, pageSize, onChange, classN
                   className={cn(
                     cell,
                     'tabular transition-colors',
-                    p === page ? 'bg-text text-bg' : 'border border-divider hover:bg-text/7',
+                    p === page ? 'bg-text text-bg shadow-sm' : 'border border-divider bg-card hover:border-text/35 hover:bg-neutral-100',
                   )}
                 >
                   {p}
@@ -70,7 +70,7 @@ export function Pagination({ page, totalPages, total, pageSize, onChange, classN
               <button
                 type="button"
                 onClick={() => onChange(page + 1)}
-                className={cn(cell, 'border border-divider px-3 transition-colors hover:bg-text/7')}
+                className={cn(cell, 'border border-divider bg-card px-3.5 hover:border-text/35 hover:bg-neutral-100')}
               >
                 Próxima →
               </button>

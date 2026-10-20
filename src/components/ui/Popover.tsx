@@ -54,7 +54,7 @@ export function Popover({ renderTrigger, children, align = 'left', className, pa
           id={id}
           role="dialog"
           className={cn(
-            'absolute top-full z-30 mt-1 border-2 border-text bg-bg p-4 shadow-lg',
+            'animate-pop-in absolute top-full z-30 mt-2 rounded-card border border-line bg-card p-4 shadow-lg',
             align === 'left' ? 'left-0' : 'right-0',
             panelClassName,
           )}

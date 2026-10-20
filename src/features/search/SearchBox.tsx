@@ -87,7 +87,7 @@ export function SearchBox({ className }: { className?: string }) {
           e.preventDefault()
           submit()
         }}
-        className="flex items-center gap-2 border border-divider px-3 py-2 text-sm focus-within:border-accent"
+        className="transition-control flex items-center gap-2 rounded-full border border-divider bg-card px-4 py-2 text-sm shadow-xs hover:border-text/40 focus-within:border-accent focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_14%,transparent)]"
       >
         <Search size={16} aria-hidden className="shrink-0 text-neutral-700" />
         <input
@@ -113,7 +113,7 @@ export function SearchBox({ className }: { className?: string }) {
         />
         <kbd
           aria-hidden
-          className="border border-neutral-400 px-1.5 py-px font-mono text-[11px] font-semibold text-neutral-700"
+          className="rounded-xs border border-neutral-300 bg-neutral-100 px-1.5 py-px font-mono text-[11px] font-semibold text-neutral-700"
         >
           /
         </kbd>
@@ -123,7 +123,7 @@ export function SearchBox({ className }: { className?: string }) {
         <ul
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-full z-40 mt-1 border-2 border-text bg-bg shadow-lg"
+          className="animate-pop-in absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-card border border-line bg-card shadow-lg"
         >
           {suggestions.map((s, i) => (
             <li
@@ -138,7 +138,7 @@ export function SearchBox({ className }: { className?: string }) {
                 navigate(`/eventos/${s.slug}`)
               }}
               className={cn(
-                'cursor-pointer border-b border-neutral-300 px-3 py-2 last:border-b-0',
+                'cursor-pointer border-b border-line px-3 py-2 last:border-b-0',
                 i === active && 'bg-text/7',
               )}
             >

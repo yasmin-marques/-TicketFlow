@@ -5,9 +5,9 @@ import { formatPrice } from '@/lib/format'
 /** Cabeçalho de página do painel: H2 + subtítulo à esquerda, ações à direita. */
 export function OrgPageHeader({ title, subtitle, actions }: { title: string; subtitle?: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
-        <h2 className="m-0 text-[26px] lg:text-[32px]">{title}</h2>
+        <h2 className="m-0 text-[26px] lg:text-[30px]">{title}</h2>
         {subtitle && <div className="text-muted text-[13px]">{subtitle}</div>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
@@ -21,22 +21,17 @@ export interface KpiItem {
   sub?: ReactNode
 }
 
-/** Faixa de indicadores entre duas réguas de 2px (separadores finos entre colunas). */
+/** Faixa de indicadores: um card por KPI. */
 export function KpiStrip({ items, className }: { items: KpiItem[]; className?: string }) {
   return (
-    <dl className={cn('m-0 grid grid-cols-2 gap-px border-y-2 border-text bg-neutral-400 lg:grid-cols-4', className)}>
+    <dl className={cn('m-0 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4', className)}>
       {items.map((k) => (
-        <div key={k.label} className="bg-bg py-[18px] pr-3 pl-3 lg:pl-6 lg:first:pl-0">
-          <dt className="text-muted text-xs">{k.label}</dt>
-          <dd className="tabular m-0 text-[30px] leading-[1.1] font-extrabold tracking-[-0.03em] lg:text-[40px]">{k.value}</dd>
-          {k.sub && <div className="mt-0.5 text-xs">{k.sub}</div>}
+        <div key={k.label} className="surface px-4 py-4 lg:px-5 lg:py-[18px]">
+          <dt className="text-muted text-xs font-semibold">{k.label}</dt>
+          <dd className="tabular m-0 mt-1 text-[26px] leading-[1.1] font-extrabold tracking-[-0.03em] lg:text-[34px]">{k.value}</dd>
+          {k.sub && <div className="mt-1 text-xs">{k.sub}</div>}
         </div>
       ))}
-      {/* Completa a última linha com células vazias para não aparecer fundo cinza. */}
-      {Array.from({ length: (4 - (items.length % 4)) % 4 }, (_, i) => (
-        <div key={`pad-${i}`} aria-hidden className="hidden bg-bg lg:block" />
-      ))}
-      {items.length % 2 === 1 && <div aria-hidden className="bg-bg lg:hidden" />}
     </dl>
   )
 }

@@ -127,7 +127,7 @@ export function TicketSelectionPage() {
                 actions={<Button to={`/eventos/${slug}`} variant="secondary">Voltar ao evento</Button>}
               />
             ) : (
-              <div className="border-t-2 border-text">
+              <div className="border-t border-divider">
                 {sales.ticketTypes.map((t) => (
                   <TicketTypeRow
                     key={t.id}
@@ -156,7 +156,7 @@ export function TicketSelectionPage() {
         )}
       </div>
 
-      <div className="lg:border-l-2 lg:border-divider lg:p-8 max-lg:pb-28">
+      <div className="lg:p-8 max-lg:pb-28">
         <OrderSummary
           sticky
           lines={lines.map((l) => ({ label: `${l.qty} × ${l.type.name}`, amount: l.qty * l.type.price }))}
@@ -167,7 +167,7 @@ export function TicketSelectionPage() {
           {cta}
         </OrderSummary>
         {/* Mobile: barra fixa com total e ação. */}
-        <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-3.5 border-t-2 border-text bg-bg px-4 py-3 lg:hidden">
+        <div className="floating-bar fixed inset-x-0 bottom-0 z-20 flex items-center gap-3.5 px-4 py-3 lg:hidden">
           <div className="shrink-0">
             <div className="text-muted text-[11px]">
               {totals.quantity} {totals.quantity === 1 ? 'ingresso' : 'ingressos'}

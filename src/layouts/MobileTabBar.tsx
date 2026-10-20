@@ -1,36 +1,47 @@
+import { Compass, House, Ticket, UserRound } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 
 const items = [
-  { to: '/', label: 'Eventos', end: true },
-  { to: '/eventos', label: 'Explorar', end: false },
-  { to: '/meus-ingressos', label: 'Ingressos', end: false },
-  { to: '/conta', label: 'Conta', end: false },
+  { to: '/', label: 'Eventos', end: true, icon: House },
+  { to: '/eventos', label: 'Explorar', end: false, icon: Compass },
+  { to: '/meus-ingressos', label: 'Ingressos', end: false, icon: Ticket },
+  { to: '/conta', label: 'Conta', end: false, icon: UserRound },
 ]
 
-/** Navegação inferior do mobile (4 colunas, indicador de 4px em accent). */
+/** Navegação inferior do mobile (4 colunas, ícone + rótulo, pílula no item ativo). */
 export function MobileTabBar({ className }: { className?: string }) {
   return (
     <nav
       aria-label="Navegação principal"
       className={cn(
-        'fixed inset-x-0 bottom-0 z-20 grid h-[60px] grid-cols-4 border-t-2 border-text bg-bg text-center text-[11px] font-semibold',
+        'floating-bar fixed inset-x-0 bottom-0 z-20 grid h-[60px] grid-cols-4 pb-[env(safe-area-inset-bottom)] text-center text-[11px] font-semibold',
         className,
       )}
     >
-      {items.map((item) => (
+      {items.map(({ icon: Icon, ...item }) => (
         <NavLink
           key={item.to}
           to={item.to}
           end={item.end}
           className={({ isActive }) =>
-            cn(
-              'flex items-center justify-center no-underline',
-              isActive ? '-mt-0.5 border-t-4 border-accent text-text' : 'text-muted',
-            )
+            cn('group flex flex-col items-center justify-center gap-0.5 no-underline', isActive ? 'text-text' : 'text-muted')
           }
         >
-          {item.label}
+          {({ isActive }) => (
+            <>
+              <span
+                aria-hidden
+                className={cn(
+                  'transition-control grid h-7 w-12 place-items-center rounded-full',
+                  isActive ? 'bg-accent-100 text-accent-700' : 'group-active:bg-text/6',
+                )}
+              >
+                <Icon size={19} strokeWidth={isActive ? 2.4 : 2} />
+              </span>
+              {item.label}
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

@@ -71,7 +71,7 @@ export function MyTicketsPage() {
               <TicketCard key={t.id} ticket={t} />
             ))}
             {active.key === 'proximos' && (
-              <div className="flex flex-col justify-center border-2 border-dashed border-neutral-500 p-5 text-sm">
+              <div className="flex flex-col justify-center callout p-5 text-sm">
                 <b className="text-[17px]">Quer mais?</b>
                 <span className="text-muted mt-1 mb-3">Descubra o que está rolando perto de você.</span>
                 <Button to="/eventos" variant="secondary" className="w-fit">

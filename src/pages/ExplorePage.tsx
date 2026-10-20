@@ -47,7 +47,7 @@ function ExploreContent({ categorySlug, categoryName, pending }: ExploreContentP
 
   return (
     <>
-      <section className="border-b-2 border-divider pt-6 pb-6 lg:pt-8">
+      <section className="pt-6 pb-2 lg:pt-8 lg:pb-4">
         <Container>
           {categoryName && <div className="kicker mb-1 text-[11px] text-accent-700">Categoria</div>}
           <h1 className="mb-4 text-[32px] lg:text-[42px]">{categoryName ?? 'Explorar eventos'}</h1>
@@ -58,11 +58,11 @@ function ExploreContent({ categorySlug, categoryName, pending }: ExploreContentP
         </Container>
       </section>
 
-      <Container className="lg:grid lg:grid-cols-[272px_1fr] lg:px-0">
-        <div className="hidden lg:block">
+      <Container className="lg:grid lg:grid-cols-[280px_1fr] lg:items-start lg:gap-8">
+        <div className="hidden py-6 lg:sticky lg:top-16 lg:block">
           <FilterSidebar values={filters} categories={categories} onChange={update} onClear={clear} />
         </div>
-        <div className="py-6 lg:px-10 lg:pb-8">
+        <div className="min-w-0 py-6 lg:pb-10">
           <ResultsToolbar
             total={list.data?.total}
             filters={filters}

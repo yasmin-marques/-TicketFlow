@@ -88,7 +88,7 @@ export function EventWizardPage() {
         subtitle={event ? <>Última alteração: {new Date(event.updatedAt).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</> : 'Comece pelas informações básicas'}
         actions={<Link to="/org/eventos" className="text-sm font-semibold">← Eventos</Link>}
       />
-      <div className="-mx-4 mb-6 lg:-mx-8">
+      <div className="mb-6">
         <Stepper steps={WIZARD_STEPS} current={step - 1} />
       </div>
 

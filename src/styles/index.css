@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 @import './tokens.css';
 
@@ -16,6 +16,9 @@
     font-size: 15px;
     line-height: 1.55;
     font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
@@ -27,13 +30,14 @@
     font-family: var(--font-heading);
     font-weight: var(--font-heading-weight);
     line-height: 1.12;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
     margin: 0 0 var(--space-2);
+    text-wrap: balance;
   }
   h1 { font-size: 42px; }
   h2 { font-size: 32px; }
-  h3 { font-size: 25px; }
-  h4 { font-size: 20px; }
+  h3 { font-size: 25px; font-weight: 700; }
+  h4 { font-size: 20px; font-weight: 700; }
   h5 { font-size: 16px; }
   h6 {
     font-size: 13px;
@@ -52,6 +56,7 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+    border-radius: var(--radius-xs);
   }
 
   ::selection {
@@ -59,7 +64,143 @@
   }
 }
 
+/* ── Componentes do design system ─────────────────────────────────────
+ * Em @layer components para que utilitários (p-*, shadow-*, rounded-*,
+ * w-*) sempre possam sobrescrevê-los na marcação.
+ */
+@layer components {
+  /*
+   * Superfícies. `surface` é o card padrão (fundo elevado, borda leve, raio de
+   * card, sombra discreta); `surface-hover` acrescenta a elevação no hover de
+   * cards clicáveis; `surface-muted` é o painel embutido sem sombra.
+   */
+  .surface {
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-xs);
+  }
+  .surface-muted {
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+  }
+  .surface-hover {
+    transition:
+      box-shadow 200ms var(--ease-out),
+      transform 200ms var(--ease-out),
+      border-color 200ms var(--ease-out);
+    &:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--color-text) 16%, transparent);
+    }
+  }
+
+  /*
+   * Campo de formulário (input/textarea/date): fundo elevado, raio de controle,
+   * anel de foco suave em accent. Erro: acrescente `border-accent-700`.
+   */
+  .field {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-control);
+    background: var(--color-card);
+    color: var(--color-text);
+    font-size: 14px;
+    caret-color: var(--color-accent);
+    box-shadow: var(--shadow-xs);
+    transition:
+      border-color 160ms var(--ease-out),
+      box-shadow 160ms var(--ease-out);
+    &::placeholder { color: var(--color-neutral-500); }
+    &:hover:not(:disabled) { border-color: color-mix(in srgb, var(--color-text) 40%, transparent); }
+    &:focus-visible {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 14%, transparent);
+    }
+    &:disabled { cursor: not-allowed; background: var(--color-surface); opacity: 0.6; }
+  }
+
+  /* Nota/aviso secundário com borda tracejada (dados de teste, instruções). */
+  .callout {
+    border: 1.5px dashed var(--color-neutral-400);
+    border-radius: var(--radius-card);
+    background: color-mix(in srgb, var(--color-card) 55%, transparent);
+  }
+
+  /* Barra fixa no rodapé mobile (CTA de compra, tab bar). */
+  .floating-bar {
+    border-top: 1px solid var(--color-line);
+    background: color-mix(in srgb, var(--color-card) 94%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    box-shadow: 0 -6px 24px color-mix(in srgb, #2d2b2b 8%, transparent);
+  }
+
+  /* Barra fixa no topo (headers): fundo translúcido com desfoque. */
+  .glass-bar {
+    border-bottom: 1px solid var(--color-line);
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+  }
+
+  /*
+   * Ingresso: picote tracejado entre o corpo e o canhoto, com dois "furos"
+   * semicirculares (cor do fundo da página) nas pontas do picote.
+   */
+  .ticket-shape {
+    position: relative;
+    overflow: hidden;
+  }
+  .ticket-stub {
+    position: relative;
+    border-left: 2px dashed var(--color-neutral-300);
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      left: -9px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: var(--color-bg);
+      box-shadow: inset 0 0 0 1px var(--color-line);
+    }
+    &::before { top: -9px; }
+    &::after { bottom: -9px; }
+  }
+
+  /* Assento do mapa: encosto mais arredondado que o assento. */
+  .seat-shape {
+    border-radius: var(--radius-sm) var(--radius-sm) var(--radius-xs) var(--radius-xs);
+  }
+
+  .skeleton {
+    background: var(--color-neutral-300);
+    border-radius: var(--radius-sm);
+    animation: tf-pulse 1.4s ease-in-out infinite;
+  }
+}
+
 /* ── Utilities do design system ───────────────────────────────────────── */
+
+/* Fundo da vitrine das telas de acesso: faixas de "fluxo" em accent. */
+@utility auth-flow {
+  background:
+    radial-gradient(120% 70% at 110% 0%, color-mix(in srgb, var(--color-accent) 55%, transparent) 0%, transparent 60%),
+    radial-gradient(90% 60% at -10% 110%, color-mix(in srgb, var(--color-accent-2) 35%, transparent) 0%, transparent 60%);
+  opacity: 0.9;
+}
+
+/* Transição padrão de controles (cor, borda, sombra, escala). */
+@utility transition-control {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 160ms;
+  transition-timing-function: var(--ease-out);
+}
 
 /* Placeholder de fotografia P&B: listras diagonais do protótipo. */
 @utility bg-stripes {
@@ -108,11 +249,6 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
 }
-@utility skeleton {
-  background: var(--color-neutral-300);
-  animation: tf-pulse 1.4s ease-in-out infinite;
-}
-
 /* "Exportar PDF" usa a impressão do navegador: esconde a moldura do painel. */
 @media print {
   aside,
@@ -151,7 +287,49 @@ dialog {
   max-height: none;
 }
 dialog::backdrop {
-  background: color-mix(in srgb, var(--color-text) 55%, transparent);
+  background: color-mix(in srgb, var(--color-text) 45%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+/* Entrada de modais, drawers e popovers. */
+@keyframes tf-pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tf-sheet-in {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes tf-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@utility animate-pop-in {
+  animation: tf-pop-in 220ms var(--ease-out);
+}
+@utility animate-sheet-in {
+  animation: tf-sheet-in 260ms var(--ease-out);
+}
+@utility animate-fade-in {
+  animation: tf-fade-in 300ms var(--ease-out);
+}
+
+/* Carrossel da home: entrada do texto do slide e barra de progresso do indicador. */
+@keyframes tf-slide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tf-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@utility animate-slide-in {
+  animation: tf-slide-in 480ms var(--ease-out) both;
+}
+@utility animate-carousel-progress {
+  animation-name: tf-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
 }
 
 /* Range duplo (filtro de preço): thumbs quadrados em accent. */
@@ -175,8 +353,9 @@ dialog::backdrop {
   width: var(--thumb, 16px);
   height: var(--thumb, 16px);
   background: var(--color-accent);
-  border: 0;
-  border-radius: 0;
+  border: 3px solid var(--color-card);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
   cursor: grab;
 }
 .range-thumb::-moz-range-thumb {
@@ -184,8 +363,9 @@ dialog::backdrop {
   width: var(--thumb, 16px);
   height: var(--thumb, 16px);
   background: var(--color-accent);
-  border: 0;
-  border-radius: 0;
+  border: 3px solid var(--color-card);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
   cursor: grab;
 }
 .range-thumb:focus-visible::-webkit-slider-thumb {

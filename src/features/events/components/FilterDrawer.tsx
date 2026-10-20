@@ -53,7 +53,7 @@ export function FilterDrawer({ open, onClose, filters, defaults, categories, onA
     <Drawer open={open} onClose={onClose} title="Filtros">
       <div className="flex items-baseline justify-between">
         <h2 className="m-0 text-xl">Filtros</h2>
-        <button type="button" onClick={clear} className="text-[13px] text-accent underline underline-offset-[3px]">
+        <button type="button" onClick={clear} className="rounded-sm px-1.5 py-0.5 text-[13px] font-semibold text-accent-700">
           Limpar
         </button>
       </div>

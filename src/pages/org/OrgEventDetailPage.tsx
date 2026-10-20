@@ -91,7 +91,7 @@ export function OrgEventDetailPage() {
             <div className="mt-8 grid gap-8 lg:grid-cols-2">
               <section aria-labelledby="det-info">
                 <h3 id="det-info" className="mb-2 text-xl">Informações</h3>
-                <dl className="m-0 grid grid-cols-[130px_1fr] border-t-2 border-text text-sm">
+                <dl className="m-0 grid grid-cols-[130px_1fr] border-t border-divider text-sm">
                   {[
                     ['Link', `/eventos/${event.slug}`],
                     ['Início', formatDateWithTime(event.startsAt)],
@@ -103,8 +103,8 @@ export function OrgEventDetailPage() {
                     ['Capa', event.coverName ?? 'Sem imagem'],
                   ].map(([k, v], i) => (
                     <div key={k} className="contents">
-                      <dt className={cn('text-muted py-2', i && 'border-t border-neutral-400')}>{k}</dt>
-                      <dd className={cn('m-0 py-2 font-semibold break-words', i && 'border-t border-neutral-400')}>{v}</dd>
+                      <dt className={cn('text-muted py-2', i && 'border-t border-line')}>{k}</dt>
+                      <dd className={cn('m-0 py-2 font-semibold break-words', i && 'border-t border-line')}>{v}</dd>
                     </div>
                   ))}
                 </dl>

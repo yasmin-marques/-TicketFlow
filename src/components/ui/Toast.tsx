@@ -46,7 +46,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="pointer-events-auto flex w-full max-w-md items-center justify-between gap-6 bg-text px-4 py-3 text-sm text-bg shadow-lg"
+            className="animate-pop-in pointer-events-auto flex w-full max-w-md items-center justify-between gap-6 rounded-card bg-text px-4 py-3 text-sm text-bg shadow-lg"
           >
             <span>{t.message}</span>
             {t.actionLabel && (

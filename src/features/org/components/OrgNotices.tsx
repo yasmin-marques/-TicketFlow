@@ -17,7 +17,7 @@ export function OrgNotices({ onNavigate }: { onNavigate: () => void }) {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between border-b-2 border-text px-4 py-3">
+      <div className="flex items-baseline justify-between border-b border-divider px-4 py-3">
         <h2 className="m-0 text-[13px] tracking-[0.08em] uppercase">Avisos</h2>
         {unread && (
           <button type="button" className="text-xs font-semibold text-accent-700 underline" onClick={() => markRead.mutate()}>
@@ -41,7 +41,7 @@ export function OrgNotices({ onNavigate }: { onNavigate: () => void }) {
               <>
                 <div className="flex items-center justify-between gap-2">
                   <b className="text-sm">
-                    {!n.read && <span aria-hidden className="mr-1.5 inline-block size-[7px] bg-accent" />}
+                    {!n.read && <span aria-hidden className="mr-1.5 inline-block size-2 rounded-full bg-accent" />}
                     {n.title}
                   </b>
                   <span className="text-muted tabular text-[11px]">{formatDateShort(n.at)}</span>
@@ -50,7 +50,7 @@ export function OrgNotices({ onNavigate }: { onNavigate: () => void }) {
               </>
             )
             return (
-              <li key={n.id} className="border-b border-neutral-300 last:border-b-0">
+              <li key={n.id} className="border-b border-line last:border-b-0">
                 {n.href ? (
                   <Link to={n.href} onClick={onNavigate} className="block px-4 py-3 text-text no-underline hover:bg-text/4">
                     {body}

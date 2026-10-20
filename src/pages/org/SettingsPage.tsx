@@ -172,9 +172,9 @@ function TeamTab({ settings }: { settings: OrgSettings }) {
   })
   return (
     <div>
-      <ul className="m-0 list-none border-t-2 border-text p-0">
+      <ul className="m-0 list-none border-t border-divider p-0">
         {settings.members.map((m) => (
-          <li key={m.id} className="flex items-center justify-between gap-3 border-b border-neutral-400 py-3">
+          <li key={m.id} className="flex items-center justify-between gap-3 border-b border-line py-3">
             <div className="min-w-0">
               <b>{m.name}</b>
               <div className="text-muted truncate text-sm">{m.email}</div>
@@ -207,7 +207,7 @@ function TeamTab({ settings }: { settings: OrgSettings }) {
         <TextField label="E-mail" type="email" error={errors.email?.message} {...register('email')} />
         <div>
           <label htmlFor="role" className="mb-[5px] block text-xs text-text/70">Papel</label>
-          <select id="role" className="min-h-9 w-full border border-divider bg-surface px-2.5 py-1.5 text-sm" {...register('role')}>
+          <select id="role" className="field" {...register('role')}>
             <option value="CHECKIN">Portaria</option>
             <option value="MANAGER">Gerente</option>
           </select>
@@ -245,11 +245,11 @@ function WebhooksTab({ settings }: { settings: OrgSettings }) {
     <div>
       <p className="text-muted text-sm">O TicketFlow envia um POST assinado a cada evento. A entrega real e a assinatura (HMAC) são responsabilidade do backend; aqui é uma simulação.</p>
       {settings.webhooks.length === 0 ? (
-        <p className="text-muted border-2 border-dashed border-neutral-500 p-4 text-sm">Nenhum webhook configurado.</p>
+        <p className="text-muted callout p-4 text-sm">Nenhum webhook configurado.</p>
       ) : (
-        <ul className="m-0 list-none border-t-2 border-text p-0">
+        <ul className="m-0 list-none border-t border-divider p-0">
           {settings.webhooks.map((w: OrgWebhook) => (
-            <li key={w.id} className="flex items-center justify-between gap-3 border-b border-neutral-400 py-3">
+            <li key={w.id} className="flex items-center justify-between gap-3 border-b border-line py-3">
               <div className="min-w-0">
                 <div className="truncate font-mono text-[13px]">{w.url}</div>
                 <div className="text-muted text-xs">{w.events.join(' · ')}</div>

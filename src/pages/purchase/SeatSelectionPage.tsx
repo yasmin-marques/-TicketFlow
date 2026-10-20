@@ -138,7 +138,7 @@ export function SeatSelectionPage() {
             <SeatLegend className="mt-4" />
 
             {conflict && (
-              <div role="alert" className="mt-4 flex flex-wrap items-center gap-3 bg-text px-4 py-3 text-[13px] text-bg lg:fixed lg:inset-x-0 lg:bottom-0 lg:z-30 lg:mt-0 lg:px-8">
+              <div role="alert" className="animate-pop-in mt-4 flex flex-wrap items-center gap-3 rounded-card bg-text px-4 py-3 text-[13px] text-bg shadow-lg lg:fixed lg:inset-x-8 lg:bottom-6 lg:z-30 lg:mt-0 lg:px-8">
                 <b className="text-accent-400">409 · Conflito</b>
                 <span>
                   {conflict.message} O mapa já foi atualizado
@@ -168,10 +168,10 @@ export function SeatSelectionPage() {
         </p>
       </div>
 
-      <aside aria-label="Seus assentos" className="border-divider px-4 pb-28 lg:flex lg:flex-col lg:border-l-2 lg:p-7 lg:pb-7">
+      <aside aria-label="Seus assentos" className="px-4 pb-28 lg:m-4 lg:flex lg:flex-col lg:rounded-panel lg:border lg:border-line lg:bg-card lg:p-7 lg:shadow-sm">
         <h2 className="mb-2 text-[13px] tracking-[0.08em] uppercase">Seus assentos</h2>
         {selectedList.length === 0 ? (
-          <div className="border-t-2 border-text py-4 text-sm">
+          <div className="border-t border-divider py-4 text-sm">
             <span className="text-muted">Nenhum assento escolhido ainda.</span>
           </div>
         ) : (
@@ -179,7 +179,7 @@ export function SeatSelectionPage() {
             {selectedList.map((seat, i) => (
               <li
                 key={seat}
-                className={`grid grid-cols-[52px_1fr_auto_auto] items-center gap-3 py-3 ${i === 0 ? 'border-t-2 border-text' : ''} ${i === selectedList.length - 1 ? 'border-b-2 border-divider' : 'border-b border-neutral-400'}`}
+                className={`grid grid-cols-[52px_1fr_auto_auto] items-center gap-3 py-3 ${i === 0 ? 'border-t border-divider' : ''} ${i === selectedList.length - 1 ? 'border-b border-divider' : 'border-b border-line'}`}
               >
                 <b className="text-[22px]">{seat}</b>
                 <span className="text-[13px]">
@@ -191,7 +191,7 @@ export function SeatSelectionPage() {
                 <button
                   type="button"
                   aria-label={`Remover assento ${seat}`}
-                  className="grid size-7 place-items-center hover:bg-text/7"
+                  className="rounded-control grid size-7 place-items-center hover:bg-text/7"
                   onClick={() => selection.toggle(seat)}
                 >
                   <X size={16} strokeWidth={3} aria-hidden />
@@ -201,7 +201,7 @@ export function SeatSelectionPage() {
           </ul>
         )}
 
-        <div className="mt-6 border-2 border-text p-4">
+        <div className="surface-muted mt-6 p-4">
           <div className="flex items-baseline justify-between">
             <span className="text-[13px]">Tempo restante</span>
             {reservation ? (
@@ -227,7 +227,7 @@ export function SeatSelectionPage() {
             <span className="text-muted">Taxa</span>
             <span className="tabular">{formatPrice(totals.fee)}</span>
           </div>
-          <div className="flex items-baseline justify-between border-t-2 border-text pt-3 pb-4">
+          <div className="flex items-baseline justify-between border-t border-divider pt-3 pb-4">
             <b>Total</b>
             <b className="tabular text-[30px]">{formatPrice(totals.total)}</b>
           </div>
@@ -238,7 +238,7 @@ export function SeatSelectionPage() {
       </aside>
 
       {/* Mobile: barra fixa com assentos, total e ação. */}
-      <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 border-t-2 border-text bg-bg px-4 py-3 lg:hidden">
+      <div className="floating-bar fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 px-4 py-3 lg:hidden">
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-extrabold">
             {selectedList.length ? selectedList.join(', ') : 'Nenhum assento'}

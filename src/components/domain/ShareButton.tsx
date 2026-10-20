@@ -35,7 +35,7 @@ export function ShareButton({ title, variant = 'labeled', className }: ShareButt
       size={variant === 'icon' ? 'icon' : 'md'}
       aria-label={variant === 'icon' ? 'Compartilhar' : undefined}
       onClick={share}
-      className={cn('bg-bg', className)}
+      className={cn('shadow-sm', className)}
     >
       <Share2 size={16} aria-hidden />
       {variant === 'labeled' && 'Compartilhar'}

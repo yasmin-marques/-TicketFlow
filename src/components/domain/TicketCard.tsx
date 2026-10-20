@@ -10,12 +10,12 @@ export function sectorKicker(t: Ticket): string {
   return [t.sectorName ?? t.typeName, t.row ? `Fila ${t.row}` : null].filter(Boolean).join(' · ')
 }
 
-/** Card da lista "Meus ingressos": dados à esquerda, QR destacável à direita (borda tracejada). */
+/** Card da lista "Meus ingressos": dados à esquerda, canhoto com QR à direita (picote tracejado). */
 export function TicketCard({ ticket }: { ticket: Ticket }) {
   const status = TICKET_STATUS[ticket.status]!
   const valid = ticket.status === 'valid'
   return (
-    <article className="group relative flex border-2 border-text">
+    <article className="ticket-shape surface surface-hover group relative flex">
       <div className="flex min-w-0 flex-1 flex-col p-5">
         <div className="flex items-center justify-between gap-2">
           <span className="kicker tabular text-[11px] tracking-[0.1em] text-accent-700">{formatDateShort(ticket.eventStartsAt)}</span>
@@ -43,11 +43,11 @@ export function TicketCard({ ticket }: { ticket: Ticket }) {
           </div>
         </dl>
       </div>
-      <div className="flex shrink-0 flex-col items-center justify-center gap-2 border-l-2 border-dashed border-text p-3.5">
+      <div className="ticket-stub flex shrink-0 flex-col items-center justify-center gap-2 p-3.5">
         {valid ? (
-          <QrCode value={ticket.qrPayload} size={104} label={`QR Code do ingresso ${ticket.code}`} className="bg-neutral-100" />
+          <QrCode value={ticket.qrPayload} size={104} label={`QR Code do ingresso ${ticket.code}`} className="rounded-control bg-neutral-100 p-1" />
         ) : (
-          <div className="text-muted grid size-[104px] place-items-center bg-neutral-100 text-center text-xs font-semibold">
+          <div className="text-muted grid size-[104px] place-items-center rounded-control bg-neutral-100 text-center text-xs font-semibold">
             {ticket.status === 'used' ? 'Já utilizado' : 'Cancelado'}
           </div>
         )}
@@ -60,7 +60,7 @@ export function TicketCard({ ticket }: { ticket: Ticket }) {
 /** Ingresso da tela de confirmação (stub grande com o assento em destaque). */
 export function TicketStub({ ticket, className }: { ticket: Ticket; className?: string }) {
   return (
-    <article className={cn('flex border-2 border-text bg-bg', className)}>
+    <article className={cn('ticket-shape surface flex', className)}>
       <div className="min-w-0 flex-1 p-[18px]">
         <div className="kicker text-[11px] tracking-[0.1em] text-accent-700">{sectorKicker(ticket)}</div>
         <div className="my-1.5 text-[52px] leading-none font-extrabold">{ticket.seatId ?? 'Geral'}</div>
@@ -73,8 +73,8 @@ export function TicketStub({ ticket, className }: { ticket: Ticket; className?: 
           Abrir ingresso →
         </Link>
       </div>
-      <div className="flex items-center border-l-2 border-dashed border-text p-3.5">
-        <QrCode value={ticket.qrPayload} size={100} label={`QR Code do ingresso ${ticket.code}`} className="bg-neutral-100" />
+      <div className="ticket-stub flex items-center p-3.5">
+        <QrCode value={ticket.qrPayload} size={100} label={`QR Code do ingresso ${ticket.code}`} className="rounded-control bg-neutral-100 p-1" />
       </div>
     </article>
   )

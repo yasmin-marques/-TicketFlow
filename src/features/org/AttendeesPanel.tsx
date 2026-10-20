@@ -100,7 +100,7 @@ export function AttendeesPanel({ eventId, onEventChange }: AttendeesPanelProps) 
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar nome ou código"
           aria-label="Buscar participante por nome ou código"
-          className="w-full border border-divider bg-surface px-3 py-1.5 text-sm sm:w-64"
+          className="field sm:w-64"
         />
         <span className="tabular ml-auto text-sm" aria-live="polite">
           <b>{data?.checkedIn.toLocaleString('pt-BR') ?? '—'}</b> / {data?.sold.toLocaleString('pt-BR') ?? '—'} com check-in

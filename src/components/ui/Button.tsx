@@ -14,17 +14,18 @@ interface BaseProps {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'border-transparent bg-accent text-bg hover:bg-accent-600 active:bg-accent-700',
-  secondary: 'border-divider hover:bg-text/7 active:bg-text/14',
-  ghost: 'border-transparent text-accent px-1 hover:bg-accent/10 active:bg-accent/18',
+  primary:
+    'border-transparent bg-accent text-bg shadow-sm shadow-accent/20 hover:bg-accent-600 hover:shadow-md hover:shadow-accent/25 active:bg-accent-700',
+  secondary: 'border-divider bg-card hover:border-text/35 hover:bg-neutral-100 active:bg-neutral-200',
+  ghost: 'border-transparent text-accent-700 px-2 hover:bg-accent/8 active:bg-accent/14',
 }
 
 const sizes: Record<Size, string> = {
-  md: 'px-[14.4px] py-2 text-sm',
-  lg: 'px-[22px] py-3 text-[15px]',
-  xl: 'px-[18px] py-3.5 text-base',
+  md: 'min-h-9 px-4 py-2 text-sm',
+  lg: 'min-h-11 px-[22px] py-3 text-[15px]',
+  xl: 'min-h-12 px-6 py-3.5 text-base',
   icon: 'size-9 p-0 text-sm',
-  'icon-lg': 'size-[46px] p-0 text-base',
+  'icon-lg': 'size-11 p-0 text-base',
 }
 
 export function buttonClasses({
@@ -34,7 +35,7 @@ export function buttonClasses({
   className,
 }: BaseProps & { className?: string }): string {
   return cn(
-    'inline-flex items-center justify-center gap-1.5 border font-extrabold leading-tight no-underline transition-colors disabled:cursor-not-allowed disabled:opacity-45',
+    'transition-control inline-flex items-center justify-center gap-1.5 rounded-control border font-bold leading-tight no-underline active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none disabled:active:scale-100',
     variants[variant],
     sizes[size],
     block && 'w-full',

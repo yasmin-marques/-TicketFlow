@@ -21,14 +21,14 @@ export function BarChart({ data, highlight, height = 190, summary, formatValue =
       <div
         role="img"
         aria-label={summary}
-        className="flex items-end gap-1 border-t border-dashed border-neutral-400 border-b-2 border-b-text"
+        className="flex items-end gap-1 border-t border-dashed border-neutral-300 border-b border-b-divider"
         style={{ height }}
       >
         {data.map((d, i) => (
           <div
             key={`${d.label}-${i}`}
             title={`${d.label}: ${formatValue(d.value)}`}
-            className={cn('min-w-px flex-1 transition-opacity hover:opacity-70', i === highlight ? 'bg-accent' : 'bg-text')}
+            className={cn('min-w-px flex-1 rounded-t-xs transition-opacity hover:opacity-70', i === highlight ? 'bg-accent' : 'bg-text')}
             style={{ height: `${Math.max(d.value > 0 ? 2 : 0, (d.value / max) * 100)}%` }}
           />
         ))}
@@ -59,7 +59,7 @@ export function LineChart({ points, goal, summary, height = 150 }: LineChartProp
       aria-label={summary}
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="none"
-      className="w-full overflow-visible border-b-2 border-text"
+      className="w-full overflow-visible border-b border-divider"
       style={{ height }}
     >
       {goal !== undefined && (
@@ -94,8 +94,8 @@ export function HBarList({ items, max, labelWidth = 110, valueWidth = 70 }: HBar
           <span className="truncate" title={i.label}>
             {i.label}
           </span>
-          <div className="h-3 bg-neutral-300" role="presentation">
-            <div className="h-full bg-text" style={{ width: `${Math.min(100, (i.value / top) * 100)}%` }} />
+          <div className="h-3 overflow-hidden rounded-full bg-neutral-200" role="presentation">
+            <div className="h-full rounded-full bg-text" style={{ width: `${Math.min(100, (i.value / top) * 100)}%` }} />
           </div>
           <b className="tabular text-right">{i.display}</b>
         </li>
@@ -111,7 +111,7 @@ export function StackedBar({ items }: { items: Array<{ name: string; value: numb
   const total = items.reduce((n, i) => n + i.value, 0)
   return (
     <div>
-      <div role="img" aria-label={items.map((i) => `${i.name}: ${i.value}`).join(', ')} className="my-3 flex h-[34px]">
+      <div role="img" aria-label={items.map((i) => `${i.name}: ${i.value}`).join(', ')} className="my-3 flex h-[34px] gap-0.5 overflow-hidden rounded-control">
         {items.map((i, idx) => (
           <div key={i.name} className={STACK_COLORS[idx % STACK_COLORS.length]} style={{ width: `${total ? (i.value / total) * 100 : 0}%` }} title={`${i.name}: ${i.value}`} />
         ))}
@@ -119,7 +119,7 @@ export function StackedBar({ items }: { items: Array<{ name: string; value: numb
       <ul className="m-0 grid list-none grid-cols-[14px_1fr_auto] items-center gap-x-2.5 gap-y-2 p-0 text-[13px]">
         {items.map((i, idx) => (
           <li key={i.name} className="contents">
-            <i className={cn('h-3', STACK_COLORS[idx % STACK_COLORS.length])} />
+            <i className={cn('h-3 rounded-xs', STACK_COLORS[idx % STACK_COLORS.length])} />
             <span>{i.name}</span>
             <b className="tabular">{i.value.toLocaleString('pt-BR')}</b>
           </li>
@@ -132,9 +132,9 @@ export function StackedBar({ items }: { items: Array<{ name: string; value: numb
 /** Barra de progresso fina (ocupação, lotes). */
 export function ProgressBar({ pct, className, tone = 'text' }: { pct: number; className?: string; tone?: 'text' | 'accent' | 'success' }) {
   return (
-    <div role="presentation" className={cn('h-1.5 bg-neutral-300', className)}>
+    <div role="presentation" className={cn('h-1.5 overflow-hidden rounded-full bg-neutral-200', className)}>
       <div
-        className={cn('h-full', tone === 'text' ? 'bg-text' : tone === 'accent' ? 'bg-accent' : 'bg-success')}
+        className={cn('h-full rounded-full', tone === 'text' ? 'bg-text' : tone === 'accent' ? 'bg-accent' : 'bg-success')}
         style={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
       />
     </div>

@@ -79,11 +79,11 @@ export function DataStep({ slots, initial, initialHolders, onBack, onSubmit }: D
 
       <h3 className="mt-8 mb-2 text-xl">Titulares dos ingressos</h3>
       <p className="text-muted mb-3 text-[13px]">Deixe em branco para usar o seu nome.</p>
-      <ul className="m-0 max-w-[700px] list-none border-t-2 border-text p-0">
+      <ul className="m-0 max-w-[700px] list-none border-t border-divider p-0">
         {slots.map((slot, i) => (
           <li
             key={slot.slot}
-            className={`grid grid-cols-[84px_1fr] items-start gap-4 py-3 ${i === slots.length - 1 ? 'border-b-2 border-divider' : 'border-b border-neutral-400'}`}
+            className={`grid grid-cols-[84px_1fr] items-start gap-4 py-3 ${i === slots.length - 1 ? 'border-b border-divider' : 'border-b border-line'}`}
           >
             <div className="pt-1">
               <b className="text-lg">{slot.seatId ?? `#${i + 1}`}</b>

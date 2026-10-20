@@ -43,7 +43,7 @@ export function StepFooter({
   onContinue?: () => void
 }) {
   return (
-    <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t-2 border-divider pt-4">
+    <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-divider pt-4">
       {onBack && (
         <Button variant="secondary" onClick={onBack}>
           ← Voltar
@@ -192,7 +192,7 @@ export function InfoStep({ event, onSave, onPreview }: StepProps & { onPreview: 
 
         <div>
           <label htmlFor="category" className="mb-[5px] block text-xs text-text/70">Categoria</label>
-          <select id="category" className="min-h-9 w-full border border-divider bg-surface px-2.5 py-1.5 text-sm" {...register('category')}>
+          <select id="category" className="field" {...register('category')}>
             {CATEGORY_OPTIONS.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
@@ -224,7 +224,7 @@ export function InfoStep({ event, onSave, onPreview }: StepProps & { onPreview: 
             id="description"
             rows={5}
             aria-invalid={errors.description ? true : undefined}
-            className={cn('w-full resize-y border bg-surface px-2.5 py-2 text-sm', errors.description ? 'border-2 border-accent-700' : 'border-divider')}
+            className={cn('field resize-y', errors.description && 'border-accent-700')}
             {...register('description')}
           />
           <div className={cn('mt-1 text-xs font-semibold', errors.description ? 'text-accent-700' : 'text-muted')} aria-live="polite">
@@ -241,7 +241,7 @@ export function InfoStep({ event, onSave, onPreview }: StepProps & { onPreview: 
               e.preventDefault()
               pickFile(e.dataTransfer.files[0])
             }}
-            className="border-2 border-dashed border-neutral-500 p-5 text-center"
+            className="callout p-5 text-center"
           >
             {cover ? (
               <div className="flex items-center justify-between gap-3 text-left text-sm">
@@ -334,7 +334,7 @@ export function VenueStep({ event, onSave, onBack, onPreview }: StepProps & { on
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="notes" className="mb-[5px] block text-xs text-text/70">Como chegar e acessibilidade (opcional)</label>
-          <textarea id="notes" rows={3} placeholder="Estacionamento no local · Metrô (700 m) · Acessível" className="w-full resize-y border border-divider bg-surface px-2.5 py-2 text-sm" {...register('notes')} />
+          <textarea id="notes" rows={3} placeholder="Estacionamento no local · Metrô (700 m) · Acessível" className="field resize-y" {...register('notes')} />
           {errors.notes && <div className="mt-1 text-xs font-semibold text-accent-700">✕ {errors.notes.message}</div>}
         </div>
       </div>

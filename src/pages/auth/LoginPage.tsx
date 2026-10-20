@@ -72,7 +72,7 @@ export function LoginPage() {
       </form>
 
       {USE_MOCKS && (
-        <div className="mt-6 border-2 border-dashed border-neutral-500 p-4 text-[13px]">
+        <div className="mt-6 callout p-4 text-[13px]">
           <b>Ambiente de simulação.</b> Esta autenticação é fictícia (não usa JWT).
           <div className="text-muted mt-1">
             Conta de demonstração: <span className="font-mono">{DEMO_EMAIL}</span> · senha{' '}

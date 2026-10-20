@@ -41,7 +41,7 @@ export function OrderSummary({
   className,
 }: OrderSummaryProps) {
   return (
-    <section aria-label="Resumo do pedido" className={cn('border-2 border-text p-[22px]', sticky && 'sticky top-4', className)}>
+    <section aria-label="Resumo do pedido" className={cn('surface p-[22px]', sticky && 'sticky top-4', className)}>
       <div className="flex items-baseline justify-between">
         <h2 className="m-0 text-[13px] tracking-[0.08em] uppercase">{title}</h2>
         {timer && <span className="text-lg">{timer}</span>}
@@ -51,16 +51,16 @@ export function OrderSummary({
 
       <div className={cn(!eventTitle && 'mt-2.5')}>
         {lines.length === 0 ? (
-          <div className="text-muted border-t border-neutral-400 py-3 text-sm">Nenhum ingresso selecionado.</div>
+          <div className="text-muted border-t border-line py-3 text-sm">Nenhum ingresso selecionado.</div>
         ) : (
           lines.map((l, i) => (
-            <div key={i} className="flex justify-between gap-3 border-t border-neutral-400 py-2.5">
+            <div key={i} className="flex justify-between gap-3 border-t border-line py-2.5">
               <span>{l.label}</span>
               <b className="tabular shrink-0">{formatPrice(l.amount)}</b>
             </div>
           ))
         )}
-        <div className="flex justify-between border-t border-neutral-400 py-2.5">
+        <div className="flex justify-between border-t border-line py-2.5">
           <span className="text-muted">{feeLabel}</span>
           <span className="tabular">{formatPrice(fee)}</span>
         </div>
@@ -68,7 +68,7 @@ export function OrderSummary({
 
       {extra}
 
-      <div className="flex items-baseline justify-between border-t-2 border-text pt-3.5">
+      <div className="flex items-baseline justify-between border-t border-divider pt-3.5">
         <b>Total</b>
         <b className="tabular text-[30px]" aria-live="polite">
           {formatPrice(total)}

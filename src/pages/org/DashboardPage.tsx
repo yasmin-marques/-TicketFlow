@@ -79,14 +79,14 @@ export function DashboardPage() {
         subtitle={subtitle}
         actions={
           <>
-            <div role="group" aria-label="Período" className="flex border-2 border-text">
-              {RANGES.map((r, i) => (
+            <div role="group" aria-label="Período" className="flex gap-1 rounded-control bg-surface p-1">
+              {RANGES.map((r) => (
                 <button
                   key={r}
                   type="button"
                   aria-pressed={range === r}
                   onClick={() => setRange(r)}
-                  className={cn('px-3.5 py-1.5 text-[13px] font-semibold', i > 0 && 'border-l-2 border-text', range === r ? 'bg-text text-bg' : 'hover:bg-text/7')}
+                  className={cn('transition-control rounded-sm px-3.5 py-1.5 text-[13px] font-semibold', range === r ? 'bg-card text-text shadow-sm' : 'text-neutral-700 hover:text-text')}
                 >
                   {r} dias
                 </button>
@@ -118,10 +118,10 @@ export function DashboardPage() {
         <LoadError title="Não foi possível carregar o dashboard." error={error} onRetry={() => refetch()} />
       ) : isPending ? (
         <div aria-busy="true" aria-label="Carregando dashboard" className="space-y-6">
-          <Skeleton className="h-28" />
-          <div className="grid gap-8 lg:grid-cols-[1.7fr_1fr]">
-            <Skeleton className="h-60" />
-            <Skeleton className="h-60" />
+          <Skeleton className="h-28 rounded-card" />
+          <div className="grid gap-4 lg:grid-cols-[1.7fr_1fr] lg:gap-5">
+            <Skeleton className="h-60 rounded-card" />
+            <Skeleton className="h-60 rounded-card" />
           </div>
         </div>
       ) : (
@@ -144,8 +144,8 @@ export function DashboardPage() {
             />
           ) : (
             <>
-              <div className="mt-7 grid gap-8 lg:grid-cols-[1.7fr_1fr]">
-                <section aria-labelledby="vendas-periodo">
+              <div className="mt-7 grid gap-4 lg:grid-cols-[1.7fr_1fr] lg:gap-5">
+                <section aria-labelledby="vendas-periodo" className="surface min-w-0 p-5">
                   <div className="mb-2.5 flex justify-between">
                     <h3 id="vendas-periodo" className="m-0 text-base">Vendas por período</h3>
                     <span className="text-muted text-xs">ingressos / dia</span>
@@ -165,14 +165,14 @@ export function DashboardPage() {
                     <span>{shortDay(data.salesByDay[data.salesByDay.length - 1]!.date)}</span>
                   </div>
                 </section>
-                <section aria-labelledby="por-tipo">
+                <section aria-labelledby="por-tipo" className="surface min-w-0 p-5">
                   <h3 id="por-tipo" className="text-base">Ingressos por tipo</h3>
                   <StackedBar items={data.byType.map((t) => ({ name: t.name, value: t.tickets }))} />
                 </section>
               </div>
 
-              <div className="mt-7 grid gap-8 lg:grid-cols-[1.7fr_1fr]">
-                <section aria-labelledby="evolucao">
+              <div className="mt-7 grid gap-4 lg:grid-cols-[1.7fr_1fr] lg:gap-5">
+                <section aria-labelledby="evolucao" className="surface min-w-0 p-5">
                   <h3 id="evolucao" className="text-base">Evolução das vendas · acumulado vs. meta</h3>
                   <LineChart
                     points={data.cumulative.map((c) => c.tickets)}
@@ -184,7 +184,7 @@ export function DashboardPage() {
                     <span>┄ Meta: {data.goal.toLocaleString('pt-BR')}</span>
                   </div>
                 </section>
-                <section aria-labelledby="receita-evento">
+                <section aria-labelledby="receita-evento" className="surface min-w-0 p-5">
                   <h3 id="receita-evento" className="text-base">Receita por evento</h3>
                   <HBarList items={data.revenueByEvent.map((e) => ({ label: e.title, value: e.revenue, display: compactMoney(e.revenue) }))} />
                 </section>

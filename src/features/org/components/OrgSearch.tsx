@@ -54,7 +54,7 @@ export function OrgSearch({ className }: { className?: string }) {
           if (value.trim()) navigate(`/org/pedidos?q=${encodeURIComponent(value.trim())}`)
           close()
         }}
-        className="flex items-center gap-2 border border-divider px-3 py-[7px] text-sm focus-within:border-accent"
+        className="transition-control flex items-center gap-2 rounded-full border border-divider bg-card px-3.5 py-[7px] text-sm shadow-xs hover:border-text/40 focus-within:border-accent focus-within:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_14%,transparent)]"
       >
         <Search size={15} aria-hidden className="flex-none text-neutral-700" />
         <input
@@ -71,12 +71,12 @@ export function OrgSearch({ className }: { className?: string }) {
           aria-label="Buscar pedido ou evento"
           className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-700 [&::-webkit-search-cancel-button]:hidden"
         />
-        <kbd aria-hidden className="hidden flex-none border border-neutral-400 px-1.5 py-px font-mono text-[11px] font-semibold text-neutral-700 lg:block">
+        <kbd aria-hidden className="hidden flex-none rounded-xs border border-neutral-300 bg-neutral-100 px-1.5 py-px font-mono text-[11px] font-semibold text-neutral-700 lg:block">
           ⌘K
         </kbd>
       </form>
       {open && q.length >= 2 && (
-        <div className="absolute inset-x-0 top-full z-40 mt-1 min-w-[300px] border-2 border-text bg-bg shadow-lg sm:right-0 sm:left-auto sm:w-[360px]">
+        <div className="animate-pop-in absolute inset-x-0 top-full z-40 mt-2 min-w-[300px] overflow-hidden rounded-card border border-line bg-card shadow-lg sm:right-0 sm:left-auto sm:w-[360px]">
           {!data ? (
             <p className="text-muted p-3 text-sm">Buscando…</p>
           ) : !hasResults ? (
@@ -89,7 +89,7 @@ export function OrgSearch({ className }: { className?: string }) {
                   <ul className="m-0 list-none p-0">
                     {data.events.map((e) => (
                       <li key={e.id}>
-                        <Link to={`/org/eventos/${e.id}`} onClick={close} className="block px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-text/7">
+                        <Link to={`/org/eventos/${e.id}`} onClick={close} className="rounded-sm block px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-text/7">
                           {e.title}
                         </Link>
                       </li>
@@ -98,12 +98,12 @@ export function OrgSearch({ className }: { className?: string }) {
                 </section>
               )}
               {data.orders.length > 0 && (
-                <section aria-label="Pedidos" className="border-t border-neutral-300">
+                <section aria-label="Pedidos" className="border-t border-line">
                   <h3 className="m-0 px-3 pt-2 text-[11px] tracking-[0.08em] uppercase">Pedidos</h3>
                   <ul className="m-0 list-none p-0">
                     {data.orders.map((o) => (
                       <li key={o.id}>
-                        <Link to={`/org/pedidos?q=${encodeURIComponent(o.code)}`} onClick={close} className="block px-3 py-2 text-sm text-text no-underline hover:bg-text/7">
+                        <Link to={`/org/pedidos?q=${encodeURIComponent(o.code)}`} onClick={close} className="rounded-sm block px-3 py-2 text-sm text-text no-underline hover:bg-text/7">
                           <b>#{o.code}</b> · {o.buyerName}
                           <span className="text-muted block text-xs">{o.eventTitle}</span>
                         </Link>

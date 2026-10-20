@@ -57,14 +57,14 @@ export function PurchasePanel({ event }: { event: EventDetail }) {
   const free = event.minPrice === 0
 
   return (
-    <aside aria-label="Comprar ingressos" className="sticky top-4 border-2 border-text bg-bg p-6">
+    <aside aria-label="Comprar ingressos" className="surface sticky top-20 p-6 shadow-md">
       {kicker && <div className="kicker text-[11px] tracking-[0.1em] text-accent-700">{kicker}</div>}
       <div className="mt-2 mb-0.5 text-2xl font-extrabold">{formatDateLong(event.startsAt)}</div>
       <div className="text-[15px]">
         {formatTime(event.startsAt)} · {event.venue.name}
       </div>
 
-      <div className="mt-5 mb-3.5 border-t-2 border-text pt-3.5">
+      <div className="mt-5 mb-4 border-t border-line pt-4">
         {state === 'on-sale' ? (
           <>
             <div className="text-muted text-[13px]">{free ? 'Ingresso' : 'Ingressos a partir de'}</div>
@@ -101,7 +101,7 @@ export function PurchaseBar({ event }: { event: EventDetail }) {
   return (
     <div
       className={cn(
-        'fixed inset-x-0 bottom-0 z-20 flex items-center gap-3.5 border-t-2 border-text bg-bg px-4 py-3 lg:hidden',
+        'floating-bar fixed inset-x-0 bottom-0 z-20 flex items-center gap-3.5 px-4 py-3 lg:hidden',
       )}
     >
       {state === 'on-sale' && (

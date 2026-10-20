@@ -86,7 +86,7 @@ export function ResultsToolbar({
       <button
         type="button"
         onClick={onOpenFilters}
-        className="ml-auto inline-flex items-center gap-1.5 border border-text px-3 py-[3px] font-semibold lg:hidden"
+        className="transition-control ml-auto inline-flex items-center gap-1.5 rounded-full border border-divider bg-card px-3.5 py-1.5 text-sm font-semibold shadow-xs active:scale-[0.97] lg:hidden"
       >
         <SlidersHorizontal size={14} aria-hidden />
         Filtros{activeCount > 0 && ` · ${activeCount}`}

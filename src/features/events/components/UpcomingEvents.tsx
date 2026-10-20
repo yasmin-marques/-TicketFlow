@@ -21,7 +21,7 @@ export function UpcomingEvents() {
   return (
     <section aria-labelledby="proximos" className="pt-10 pb-4">
       <div className="mb-3 flex items-baseline justify-between gap-4">
-        <h2 id="proximos" className="m-0 text-xl lg:text-[32px]">
+        <h2 id="proximos" className="m-0 text-[24px] lg:text-[32px]">
           Próximos de você
         </h2>
         <Select
@@ -37,7 +37,7 @@ export function UpcomingEvents() {
       <div
         role="group"
         aria-label="Filtrar por categoria"
-        className="-mx-4 mb-2 flex gap-1.5 overflow-x-auto border-b border-neutral-400 px-4 py-3.5 lg:hidden"
+        className="-mx-4 mb-2 flex gap-1.5 overflow-x-auto px-4 py-3 [scrollbar-width:none] lg:hidden"
       >
         <Chip label="Tudo" size="lg" selected={!category} onClick={() => setCategory(undefined)} />
         {categories?.map((c) => (
@@ -54,9 +54,9 @@ export function UpcomingEvents() {
       {error ? (
         <LoadError title="Não foi possível carregar os eventos." error={error} onRetry={() => refetch()} />
       ) : isPending ? (
-        <div aria-hidden>
+        <div aria-hidden className="surface p-2">
           {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className="flex items-center gap-5 border-t-2 border-divider py-4">
+            <div key={i} className="flex items-center gap-5 px-3 py-4">
               <Skeleton className="h-10 w-16 lg:w-32" />
               <div className="flex-1">
                 <Skeleton className="h-4 w-2/3" />
@@ -84,7 +84,7 @@ export function UpcomingEvents() {
           }
         />
       ) : (
-        <div className="border-b-2 border-divider">
+        <div className="surface divide-y divide-line p-1.5 lg:p-2">
           {data.map((e) => (
             <EventRow key={e.id} event={e} />
           ))}

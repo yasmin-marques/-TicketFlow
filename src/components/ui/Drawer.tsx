@@ -29,10 +29,10 @@ export function Drawer({ open, onClose, title, children }: DrawerProps) {
       onClick={(e) => {
         if (e.target === ref.current) onClose()
       }}
-      className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-[90dvh] w-full overflow-y-auto border-t-2 border-text bg-bg p-0 shadow-lg"
+      className="animate-sheet-in fixed inset-x-0 top-auto bottom-0 m-0 max-h-[90dvh] w-full overflow-y-auto rounded-t-panel border-t border-line bg-card p-0 shadow-lg"
     >
       <div className="px-4 pt-5 pb-4">
-        <div aria-hidden className="mx-auto -mt-2 mb-3 h-1 w-10 bg-neutral-400" />
+        <div aria-hidden className="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-neutral-300" />
         {children}
       </div>
     </dialog>

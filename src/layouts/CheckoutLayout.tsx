@@ -21,7 +21,7 @@ function ExpiryWarning() {
   if (!warn || !reservation) return null
   return (
     <Container className="pt-4">
-      <div role="alert" className="border-2 border-warning px-3.5 py-3 text-[13px]">
+      <div role="alert" className="rounded-card border border-warning/30 bg-warning/8 px-4 py-3 text-[13px]">
         <b className="text-warning">
           <span aria-hidden>! </span>Faltam <Countdown expiresAt={reservation.expiresAt} />
         </b>{' '}
@@ -38,17 +38,19 @@ function Shell() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex h-14 items-center justify-between border-b-2 border-divider px-4 lg:h-16 lg:px-10">
+      <header className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between px-4 lg:h-16 lg:px-10">
         <Logo size="sm" />
         <Link
           to={exitTo}
           onClick={() => void release()}
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-text no-underline hover:text-accent"
+          className="transition-control inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-text no-underline hover:bg-text/6"
         >
           <X size={14} aria-hidden /> Sair da compra
         </Link>
       </header>
-      <Stepper steps={CHECKOUT_STEPS} current={stepFromPath(pathname)} />
+      <Container className="pt-4">
+        <Stepper steps={CHECKOUT_STEPS} current={stepFromPath(pathname)} />
+      </Container>
       <ExpiryWarning />
       <main id="conteudo" className="flex-1">
         <Outlet />

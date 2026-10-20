@@ -37,7 +37,7 @@ export function PendingPayment({ order }: { order: Order }) {
   })
 
   return (
-    <section aria-label="Pagamento pendente" className="border-2 border-text bg-bg p-5">
+    <section aria-label="Pagamento pendente" className="surface p-5">
       <div className="kicker text-[11px] tracking-[0.1em] text-warning">Aguardando pagamento</div>
 
       {order.pix ? (
@@ -48,10 +48,10 @@ export function PendingPayment({ order }: { order: Order }) {
             <b className="text-text">{formatPrice(order.total)}</b>.
           </p>
           <div className="my-4 flex flex-wrap items-start gap-5">
-            <QrCode value={order.pix.code} size={148} label="QR Code do Pix" className="border-2 border-text p-1" />
+            <QrCode value={order.pix.code} size={148} label="QR Code do Pix" className="surface p-1" />
             <div className="min-w-0 flex-1 basis-56">
               <div className="text-muted mb-1 text-xs">Código Pix (copia e cola)</div>
-              <div className="max-h-20 overflow-auto bg-surface p-2.5 font-mono text-[11px] break-all">{order.pix.code}</div>
+              <div className="max-h-20 overflow-auto rounded-control bg-surface p-2.5 font-mono text-[11px] break-all">{order.pix.code}</div>
               <Button variant="secondary" className="mt-2" onClick={() => copy(order.pix!.code, 'Código Pix')}>
                 <Copy size={14} aria-hidden /> Copiar código
               </Button>
@@ -68,7 +68,7 @@ export function PendingPayment({ order }: { order: Order }) {
             Vence em {formatDateMedium(order.boleto.dueAt)}, {formatTime(order.boleto.dueAt)}. Os ingressos são emitidos após a
             compensação.
           </p>
-          <div className="my-3 bg-surface p-2.5 font-mono text-xs break-all">{order.boleto.line}</div>
+          <div className="my-3 rounded-control bg-surface p-2.5 font-mono text-xs break-all">{order.boleto.line}</div>
           <Button variant="secondary" onClick={() => copy(order.boleto!.line, 'Linha digitável')}>
             <Copy size={14} aria-hidden /> Copiar linha digitável
           </Button>
@@ -80,7 +80,7 @@ export function PendingPayment({ order }: { order: Order }) {
       </p>
 
       {USE_MOCKS && (
-        <div className="mt-4 border-2 border-dashed border-neutral-500 p-3 text-xs">
+        <div className="mt-4 callout p-3 text-xs">
           <b>Ambiente de simulação.</b> Nenhum pagamento real existe.
           <div className="mt-2">
             <Button variant="secondary" disabled={simulate.isPending} onClick={() => simulate.mutate()}>

@@ -138,7 +138,7 @@ export function SeatMap({ layout, taken, selected, pending, enabledSectorIds, em
     }
   })()
 
-  const btn = 'grid size-9 place-items-center transition-colors hover:bg-text/7 active:bg-text/14'
+  const btn = 'transition-control grid size-8 place-items-center rounded-sm hover:bg-text/7 active:bg-text/14'
 
   return (
     <div>
@@ -146,16 +146,16 @@ export function SeatMap({ layout, taken, selected, pending, enabledSectorIds, em
         <span id="seat-map-hint" className="text-muted hidden text-xs sm:inline">
           Arraste para mover · Ctrl + scroll para zoom · setas para navegar
         </span>
-        <div className="ml-auto flex border-2 border-text" role="group" aria-label="Zoom do mapa">
+        <div className="ml-auto flex gap-0.5 rounded-control border border-divider bg-card p-0.5 shadow-xs" role="group" aria-label="Zoom do mapa">
           <button type="button" className={btn} aria-label="Aumentar zoom" onClick={() => changeZoom(1.15)}>
             <Plus size={16} strokeWidth={3} aria-hidden />
           </button>
-          <button type="button" className={cn(btn, 'border-l-2 border-text')} aria-label="Diminuir zoom" onClick={() => changeZoom(1 / 1.15)}>
+          <button type="button" className={btn} aria-label="Diminuir zoom" onClick={() => changeZoom(1 / 1.15)}>
             <Minus size={16} strokeWidth={3} aria-hidden />
           </button>
           <button
             type="button"
-            className={cn(btn, 'w-auto border-l-2 border-text px-3 text-[13px] font-semibold')}
+            className={cn(btn, 'w-auto px-3 text-[13px] font-semibold')}
             onClick={() => {
               setUserZoomed(false)
               setZoom(fit)
@@ -166,7 +166,7 @@ export function SeatMap({ layout, taken, selected, pending, enabledSectorIds, em
         </div>
       </div>
 
-      <div className="mx-auto mb-1 flex h-11 w-[min(620px,100%)] items-center justify-center bg-text text-[13px] font-extrabold tracking-[0.4em] text-bg">
+      <div className="mx-auto mb-1 flex h-11 w-[min(620px,100%)] items-center justify-center rounded-t-full rounded-b-card bg-text text-[13px] font-extrabold tracking-[0.4em] text-bg shadow-md">
         PALCO
       </div>
 
@@ -186,7 +186,7 @@ export function SeatMap({ layout, taken, selected, pending, enabledSectorIds, em
             <div
               role="tooltip"
               className={cn(
-                'pointer-events-none absolute z-10 bg-text px-[11px] py-[7px] text-[11px] whitespace-nowrap text-bg shadow-md',
+                'pointer-events-none absolute z-10 rounded-sm bg-text px-[11px] py-[7px] text-[11px] whitespace-nowrap text-bg shadow-md',
                 hoveredInfo.align === 'center' && '-translate-x-1/2',
                 hoveredInfo.align === 'end' && '-translate-x-full',
               )}
@@ -247,12 +247,12 @@ export function SeatMap({ layout, taken, selected, pending, enabledSectorIds, em
                       onMouseLeave={() => setHovered((h) => (h === id ? null : h))}
                       style={{ marginLeft: n === aisleAfter + 1 ? AISLE : 0, width: SEAT, height: SEAT }}
                       className={cn(
-                        'relative grid shrink-0 place-items-center border-2 duration-[120ms] transition-colors',
-                        isSelected && 'border-accent bg-accent text-white',
+                        'relative grid shrink-0 place-items-center seat-shape border-2 duration-[120ms] transition-[background-color,border-color,transform]',
+                        isSelected && 'scale-105 border-accent bg-accent text-white shadow-sm shadow-accent/30',
                         !isSelected && state === 'sold' && 'cursor-not-allowed border-neutral-400 bg-neutral-400',
                         !isSelected && state === 'reserved' && 'bg-reserved cursor-not-allowed border-warning',
-                        !isSelected && !state && 'border-text bg-bg',
-                        !isSelected && !state && !blocked && 'hover:bg-text/10',
+                        !isSelected && !state && 'border-neutral-700 bg-card',
+                        !isSelected && !state && !blocked && 'hover:scale-105 hover:border-accent hover:bg-accent-100',
                         !isSelected && !state && blocked && 'cursor-not-allowed opacity-35',
                         muted && !isSelected && 'opacity-60',
                         pending.has(id) && 'animate-pulse',
@@ -277,18 +277,18 @@ export function SeatMap({ layout, taken, selected, pending, enabledSectorIds, em
 export function SeatLegend({ className }: { className?: string }) {
   const item = 'flex items-center gap-1.5'
   return (
-    <ul aria-label="Legenda do mapa" className={cn('m-0 flex list-none flex-wrap gap-x-5 gap-y-2 border-t-2 border-text p-0 pt-2.5 text-xs', className)}>
+    <ul aria-label="Legenda do mapa" className={cn('m-0 flex list-none flex-wrap gap-x-5 gap-y-2 border-t border-divider p-0 pt-2.5 text-xs', className)}>
       <li className={item}>
-        <i className="size-3.5 border-2 border-text" /> Disponível
+        <i className="seat-shape size-3.5 border-2 border-neutral-700 bg-card" /> Disponível
       </li>
       <li className={item}>
-        <i className="size-3.5 bg-neutral-400" /> Vendido
+        <i className="seat-shape size-3.5 bg-neutral-400" /> Vendido
       </li>
       <li className={item}>
-        <i className="size-3.5 bg-accent" /> Selecionado
+        <i className="seat-shape size-3.5 bg-accent" /> Selecionado
       </li>
       <li className={item}>
-        <i className="bg-reserved size-3.5 border-2 border-warning" /> Reservado por outra pessoa
+        <i className="bg-reserved seat-shape size-3.5 border-2 border-warning" /> Reservado por outra pessoa
       </li>
     </ul>
   )

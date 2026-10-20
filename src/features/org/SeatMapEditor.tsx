@@ -188,12 +188,12 @@ export function SeatMapEditor({ eventId, initial, readOnly, onSaved, onDirtyChan
       {/* Setores */}
       <section aria-label="Setores" className="order-1">
         <h3 className="mb-2 text-[13px] tracking-[0.08em] uppercase">Setores</h3>
-        <ul className="m-0 list-none border-t-2 border-text p-0">
+        <ul className="m-0 list-none border-t border-divider p-0">
           {map.sectors.map((s, i) => {
             const seats = map.rows.reduce((n, r) => n + r.cells.filter((c) => c?.sectorId === s.id).length, 0)
             const rows = map.rows.filter((r) => r.cells.some((c) => c?.sectorId === s.id)).length
             return (
-              <li key={s.id} className="border-b border-neutral-400 py-3">
+              <li key={s.id} className="border-b border-line py-3">
                 <div className="flex items-baseline justify-between gap-2">
                   <b>
                     <span aria-hidden className={cn('mr-1.5 inline-block size-3 border-2 border-text align-[-1px]', i === 0 ? 'bg-bg' : i === 1 ? 'bg-neutral-300' : 'bg-neutral-500')} />
@@ -208,7 +208,7 @@ export function SeatMapEditor({ eventId, initial, readOnly, onSaved, onDirtyChan
                       aria-label={`Preço do setor ${s.name}`}
                       value={s.price}
                       onChange={(e) => mutate((m) => { m.sectors[i]!.price = Math.max(0, Number(e.target.value) || 0); return m })}
-                      className="tabular w-20 border border-divider bg-surface px-1.5 py-0.5 text-right text-sm"
+                      className="tabular w-20 rounded-sm border border-divider bg-card px-1.5 py-0.5 text-right text-sm"
                     />
                   )}
                 </div>
@@ -216,7 +216,7 @@ export function SeatMapEditor({ eventId, initial, readOnly, onSaved, onDirtyChan
               </li>
             )
           })}
-          <li className="border-b border-neutral-400 py-3">
+          <li className="border-b border-line py-3">
             <div className="flex items-baseline justify-between gap-2">
               <b>Pista</b>
             </div>
@@ -229,7 +229,7 @@ export function SeatMapEditor({ eventId, initial, readOnly, onSaved, onDirtyChan
                 aria-label="Lugares da pista"
                 value={map.generalCapacity}
                 onChange={(e) => mutate((m) => { m.generalCapacity = Math.max(0, Math.floor(Number(e.target.value) || 0)); return m })}
-                className="tabular w-20 border border-divider bg-surface px-1.5 py-0.5 text-right text-sm text-text"
+                className="tabular w-20 rounded-sm border border-divider bg-card px-1.5 py-0.5 text-right text-sm text-text"
               />
               lugares
             </label>
@@ -332,7 +332,7 @@ export function SeatMapEditor({ eventId, initial, readOnly, onSaved, onDirtyChan
         <h3 className="mb-2 text-[13px] tracking-[0.08em] uppercase">
           Seleção{selectedLabels.length ? ` · ${selectedLabels.length > 2 ? `${selectedLabels[0]}–${selectedLabels[selectedLabels.length - 1]}` : selectedLabels.join(', ')}` : ''}
         </h3>
-        <div className="border-2 border-text p-4">
+        <div className="surface p-4">
           {selectedCells.length === 0 ? (
             <p className="text-muted m-0 text-sm">Clique nos assentos para selecioná-los e editar setor ou bloqueio.</p>
           ) : (
@@ -373,7 +373,7 @@ export function SeatMapEditor({ eventId, initial, readOnly, onSaved, onDirtyChan
             </>
           )}
         </div>
-        <div className="mt-4 border-t-2 border-text pt-3 text-sm">
+        <div className="mt-4 border-t border-divider pt-3 text-sm">
           <div className="flex items-baseline justify-between">
             <span>Capacidade total:</span>
             <b className="tabular text-2xl">{cap.total.toLocaleString('pt-BR')}</b>

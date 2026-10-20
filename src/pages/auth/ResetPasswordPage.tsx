@@ -51,7 +51,7 @@ export function ResetPasswordPage() {
   if (done) {
     return (
       <AuthLayout title="Senha atualizada">
-        <div role="status" className="mb-4 border-2 border-text p-4 text-sm">
+        <div role="status" className="mb-4 surface p-4 text-sm">
           <span className="font-extrabold text-success">✓</span> Sua senha foi alterada. Entre com a nova senha.
         </div>
         <Button to="/entrar" size="lg" block>

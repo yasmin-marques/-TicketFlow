@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+import { Check, Clock3 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { LoadError } from '@/components/domain/LoadError'
@@ -40,7 +40,7 @@ export function OrderPage() {
     return (
       <Container className="py-8" aria-busy="true" aria-label="Carregando pedido">
         <Skeleton className="mb-4 h-10 w-1/2" />
-        <Skeleton className="h-72" />
+        <Skeleton className="h-72 rounded-card" />
       </Container>
     )
   }
@@ -61,11 +61,16 @@ function Confirmation({ order }: { order: Order }) {
 
   return (
     <>
-      <Stepper steps={CHECKOUT_STEPS} current={paid ? 3 : 2} completed={paid} />
-      <div className="grid min-h-[560px] lg:grid-cols-[1.1fr_1fr]">
+      <Container className="pt-4">
+        <Stepper steps={CHECKOUT_STEPS} current={paid ? 3 : 2} completed={paid} />
+      </Container>
+      <div className="mx-auto grid min-h-[560px] w-full max-w-[1280px] lg:grid-cols-[1.1fr_1fr]">
         <div className="flex flex-col px-4 py-10 lg:px-10 lg:py-12">
-          <div aria-hidden className={`grid size-16 place-items-center text-4xl font-extrabold text-bg ${paid ? 'bg-accent' : 'bg-text'}`}>
-            {paid ? <Check size={36} strokeWidth={4} /> : '…'}
+          <div
+            aria-hidden
+            className={`animate-pop-in grid size-16 place-items-center rounded-full text-bg shadow-md ring-8 ${paid ? 'bg-accent ring-accent/15' : 'bg-text ring-text/10'}`}
+          >
+            {paid ? <Check size={34} strokeWidth={3.5} /> : <Clock3 size={30} strokeWidth={2.5} />}
           </div>
           <h1 className="mt-7 mb-3 text-[44px] leading-[0.95] tracking-[-0.04em] lg:text-[84px]">
             {paid ? 'Compra confirmada!' : 'Falta pouco!'}
@@ -77,11 +82,11 @@ function Confirmation({ order }: { order: Order }) {
           </p>
 
           <div className="mt-auto pt-8">
-            <dl className="m-0 grid grid-cols-[110px_1fr] border-t-2 border-text text-sm lg:grid-cols-[130px_1fr]">
+            <dl className="m-0 grid grid-cols-[110px_1fr] border-t border-divider text-sm lg:grid-cols-[130px_1fr]">
               {facts.map(([k, v], i) => (
                 <div key={k} className="contents">
-                  <dt className={`text-muted py-[9px] ${i > 0 ? 'border-t border-neutral-400' : ''}`}>{k}</dt>
-                  <dd className={`m-0 py-[9px] font-extrabold ${i > 0 ? 'border-t border-neutral-400' : ''}`}>{v}</dd>
+                  <dt className={`text-muted py-[9px] ${i > 0 ? 'border-t border-line' : ''}`}>{k}</dt>
+                  <dd className={`m-0 py-[9px] font-extrabold ${i > 0 ? 'border-t border-line' : ''}`}>{v}</dd>
                 </div>
               ))}
             </dl>
@@ -99,7 +104,7 @@ function Confirmation({ order }: { order: Order }) {
           </div>
         </div>
 
-        <div className="flex flex-col justify-center gap-5 border-divider bg-surface px-4 py-10 lg:border-l-2 lg:px-10 lg:py-12">
+        <div className="surface-muted flex flex-col justify-center gap-5 px-4 py-10 max-lg:rounded-none lg:m-4 lg:px-10 lg:py-12">
           {paid ? order.tickets.map((t) => <TicketStub key={t.id} ticket={t} />) : <PendingPayment order={order} />}
         </div>
       </div>
@@ -171,9 +176,9 @@ function OrderDetails({ order }: { order: Order }) {
 
           <section aria-label="Itens do pedido">
             <h3 className="mb-2 text-xl">Itens</h3>
-            <div className="border-t-2 border-text">
+            <div className="border-t border-divider">
               {order.lines.map((l, i) => (
-                <div key={i} className="flex justify-between gap-3 border-b border-neutral-400 py-3">
+                <div key={i} className="flex justify-between gap-3 border-b border-line py-3">
                   <span>
                     {l.quantity} × {l.description}
                     {l.seatIds.length > 0 && <span className="text-muted"> · {l.seatIds.join(', ')}</span>}
@@ -181,11 +186,11 @@ function OrderDetails({ order }: { order: Order }) {
                   <b className="tabular">{formatPrice(l.quantity * l.unitPrice)}</b>
                 </div>
               ))}
-              <div className="flex justify-between border-b border-neutral-400 py-3">
+              <div className="flex justify-between border-b border-line py-3">
                 <span className="text-muted">Taxa de serviço</span>
                 <span className="tabular">{formatPrice(order.fee)}</span>
               </div>
-              <div className="flex items-baseline justify-between border-b-2 border-divider py-3">
+              <div className="flex items-baseline justify-between border-b border-divider py-3">
                 <b>Total</b>
                 <b className="tabular text-[26px]">{formatPrice(order.total)}</b>
               </div>
@@ -205,7 +210,7 @@ function OrderDetails({ order }: { order: Order }) {
         </div>
 
         <aside aria-label="Pagamento e comprador" className="space-y-6">
-          <section className="border-2 border-text p-[22px]">
+          <section className="surface p-[22px]">
             <h2 className="mb-2.5 text-[13px] tracking-[0.08em] uppercase">Pagamento</h2>
             <dl className="m-0 text-sm">
               <Row k="Forma" v={paymentLabel(order)} />
@@ -246,7 +251,7 @@ function OrderDetails({ order }: { order: Order }) {
 
 function Row({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex justify-between gap-4 border-t border-neutral-400 py-2 first:border-t-0">
+    <div className="flex justify-between gap-4 border-t border-line py-2 first:border-t-0">
       <dt className="text-muted">{k}</dt>
       <dd className="m-0 text-right font-semibold break-words">{v}</dd>
     </div>

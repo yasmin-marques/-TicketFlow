@@ -37,7 +37,7 @@ export function FavoriteButton({ eventId, variant = 'icon', className }: Favorit
       aria-pressed={active}
       aria-label={variant === 'labeled' ? undefined : active ? 'Remover dos favoritos' : 'Favoritar'}
       onClick={toggle}
-      className={cn('bg-bg', className)}
+      className={cn('shadow-sm', className)}
     >
       {heart}
       {variant === 'labeled' && (active ? 'Favoritado' : 'Favoritar')}

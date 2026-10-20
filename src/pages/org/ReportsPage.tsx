@@ -64,7 +64,7 @@ export function ReportsPage() {
         <EmptyState title="Nenhum evento para relatar" description="Publique um evento para acompanhar vendas e ocupação." actions={<Button to="/org/eventos/novo">+ Criar evento</Button>} />
       ) : isPending ? (
         <div aria-busy="true" aria-label="Carregando relatório" className="space-y-6">
-          <Skeleton className="h-28" />
+          <Skeleton className="h-28 rounded-card" />
           <Skeleton className="h-64" />
         </div>
       ) : (
@@ -81,8 +81,8 @@ export function ReportsPage() {
             ]}
           />
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1.7fr_1fr]">
-            <section aria-labelledby="rep-diaria">
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1.7fr_1fr] lg:gap-5">
+            <section aria-labelledby="rep-diaria" className="surface min-w-0 p-5">
               <h3 id="rep-diaria" className="mb-2.5 text-base">Receita diária</h3>
               {data.dailyRevenue.every((d) => d.revenue === 0) ? (
                 <EmptyState title="Sem vendas no período" description="Amplie o período para ver a receita." />
@@ -100,7 +100,7 @@ export function ReportsPage() {
                 </>
               )}
             </section>
-            <section aria-labelledby="rep-funil">
+            <section aria-labelledby="rep-funil" className="surface min-w-0 p-5">
               <h3 id="rep-funil" className="mb-2 text-base">Funil de conversão</h3>
               <HBarList
                 labelWidth={120}
@@ -111,12 +111,12 @@ export function ReportsPage() {
             </section>
           </div>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-2">
-            <section aria-labelledby="rep-lotes">
+          <div className="mt-5 grid gap-4 lg:grid-cols-2 lg:gap-5">
+            <section aria-labelledby="rep-lotes" className="surface min-w-0 p-5">
               <h3 id="rep-lotes" className="mb-2 text-base">Vendas por lote</h3>
-              <ul className="m-0 list-none border-t-2 border-text p-0">
+              <ul className="m-0 list-none border-t border-divider p-0">
                 {data.byLot.map((l) => (
-                  <li key={`${l.typeName}-${l.lotName}`} className="border-b border-neutral-300 py-2.5">
+                  <li key={`${l.typeName}-${l.lotName}`} className="border-b border-line py-2.5">
                     <div className="flex items-baseline justify-between text-sm">
                       <span>
                         <b>{l.typeName}</b> <span className="text-muted">· {l.lotName}</span>
@@ -128,7 +128,7 @@ export function ReportsPage() {
                 ))}
               </ul>
             </section>
-            <section aria-labelledby="rep-setor">
+            <section aria-labelledby="rep-setor" className="surface min-w-0 p-5">
               <h3 id="rep-setor" className="mb-2 text-base">Ocupação por setor</h3>
               <HBarList max={100} labelWidth={110} valueWidth={44} items={data.bySector.map((s) => ({ label: s.name, value: s.pct, display: `${s.pct}%` }))} />
             </section>

@@ -27,21 +27,21 @@ interface DataTableProps<T> {
 
 /** Tabela do painel: cabeçalho em caixa-alta, réguas finas, hover de 4%, skeleton embutido. */
 export function DataTable<T>({ columns, rows, rowKey, loading, caption, onRowClick, mobileCard, skeletonRows = 6 }: DataTableProps<T>) {
-  const th = 'border-b-2 border-divider p-2 text-[11px] font-semibold tracking-[0.08em] text-text/60 uppercase'
+  const th = 'border-b border-divider bg-neutral-100/70 px-3 py-2.5 text-[11px] font-semibold tracking-[0.08em] text-text/60 uppercase'
   return (
     <>
       {mobileCard && (
         <ul className="m-0 list-none p-0 lg:hidden" aria-label={caption}>
           {loading
-            ? Array.from({ length: skeletonRows }, (_, i) => <Skeleton key={i} className="mb-2 h-16" />)
+            ? Array.from({ length: skeletonRows }, (_, i) => <Skeleton key={i} className="mb-2 h-16 rounded-card" />)
             : rows?.map((r) => (
-                <li key={rowKey(r)} className="border-t border-divider py-3 last:border-b">
+                <li key={rowKey(r)} className="surface mb-2 px-3.5 py-3">
                   {mobileCard(r)}
                 </li>
               ))}
         </ul>
       )}
-      <div className={cn('overflow-x-auto', mobileCard && 'max-lg:hidden')}>
+      <div className={cn('surface overflow-x-auto', mobileCard && 'max-lg:hidden')}>
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">{caption}</caption>
           <thead>
@@ -58,7 +58,7 @@ export function DataTable<T>({ columns, rows, rowKey, loading, caption, onRowCli
               ? Array.from({ length: skeletonRows }, (_, i) => (
                   <tr key={i} aria-hidden>
                     {columns.map((c) => (
-                      <td key={c.key} className="border-b border-neutral-300 p-2">
+                      <td key={c.key} className="border-b border-line px-3 py-2.5">
                         <Skeleton className="h-4 w-4/5" />
                       </td>
                     ))}
@@ -68,10 +68,10 @@ export function DataTable<T>({ columns, rows, rowKey, loading, caption, onRowCli
                   <tr
                     key={rowKey(r)}
                     onClick={onRowClick ? () => onRowClick(r) : undefined}
-                    className={cn('border-b border-neutral-300 hover:bg-text/4', onRowClick && 'cursor-pointer')}
+                    className={cn('border-b border-line transition-colors last:border-b-0 hover:bg-text/3', onRowClick && 'cursor-pointer')}
                   >
                     {columns.map((c) => (
-                      <td key={c.key} className={cn('p-2 align-middle', c.align === 'right' && 'text-right', c.className)}>
+                      <td key={c.key} className={cn('px-3 py-2.5 align-middle', c.align === 'right' && 'text-right', c.className)}>
                         {c.cell(r)}
                       </td>
                     ))}

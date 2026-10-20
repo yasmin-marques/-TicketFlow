@@ -42,8 +42,8 @@ export function DigitalTicketPage() {
   const index = ticket ? siblings.findIndex((t) => t.id === ticket.id) : -1
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[430px] flex-col lg:my-8 lg:min-h-0 lg:border-2 lg:border-text">
-      <div className="flex h-14 flex-none items-center justify-between border-b-2 border-divider px-4">
+    <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[430px] flex-col lg:my-8 lg:min-h-0 lg:overflow-hidden lg:rounded-panel lg:border lg:border-line lg:bg-card lg:shadow-md">
+      <div className="flex h-14 flex-none items-center justify-between border-b border-divider px-4">
         <Link to="/meus-ingressos" className="font-extrabold text-text no-underline">
           ← Meus ingressos
         </Link>
@@ -108,7 +108,7 @@ function TicketBody({ ticket, onTransfer }: { ticket: Ticket; onTransfer: () => 
         <h1 className="mt-1.5 mb-4 text-[30px] leading-none tracking-[-0.03em]">{ticket.eventTitle}</h1>
       </div>
 
-      <div className="mx-5 flex justify-center border-2 border-text bg-white p-5">
+      <div className="mx-5 flex justify-center surface bg-white p-5">
         {valid ? (
           <QrCode value={ticket.qrPayload} size={270} label={`QR Code do ingresso ${ticket.code}`} className="h-auto w-full max-w-[270px]" />
         ) : (
@@ -121,9 +121,9 @@ function TicketBody({ ticket, onTransfer }: { ticket: Ticket; onTransfer: () => 
       </div>
       <div className="py-2.5 text-center font-mono text-[13px] font-semibold tracking-[0.14em]">{ticket.code}</div>
 
-      <dl className="m-0 mx-5 grid grid-cols-2 border-t-2 border-text text-sm">
+      <dl className="m-0 mx-5 grid grid-cols-2 border-t border-divider text-sm">
         {fields.map(([k, v, big], i) => (
-          <div key={k} className={`py-2.5 ${i > 1 ? 'border-t border-neutral-400' : ''}`}>
+          <div key={k} className={`py-2.5 ${i > 1 ? 'border-t border-line' : ''}`}>
             <dt className="text-muted text-[11px] uppercase">{k}</dt>
             <dd className={`m-0 font-extrabold ${big ? 'text-xl' : ''}`}>{v}</dd>
           </div>

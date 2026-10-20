@@ -37,15 +37,20 @@ export function EventDetailPage() {
 
   return (
     <>
-      <div className="relative">
+      <div className="relative mx-auto w-full max-w-[1280px] lg:px-10 lg:pt-6">
         <EventImage
           src={event.coverUrl}
-          stripe={12}
-          label="FOTO DE CAPA · P&B · 1280×380"
-          className="h-[260px] lg:h-[380px]"
-        />
+          category={event.category.slug}
+          alt={`Capa do evento ${event.title}`}
+          priority
+          fallbackSize="lg"
+          sizes="(min-width: 1280px) 1200px, 100vw"
+          className="h-[240px] sm:h-[300px] lg:h-[400px] lg:rounded-panel lg:shadow-md"
+        >
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-text/30 to-transparent" />
+        </EventImage>
         <div className="absolute inset-x-0 top-0 flex justify-between p-3 lg:hidden">
-          <Button variant="secondary" size="icon" aria-label="Voltar" onClick={back} className="bg-bg">
+          <Button variant="secondary" size="icon" aria-label="Voltar" onClick={back} className="shadow-sm">
             <ArrowLeft size={18} aria-hidden />
           </Button>
           <div className="flex gap-1.5">
@@ -53,20 +58,20 @@ export function EventDetailPage() {
             <FavoriteButton eventId={event.id} />
           </div>
         </div>
-        <div className="absolute right-10 bottom-4 hidden gap-2 lg:flex">
+        <div className="absolute right-14 bottom-4 hidden gap-2 lg:flex">
           <ShareButton title={event.title} />
           <FavoriteButton eventId={event.id} variant="labeled" />
         </div>
       </div>
 
-      <div className="mx-auto grid w-full max-w-[1280px] border-t-2 border-text lg:grid-cols-[1fr_400px]">
-        <article className="min-w-0 px-4 pt-4 pb-6 lg:px-10 lg:pt-8 lg:pb-12">
-          <div className="kicker flex flex-wrap items-center gap-x-2 text-[10.5px] tracking-[0.1em] lg:text-[11px]">
-            <span className="text-accent-700">
+      <div className="mx-auto grid w-full max-w-[1280px] lg:grid-cols-[1fr_400px] lg:gap-8 lg:px-10">
+        <article className="min-w-0 px-4 pt-5 pb-6 lg:px-0 lg:pt-8 lg:pb-12">
+          <div className="kicker flex flex-wrap items-center gap-2 text-[10.5px] tracking-[0.1em] lg:text-[11px]">
+            <span className="rounded-chip bg-accent-100 px-2.5 py-1 text-accent-700">
               {event.category.name}
               {event.subtitle && ` · ${event.subtitle}`}
             </span>
-            <span className="text-muted">· por {event.organizer}</span>
+            <span className="text-muted">por {event.organizer}</span>
           </div>
           <h1 className="mt-2 mb-3.5 text-4xl leading-none tracking-[-0.03em] break-words lg:mt-3.5 lg:mb-6 lg:text-[64px] lg:leading-[0.98] lg:tracking-[-0.035em]">
             {event.title}
@@ -80,7 +85,7 @@ export function EventDetailPage() {
           <CancellationPolicy items={event.cancellationPolicy} />
         </article>
 
-        <div className="hidden border-l-2 border-divider p-8 lg:block">
+        <div className="hidden py-8 lg:block">
           <PurchasePanel event={event} />
         </div>
       </div>

@@ -13,9 +13,9 @@ interface ChipProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'child
 }
 
 const sizes = {
-  sm: 'px-2.5 py-[3px] text-xs',
-  md: 'px-2.5 py-1 text-[13px]',
-  lg: 'px-3.5 py-[7px] text-sm',
+  sm: 'px-2.5 py-1 text-xs',
+  md: 'px-3 py-[5px] text-[13px]',
+  lg: 'px-4 py-2 text-sm',
 }
 
 /** Chip selecionável / removível (filtros, categorias, períodos). */
@@ -26,11 +26,11 @@ export function Chip({ label, icon, selected = false, removable, size = 'md', cl
       aria-pressed={removable ? undefined : selected}
       aria-label={removable ? `Remover filtro: ${label}` : undefined}
       className={cn(
-        'inline-flex items-center gap-1.5 whitespace-nowrap border font-semibold transition-colors',
+        'transition-control inline-flex items-center gap-1.5 whitespace-nowrap rounded-chip border font-semibold active:scale-[0.97]',
         sizes[size],
         selected || removable
-          ? 'border-text bg-text text-bg hover:bg-neutral-800'
-          : 'border-divider hover:bg-text/7',
+          ? 'border-text bg-text text-bg shadow-sm hover:bg-neutral-800'
+          : 'border-divider bg-card hover:border-text/35 hover:bg-neutral-100',
         className,
       )}
       {...rest}

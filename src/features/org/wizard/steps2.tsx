@@ -56,12 +56,12 @@ export function SeatsStep({ event, onBack, onNext, onSaveExit }: { event: OrgEve
       <h2 className="mb-0.5 text-[26px]">Assentos</h2>
       <p className="text-muted mb-4 text-[13px]">Passo 4 de 5 · salvo automaticamente como rascunho</p>
 
-      <div role="radiogroup" aria-label="Tipo de venda" className="mb-5 inline-flex border-2 border-text">
+      <div role="radiogroup" aria-label="Tipo de venda" className="mb-5 inline-flex max-w-full gap-1 rounded-control bg-surface p-1">
         {[
           { v: true, label: 'Com assento marcado' },
           { v: false, label: 'Sem assento marcado' },
-        ].map((o, i) => (
-          <label key={String(o.v)} className={cn('cursor-pointer px-5 py-2 text-sm font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent', i > 0 && 'border-l-2 border-text', seated === o.v ? 'bg-text text-bg' : 'hover:bg-text/7')}>
+        ].map((o) => (
+          <label key={String(o.v)} className={cn('transition-control cursor-pointer rounded-sm px-5 py-2 text-sm font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-accent', seated === o.v ? 'bg-card text-text shadow-sm' : 'text-neutral-700 hover:text-text')}>
             <input type="radio" className="sr-only" checked={seated === o.v} onChange={() => setSeated(o.v)} />
             {o.label}
           </label>
@@ -141,9 +141,9 @@ export function PublishStep({
       <h2 className="mb-0.5 text-[26px]">Publicação</h2>
       <p className="text-muted mb-5 text-[13px]">Passo 5 de 5 · revise antes de publicar</p>
 
-      <ul aria-label="Lista de verificação" className="m-0 list-none border-t-2 border-text p-0">
+      <ul aria-label="Lista de verificação" className="m-0 list-none border-t border-divider p-0">
         {checklist.map((c) => (
-          <li key={c.label} className="flex items-center gap-3 border-b border-neutral-400 py-2.5 text-sm">
+          <li key={c.label} className="flex items-center gap-3 border-b border-line py-2.5 text-sm">
             <span aria-hidden className={cn('grid size-5 place-items-center text-xs font-extrabold text-white', c.ok ? 'bg-success' : 'bg-accent-700')}>{c.ok ? '✓' : '✕'}</span>
             <span>{c.label}</span>
             <span className="sr-only">{c.ok ? '(ok)' : '(pendente)'}</span>
@@ -156,7 +156,7 @@ export function PublishStep({
         </Alert>
       )}
 
-      <dl className="m-0 mt-6 grid grid-cols-[130px_1fr] border-t-2 border-text text-sm">
+      <dl className="m-0 mt-6 grid grid-cols-[130px_1fr] border-t border-divider text-sm">
         {[
           ['Evento', event.title],
           ['Categoria', `${category ?? ''} · ${event.ageRating === 0 ? 'Livre' : `${event.ageRating} anos`}`],
@@ -166,8 +166,8 @@ export function PublishStep({
           ['Ingressos', `${lots?.length ?? 0} lotes · ${lotsTotal} lugares · a partir de ${lots?.length ? formatPrice(Math.min(...lots.map((l) => l.price))) : '—'}`],
         ].map(([k, v], i) => (
           <div key={k} className="contents">
-            <dt className={cn('text-muted py-2', i > 0 && 'border-t border-neutral-400')}>{k}</dt>
-            <dd className={cn('m-0 py-2 font-semibold break-words', i > 0 && 'border-t border-neutral-400')}>{v}</dd>
+            <dt className={cn('text-muted py-2', i > 0 && 'border-t border-line')}>{k}</dt>
+            <dd className={cn('m-0 py-2 font-semibold break-words', i > 0 && 'border-t border-line')}>{v}</dd>
           </div>
         ))}
       </dl>
@@ -191,7 +191,7 @@ export function PublishStep({
         </Alert>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t-2 border-divider pt-4">
+      <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-divider pt-4">
         <Button variant="secondary" onClick={onBack}>← Voltar</Button>
         <span className="ml-auto flex gap-2">
           {!published && (
